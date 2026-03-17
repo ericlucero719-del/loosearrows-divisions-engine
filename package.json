@@ -1,0 +1,27 @@
+{
+  "name": "loosearrows-divisions-engine",
+  "version": "1.0.0",
+  "main": "src/server.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^4.7.0",
+    "express": "^5.2.1",
+    "prisma": "^4.7.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^4.5.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.5.0",
+    "@types/supertest": "^7.2.0",
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "dev": "ts-node-dev --respawn src/server.ts",
+    "test": "jest --runInBand"
+  }
+}

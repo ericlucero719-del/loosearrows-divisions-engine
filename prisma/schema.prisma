@@ -1,0 +1,162 @@
+// Prisma schema for Loose Arrows Divisions Engine (Division 2)
+// This schema covers stores, products, suppliers, orders, purchase orders, and tracking.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Store {
+  id          String    @id @default(cuid())
+  name        String
+  url         String
+  accessToken String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Store settings
+  settings    StoreSettings?
+
+  // Relations
+  products         Product[]
+  storeSuppliers   StoreSupplier[]
+  orders           Order[]
+}
+
+model StoreSettings {
+  id                     String  @id @default(cuid())
+  store                  Store   @relation(fields: [storeId], references: [id])
+  storeId                String  @unique
+
+  // Stored as serialized JSON strings (SQLite does not support Json type directly)
+  pricingRulesJson      String?
+  supplierPriorityJson  String?
+  shippingRulesJson     String?
+  automationRulesJson   String?
+  themePresetsJson      String?
+  updatedAt              DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  sku         String   @unique
+  title       String
+  description String?
+  imagesJson  String?  // JSON array of image URLs
+  cost        Float
+  price       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  suppliers   ProductSupplier[]
+  store       Store?     @relation(fields: [storeId], references: [id])
+  storeId     String?
+  orderItems  OrderItem[]
+}
+
+model Supplier {
+  id               String    @id @default(cuid())
+  name             String
+  contactEmail     String?
+  apiEndpoint      String?
+  portalUrl        String?
+  cost             Float
+  stock            Int       @default(0)
+  leadTimeDays     Int
+  reliabilityScore Float
+  shippingSpeedDays Int
+  location         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  storeSuppliers   StoreSupplier[]
+  products         ProductSupplier[]
+  purchaseOrders   PurchaseOrder[]
+}
+
+model StoreSupplier {
+  id         String   @id @default(cuid())
+  store      Store    @relation(fields: [storeId], references: [id])
+  storeId    String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId String
+
+  createdAt DateTime @default(now())
+}
+
+model ProductSupplier {
+  id         String   @id @default(cuid())
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId String
+
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id           String    @id @default(cuid())
+  store        Store     @relation(fields: [storeId], references: [id])
+  storeId      String
+  customerJson String
+  status       String    @default("created")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  items         OrderItem[]
+  tracking      Tracking?
+  purchaseOrders PurchaseOrder[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  unitCost  Float
+}
+
+model PurchaseOrder {
+  id             String    @id @default(cuid())
+  order          Order     @relation(fields: [orderId], references: [id])
+  orderId        String
+  supplier       Supplier  @relation(fields: [supplierId], references: [id])
+  supplierId     String
+  status         String    @default("pending")
+  poNumber       String    @unique
+  shippingMethod String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  logs           PurchaseOrderLog[]
+}
+
+model PurchaseOrderLog {
+  id           String    @id @default(cuid())
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId String
+  status       String
+  message      String?
+  createdAt    DateTime @default(now())
+}
+
+model Tracking {
+  id             String   @id @default(cuid())
+  order          Order    @relation(fields: [orderId], references: [id])
+  orderId        String   @unique
+  carrier        String?
+  trackingNumber String?
+  status         String?
+  eta            DateTime?
+  lastScan       DateTime?
+  location       String?
+  updatedAt      DateTime @updatedAt
+}
