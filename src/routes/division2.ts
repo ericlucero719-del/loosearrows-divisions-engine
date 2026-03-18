@@ -15,10 +15,18 @@ import {
   updateStoreSettings,
   updateTracking,
 } from "../division2/services/division2Service";
-import storeAuth from "../../middleware/storeAuth";
-import { fetchShopifyProducts, normalizeProduct } from "../../services/catalogLoader";
-import { saveCatalog } from "../../services/catalogRegistry";
-import { PurchaseOrderRequest, SupplierMatchInput, TrackingUpdate, StoreRegistryEntry } from "../division2/types";
+
+import { storeAuth } from "../middleware/storeAuth";
+import { fetchShopifyProducts, normalizeProduct } from "../services/catalogLoader";
+import { saveCatalog, getCatalog } from "../services/catalogRegistry";
+
+import {
+  PurchaseOrderRequest,
+  SupplierMatchInput,
+  TrackingUpdate,
+  StoreRegistryEntry,
+} from "../division2/types";
+
 import {
   createSupplierSchema,
   loadCatalogSchema,
@@ -32,12 +40,22 @@ import {
 const router = express.Router();
 
 interface AuthenticatedRequest extends express.Request {
-  store?: any;
+  store?: StoreRegistryEntry;
 }
 
-async function requireStoreAuth(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+/**
+ * Middleware: Require Store Auth
+ */
+async function requireStoreAuth(
+  req: AuthenticatedRequest,
+  res: express.Response,
+  next: express.NextFunction
+) {
   const authHeader = String(req.headers.authorization ?? "");
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : (req.headers["x-store-token"] as string);
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7).trim()
+    : (req.headers["x-store-token"] as string);
+
   if (!token) {
     return res.status(401).json({ error: "Missing authorization token" });
   }
@@ -51,174 +69,99 @@ async function requireStoreAuth(req: AuthenticatedRequest, res: express.Response
   next();
 }
 
+/**
+ * Register Store
+ */
 router.post("/store/register", async (req, res) => {
   const parsed = storeRegisterSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid request", issues: parsed.error.format() });
+    return res.status(400).json({ error: parsed.error.flatten() });
   }
 
   const store = await createStore(parsed.data);
-  return res.json({ store });
+  return res.json(store);
 });
 
-// Require store auth for all subsequent Division 2 endpoints
-router.use(requireStoreAuth);
-
-router.post("/store/settings", async (req: AuthenticatedRequest, res) => {
-  const storeId = req.store?.id;
-
+/**
+ * Update Store Settings
+ */
+router.post("/store/settings", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
   const parsed = storeSettingsSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid request", issues: parsed.error.format() });
+    return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const updated = await updateStoreSettings(storeId, parsed.data.settings);
-  if (!updated) {
-    return res.status(404).json({ error: "store not found" });
-  }
-  return res.json({ store: updated });
+  const updated = await updateStoreSettings(req.store!.id, parsed.data);
+  return res.json(updated);
 });
 
-router.post("/load-catalog", async (req: AuthenticatedRequest, res) => {
-  const storeId = req.store?.id;
-
-  const parsed = loadCatalogSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid request", issues: parsed.error.format() });
-  }
-
-  const catalog = await loadCatalog(storeId, parsed.data.products);
-  if (!catalog) {
-    return res.status(404).json({ error: "store not found" });
-  }
-
-  return res.json({ catalog });
-});
-
-router.post("/build-store", (req, res) => {
-  const { storeId } = req.body as { storeId: string };
-  if (!storeId) {
-    return res.status(400).json({ error: "storeId is required" });
-  }
-
-  addLog("Store build started", { storeId });
-
-  return res.json({
-    message: "Store build triggered",
-    storeId,
-    steps: [
-      "Catalog loaded",
-      "Product Generator",
-      "Collection Builder",
-      "Navigation Builder",
-      "Page Generator",
-      "Theme Configurator",
-    ],
-  });
-});
-
-router.post("/suppliers", async (req: AuthenticatedRequest, res) => {
-  const storeId = req.store?.id;
-
+/**
+ * Create Supplier
+ */
+router.post("/suppliers", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
   const parsed = createSupplierSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid request", issues: parsed.error.format() });
+    return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const created = await createSupplier(storeId, parsed.data.supplier);
-  return res.json({ supplier: created });
+  const supplier = await createSupplier(req.store!.id, parsed.data);
+  return res.json(supplier);
 });
 
-router.get("/suppliers", async (req: AuthenticatedRequest, res) => {
-  const storeId = req.store?.id;
-  const suppliers = await listSuppliers(storeId);
+/**
+ * List Suppliers
+ */
+router.get("/suppliers", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
+  const suppliers = await listSuppliers(req.store!.id);
   return res.json(suppliers);
 });
 
-router.post("/auto-fulfill", async (req: AuthenticatedRequest, res) => {
-  const storeId = req.store?.id;
-  const payload = req.body as {
-    order: PurchaseOrderRequest;
-    matchInput: SupplierMatchInput;
-  };
-
-  if (!storeId || !payload?.order || !payload.matchInput) {
-    return res.status(400).json({ error: "store, order and matchInput are required" });
-  }
-
-  const orderPayloadParse = purchaseOrderRequestSchema.safeParse(payload.order);
-  const matchInputParse = supplierMatchInputSchema.safeParse(payload.matchInput);
-
-  if (!orderPayloadParse.success || !matchInputParse.success) {
-    return res.status(400).json({
-      error: "Invalid request",
-      issues: {
-        order: orderPayloadParse.success ? null : orderPayloadParse.error.format(),
-        matchInput: matchInputParse.success ? null : matchInputParse.error.format(),
-      },
-    });
-  }
-
-  const order = await createOrder({
-    ...orderPayloadParse.data,
-    storeId,
-    status: "pending",
-  });
-
-  const { match, failure } = await matchAndSelectSupplier(matchInputParse.data);
-  if (failure) {
-    await prisma.order.update({ where: { id: order.id }, data: { status: "needs_review" } });
-    return res.status(200).json({ match: null, failure });
-  }
-
-  const poResult = await poEngine.createPurchaseOrder(match!, payload.order);
-  await createPurchaseOrderRecord({
-    poNumber: poResult.poNumber,
-    orderId: order.id,
-    supplierId: match!.supplierId,
-    shippingMethod: match!.supplierShippingMethod,
-    notes: payload.order.notes,
-    status: poResult.status,
-  });
-
-  await prisma.order.update({ where: { id: order.id }, data: { status: "po_created" } });
-
-  return res.json({ match, poResult });
-});
-
-router.post("/generate-po", async (req, res) => {
-  const payload = req.body as {
-    match: any;
-    order: PurchaseOrderRequest;
-  };
-
-  if (!payload?.match || !payload.order) {
-    return res.status(400).json({ error: "match and order are required" });
-  }
-
-  const poResult = await poEngine.createPurchaseOrder(payload.match, payload.order);
-  return res.json(poResult);
-});
-
-router.post("/update-tracking", async (req: AuthenticatedRequest, res) => {
-  const update = req.body as TrackingUpdate;
-  if (!update?.orderId) {
-    return res.status(400).json({ error: "orderId is required" });
-  }
-
-  const parsed = trackingUpdateSchema.safeParse(update);
+/**
+ * Auto-Fulfill Order
+ */
+router.post("/auto-fulfill", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
+  const parsed = supplierMatchInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid request", issues: parsed.error.format() });
+    return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const normalized = await updateTracking(parsed.data.orderId, parsed.data);
-  addLog("Tracking updated", { orderId: parsed.data.orderId, normalized });
-  return res.json(normalized);
+  const result = await matchAndSelectSupplier(req.store!.id, parsed.data);
+  return res.json(result);
 });
 
-router.post("/close-order", async (req: AuthenticatedRequest, res) => {
+/**
+ * Generate Purchase Order
+ */
+router.post("/generate-po", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
+  const parsed = purchaseOrderRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
+
+  const po = await createPurchaseOrderRecord(req.store!.id, parsed.data);
+  return res.json(po);
+});
+
+/**
+ * Update Tracking
+ */
+router.post("/update-tracking", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
+  const parsed = trackingUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
+
+  const updated = await updateTracking(req.store!.id, parsed.data);
+  return res.json(updated);
+});
+
+/**
+ * Close Order
+ */
+router.post("/close-order", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
   const storeId = req.store?.id;
   const { orderId, status } = req.body as { orderId: string; status?: string };
+
   if (!storeId || !orderId) {
     return res.status(400).json({ error: "store and orderId are required" });
   }
@@ -237,12 +180,17 @@ router.post("/close-order", async (req: AuthenticatedRequest, res) => {
   return res.json({ order: updated });
 });
 
-router.get("/orders", async (req: AuthenticatedRequest, res) => {
+/**
+ * Get Orders
+ */
+router.get("/orders", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
   const storeId = req.store?.id;
+
   const orders = await prisma.order.findMany({
     where: { storeId },
     include: { items: true, tracking: true },
   });
+
   return res.json(
     orders.map((o) => ({
       ...o,
@@ -251,8 +199,43 @@ router.get("/orders", async (req: AuthenticatedRequest, res) => {
   );
 });
 
-router.get("/logs", (req, res) => {
+/**
+ * Get Logs
+ */
+router.get("/logs", requireStoreAuth, (req, res) => {
   return res.json(logs);
+});
+
+/**
+ * ⭐ LOAD CATALOG (NEW)
+ */
+router.post("/load-catalog", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
+  const store = req.store;
+
+  const integration = store?.integrations?.shopify;
+  if (!integration) {
+    return res.status(400).json({ message: "Store not connected to Shopify" });
+  }
+
+  const { storeDomain, accessToken } = integration;
+
+  const result = await fetchShopifyProducts({ storeDomain, accessToken });
+
+  if (!result.ok) {
+    return res.status(500).json({
+      message: "Failed to fetch products from Shopify",
+      error: result.error,
+    });
+  }
+
+  const normalized = result.products.map(normalizeProduct);
+  const saved = saveCatalog(store.id, normalized);
+
+  return res.json({
+    message: "Catalog loaded",
+    count: normalized.length,
+    catalog: saved,
+  });
 });
 
 export default router;
