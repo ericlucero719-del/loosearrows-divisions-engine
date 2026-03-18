@@ -15,6 +15,9 @@ import {
   updateStoreSettings,
   updateTracking,
 } from "../division2/services/division2Service";
+import storeAuth from "../../middleware/storeAuth";
+import { fetchShopifyProducts, normalizeProduct } from "../../services/catalogLoader";
+import { saveCatalog } from "../../services/catalogRegistry";
 import { PurchaseOrderRequest, SupplierMatchInput, TrackingUpdate, StoreRegistryEntry } from "../division2/types";
 import {
   createSupplierSchema,
