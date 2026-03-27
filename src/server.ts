@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use("/division2", division2Router);
 app.use("/dashboard", dashboardRouter);
-
+app.use("/dispatch", dispatchRoutes);
 app.get("/", (_req, res) => {
   res.json({ message: "Welcome to Loose Arrows Divisions Engine" });
 });
