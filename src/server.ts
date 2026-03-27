@@ -1,3 +1,4 @@
+import { dispatchRoutes } from './divisions/division3-dispatch';
 import express from "express";
 import division2Router from "./routes/division2";
 import dashboardRouter from "./routes/dashboard";
