@@ -1,4 +1,4 @@
-import { ClinRecord, Division1TaskInput, PriceQuote } from './division1.types';
+import { ClinRecord, Division1TaskInput, PriceQuote } from '../../division1.types';
 
 // Temporary CLIN table — replace with your real contract data later
 const CLIN_TABLE: ClinRecord[] = [

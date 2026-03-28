@@ -110,11 +110,19 @@ export interface TrackingUpdate {
 }
 
 export interface StoreRegistryEntry {
+  id?: string;
   storeId: string;
   name: string;
   url: string;
-  accessToken?: string; // optional; auto-generated if not provided
+  accessToken?: string;
   catalog?: string[];
   suppliers?: string[];
   settings?: Record<string, unknown>;
+  integrations?: {
+    shopify?: {
+      storeDomain: string;
+      accessToken: string;
+    };
+    [key: string]: unknown;
+  };
 }

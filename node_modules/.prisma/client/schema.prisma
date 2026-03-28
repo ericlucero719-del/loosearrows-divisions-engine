@@ -2,7 +2,7 @@
 // This schema covers stores, products, suppliers, orders, purchase orders, and tracking.
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

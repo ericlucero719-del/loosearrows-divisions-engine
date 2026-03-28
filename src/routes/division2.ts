@@ -16,15 +16,13 @@ import {
   updateTracking,
 } from "../division2/services/division2Service";
 
-import { storeAuth } from "../middleware/storeAuth";
 import { fetchShopifyProducts, normalizeProduct } from "../services/catalogLoader";
-import { saveCatalog, getCatalog } from "../services/catalogRegistry";
+import { saveCatalog } from "../services/catalogRegistry";
 
 import {
   PurchaseOrderRequest,
   SupplierMatchInput,
   TrackingUpdate,
-  StoreRegistryEntry,
 } from "../division2/types";
 
 import {
@@ -40,7 +38,7 @@ import {
 const router = express.Router();
 
 interface AuthenticatedRequest extends express.Request {
-  store?: StoreRegistryEntry;
+  store?: any;
 }
 
 /**
@@ -91,7 +89,7 @@ router.post("/store/settings", requireStoreAuth, async (req: AuthenticatedReques
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const updated = await updateStoreSettings(req.store!.id, parsed.data);
+  const updated = await updateStoreSettings(req.store!.id, parsed.data.settings as Record<string, unknown>);
   return res.json(updated);
 });
 
@@ -104,7 +102,7 @@ router.post("/suppliers", requireStoreAuth, async (req: AuthenticatedRequest, re
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const supplier = await createSupplier(req.store!.id, parsed.data);
+  const supplier = await createSupplier(req.store!.id, parsed.data.supplier as any);
   return res.json(supplier);
 });
 
@@ -125,7 +123,7 @@ router.post("/auto-fulfill", requireStoreAuth, async (req: AuthenticatedRequest,
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const result = await matchAndSelectSupplier(req.store!.id, parsed.data);
+  const result = await matchAndSelectSupplier(parsed.data);
   return res.json(result);
 });
 
@@ -138,7 +136,7 @@ router.post("/generate-po", requireStoreAuth, async (req: AuthenticatedRequest, 
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const po = await createPurchaseOrderRecord(req.store!.id, parsed.data);
+  const po = await createPurchaseOrderRecord({ ...parsed.data, storeId: req.store!.id });
   return res.json(po);
 });
 
@@ -151,7 +149,7 @@ router.post("/update-tracking", requireStoreAuth, async (req: AuthenticatedReque
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const updated = await updateTracking(req.store!.id, parsed.data);
+  const updated = await updateTracking(parsed.data.orderId, parsed.data);
   return res.json(updated);
 });
 

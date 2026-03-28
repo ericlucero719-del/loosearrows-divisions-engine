@@ -1,0 +1,117 @@
+export type SupplierContactMethod = "email" | "api" | "portal";
+export interface MarginRule {
+    minMarginPercent: number;
+    maxMarginPercent: number;
+    defaultMarginPercent: number;
+}
+export interface PriorityRule {
+    supplierId: string;
+    priority: number;
+}
+export interface SupplierInput {
+    id: string;
+    name: string;
+    sku: string;
+    cost: number;
+    shippingSpeedDays: number;
+    location?: string;
+    distanceKm?: number;
+    stock: number;
+    reliabilityScore: number;
+    leadTimeDays: number;
+    contactEmail?: string;
+    apiEndpoint?: string;
+    portalUrl?: string;
+}
+export interface SupplierMatchInput {
+    sku: string;
+    quantity: number;
+    suppliers: SupplierInput[];
+    marginRules?: MarginRule;
+    priorityRules?: PriorityRule[];
+    customerLocation?: {
+        country?: string;
+        region?: string;
+        postalCode?: string;
+    };
+}
+export interface SupplierMatchResult {
+    supplierId: string;
+    supplierName: string;
+    supplierSku: string;
+    supplierCost: number;
+    supplierShippingMethod: string;
+    supplierLeadTimeDays: number;
+    supplierContactMethod: SupplierContactMethod;
+    score: number;
+    rationale: {
+        costScore: number;
+        speedScore: number;
+        stockScore: number;
+        distanceScore: number;
+        reliabilityScore: number;
+    };
+}
+export interface SupplierMatchFailure {
+    reason: "no-stock" | "api-failure" | "manual-review";
+    message: string;
+    attemptedSupplierIds: string[];
+}
+export interface PurchaseOrderRequest {
+    orderId: string;
+    storeId: string;
+    customer: {
+        name: string;
+        address: {
+            line1: string;
+            line2?: string;
+            city: string;
+            state?: string;
+            postalCode: string;
+            country: string;
+        };
+        email?: string;
+        phone?: string;
+    };
+    lineItems: Array<{
+        sku: string;
+        quantity: number;
+        unitCost: number;
+        title?: string;
+    }>;
+    shippingMethod?: string;
+    notes?: string;
+}
+export interface PoEngineResult {
+    poNumber: string;
+    status: "created" | "sent" | "failed";
+    supplierResponse?: unknown;
+    errors?: string[];
+}
+export interface TrackingUpdate {
+    orderId: string;
+    carrier?: string;
+    trackingNumber?: string;
+    status?: string;
+    eta?: string;
+    lastScan?: string;
+    location?: string;
+}
+export interface StoreRegistryEntry {
+    id?: string;
+    storeId: string;
+    name: string;
+    url: string;
+    accessToken?: string;
+    catalog?: string[];
+    suppliers?: string[];
+    settings?: Record<string, unknown>;
+    integrations?: {
+        shopify?: {
+            storeDomain: string;
+            accessToken: string;
+        };
+        [key: string]: unknown;
+    };
+}
+//# sourceMappingURL=types.d.ts.map
