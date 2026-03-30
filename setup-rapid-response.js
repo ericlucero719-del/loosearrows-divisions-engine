@@ -1,0 +1,129 @@
+// setup-rapid-response.js
+// Run with: node setup-rapid-response.js
+
+const fs = require("fs");
+const path = require("path");
+
+const srcDir = path.join(__dirname, "src");
+const modelsDir = path.join(srcDir, "models");
+const servicesDir = path.join(srcDir, "services");
+
+// Ensure directories exist
+for (const dir of [srcDir, modelsDir, servicesDir]) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+    console.log(`Created folder: ${dir}`);
+  }
+}
+
+// File paths
+const eventFile = path.join(modelsDir, "RapidResponseEvent.ts");
+const handlerFile = path.join(servicesDir, "RapidResponseHandler.ts");
+
+// File contents
+const rapidResponseEventCode = `// src/models/RapidResponseEvent.ts
+
+export interface RapidResponseEvent {
+  id: string;
+  operatorId: string;
+  division: "FIELD_RAPID_RESPONSE";
+  taskType: RapidResponseTaskType;
+  relatedContractId?: string;
+  relatedVendorId?: string;
+  relatedLogisticsId?: string;
+  location: GeoPoint;
+  timestamp: number;
+  forgeMark: ForgeMarkStamp;
+  payload: Record<string, any>;
+}
+
+export type RapidResponseTaskType =
+  | "ON_SITE_VERIFICATION"
+  | "EMERGENCY_CHECK"
+  | "CONTRACT_CRITICAL_INSPECTION"
+  | "VENDOR_CAPABILITY_CHECK"
+  | "DELIVERY_CONFIRMATION"
+  | "ISSUE_RESOLUTION"
+  | "FIELD_DATA_CAPTURE";
+
+export interface GeoPoint {
+  lat: number;
+  lng: number;
+}
+
+export interface ForgeMarkStamp {
+  operatorId: string;
+  issuedAt: number;
+  signature: string;
+}
+`;
+
+const rapidResponseHandlerCode = `// src/services/RapidResponseHandler.ts
+
+import { RapidResponseEvent } from "../models/RapidResponseEvent";
+
+interface AuditWriter {
+  record(event: RapidResponseEvent): Promise<void>;
+}
+
+interface AnalyticsEngine {
+  ingestFieldEvent(event: RapidResponseEvent): Promise<void>;
+}
+
+interface ContractEngine {
+  alignFieldEvent(event: RapidResponseEvent): Promise<void>;
+}
+
+interface VendorEngine {
+  updateFromFieldEvent(event: RapidResponseEvent): Promise<void>;
+}
+
+interface LogisticsEngine {
+  confirmFieldAction(event: RapidResponseEvent): Promise<void>;
+}
+
+export class RapidResponseHandler {
+  constructor(
+    private auditWriter: AuditWriter,
+    private analytics: AnalyticsEngine,
+    private contractEngine: ContractEngine,
+    private vendorEngine: VendorEngine,
+    private logisticsEngine: LogisticsEngine
+  ) {}
+
+  async handle(event: RapidResponseEvent) {
+    this.validateForgeMark(event);
+
+    if (event.relatedContractId) {
+      await this.contractEngine.alignFieldEvent(event);
+    }
+
+    if (event.relatedVendorId) {
+      await this.vendorEngine.updateFromFieldEvent(event);
+    }
+
+    if (event.relatedLogisticsId) {
+      await this.logisticsEngine.confirmFieldAction(event);
+    }
+
+    await this.auditWriter.record(event);
+    await this.analytics.ingestFieldEvent(event);
+
+    return { status: "OK", eventId: event.id };
+  }
+
+  private validateForgeMark(event: RapidResponseEvent) {
+    if (!event.forgeMark || event.forgeMark.operatorId !== event.operatorId) {
+      throw new Error("Invalid Forge Mark");
+    }
+  }
+}
+`;
+
+fs.writeFileSync(eventFile, rapidResponseEventCode, { encoding: "utf8" });
+console.log(`Wrote: ${eventFile}`);
+
+fs.writeFileSync(handlerFile, rapidResponseHandlerCode, { encoding: "utf8" });
+console.log(`Wrote: ${handlerFile}`);
+
+console.log("Rapid-Response module scaffold created.");
