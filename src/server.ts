@@ -23,6 +23,7 @@ app.use("/division2", division2Router);
 app.use("/dashboard", dashboardRouter);
 app.use("/dispatch", dispatchRoutes);
 app.use("/rapid-response", rapidResponseDispatchRoute);
+app.use("/field/rapid-response", rapidResponseDispatchRoute);
 
 app.get("/api", (_req, res) => {
   res.json({ message: "Welcome to Loose Arrows Divisions Engine" });
