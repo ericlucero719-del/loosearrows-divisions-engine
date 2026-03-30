@@ -9,6 +9,8 @@ import division1UploadRouter from "./routes/division1Upload";
 const rapidResponseDispatchRoute = require("./routes/rapidResponseDispatchRoute");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const rapidResponseTaskRoute = require("./routes/rapidResponseTaskRoute");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rapidResponseEventRoute = require("./routes/rapidResponseEventRoute");
 
 export const app = express();
 const port = process.env.PORT || 3000;
@@ -27,6 +29,7 @@ app.use("/dispatch", dispatchRoutes);
 app.use("/rapid-response", rapidResponseDispatchRoute);
 app.use("/field/rapid-response", rapidResponseDispatchRoute);
 app.use("/field/rapid-response/tasks", rapidResponseTaskRoute);
+app.use("/field/rapid-response", rapidResponseEventRoute);
 
 app.get("/api", (_req, res) => {
   res.json({ message: "Welcome to Loose Arrows Divisions Engine" });
