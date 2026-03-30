@@ -49,6 +49,7 @@ const taskServiceCode = `// src/services/RapidResponseTaskService.ts
 
 import { RapidResponseTask } from "../models/RapidResponseTask";
 import { RapidResponseDispatchEngine } from "./RapidResponseDispatchEngine";
+import { RapidResponseTaskType } from "../models/RapidResponseEvent";
 
 export class RapidResponseTaskService {
   private tasks: RapidResponseTask[] = [];
@@ -62,7 +63,7 @@ export class RapidResponseTaskService {
       createdAt: Date.now(),
     };
 
-    const decision = await this.dispatchEngine.dispatch(task.taskType, {
+    const decision = await this.dispatchEngine.dispatch(task.taskType as RapidResponseTaskType, {
       contractPriority: task.contractPriority,
       vendorRisk: task.vendorRisk,
       operationalUrgency: task.operationalUrgency,
