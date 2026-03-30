@@ -1,4 +1,23 @@
-// src/services/RapidResponseDispatchEngine.ts
+// setup-rapid-response-dispatch.js
+// Run with: node setup-rapid-response-dispatch.js
+
+const fs = require("fs");
+const path = require("path");
+
+const srcDir = path.join(__dirname, "src");
+const servicesDir = path.join(srcDir, "services");
+
+// Ensure directories exist
+for (const dir of [srcDir, servicesDir]) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+    console.log(`Created folder: ${dir}`);
+  }
+}
+
+const dispatchFile = path.join(servicesDir, "RapidResponseDispatchEngine.ts");
+
+const dispatchCode = `// src/services/RapidResponseDispatchEngine.ts
 
 import { RapidResponseTaskType } from "../models/RapidResponseEvent";
 
@@ -53,7 +72,7 @@ export class RapidResponseDispatchEngine {
     return {
       operatorId: best.operator.id,
       priorityScore: best.score,
-      reason: `Selected based on tier, performance, and proximity for priority=${priorityScore}`,
+      reason: \`Selected based on tier, performance, and proximity for priority=\${priorityScore}\`,
     };
   }
 
@@ -93,3 +112,8 @@ export class RapidResponseDispatchEngine {
     }
   }
 }
+`;
+
+fs.writeFileSync(dispatchFile, dispatchCode, { encoding: "utf8" });
+console.log(`Wrote: ${dispatchFile}`);
+console.log("Rapid-Response Dispatch Engine created.");
