@@ -1,0 +1,20 @@
+[
+  {
+    "id": "op-001",
+    "name": "Marcus Veil",
+    "tier": "ELITE",
+    "status": "AVAILABLE",
+    "lat": 38.8339,
+    "lng": -104.8214,
+    "performanceScore": 98
+  },
+  {
+    "id": "op-002",
+    "name": "Kira Solano",
+    "tier": "SENIOR",
+    "status": "BUSY",
+    "lat": 38.85,
+    "lng": -104.79,
+    "performanceScore": 87
+  }
+]

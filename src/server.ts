@@ -11,6 +11,8 @@ const rapidResponseDispatchRoute = require("./routes/rapidResponseDispatchRoute"
 const rapidResponseTaskRoute = require("./routes/rapidResponseTaskRoute");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const rapidResponseEventRoute = require("./routes/rapidResponseEventRoute");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rapidResponseOperatorRoute = require("./routes/rapidResponseOperatorRoute");
 
 export const app = express();
 const port = process.env.PORT || 3000;
@@ -30,6 +32,7 @@ app.use("/rapid-response", rapidResponseDispatchRoute);
 app.use("/field/rapid-response", rapidResponseDispatchRoute);
 app.use("/field/rapid-response/tasks", rapidResponseTaskRoute);
 app.use("/field/rapid-response", rapidResponseEventRoute);
+app.use("/field/rapid-response", rapidResponseOperatorRoute);
 
 app.get("/api", (_req, res) => {
   res.json({ message: "Welcome to Loose Arrows Divisions Engine" });
