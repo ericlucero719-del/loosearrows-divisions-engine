@@ -1,0 +1,101 @@
+// src/services/RapidResponseDispatchEngine.ts
+
+import { RapidResponseEvent, RapidResponseTaskType } from "../models/RapidResponseEvent";
+
+export type OperatorTier = "ELITE" | "SENIOR" | "STANDARD";
+export type OperatorStatus = "AVAILABLE" | "BUSY" | "OFFLINE";
+
+export interface RapidResponseOperator {
+  id: string;
+  name: string;
+  tier: OperatorTier;
+  status: OperatorStatus;
+  lat: number;
+  lng: number;
+  performanceScore: number; // 0–100
+}
+
+export interface DispatchContext {
+  contractPriority?: number; // 1–5 (5 = highest)
+  vendorRisk?: number;       // 1–5 (5 = highest)
+  operationalUrgency?: number; // 1–5 (5 = highest)
+}
+
+export interface DispatchDecision {
+  operatorId: string;
+  priorityScore: number;
+  reason: string;
+}
+
+export class RapidResponseDispatchEngine {
+  constructor(
+    private getAvailableOperators: () => Promise<RapidResponseOperator[]>
+  ) {}
+
+  async dispatch(taskType: RapidResponseTaskType, context: DispatchContext): Promise<DispatchDecision | null> {
+    const operators = await this.getAvailableOperators();
+    if (!operators.length) return null;
+
+    const priorityScore = this.computePriorityScore(context);
+
+    // Score each operator
+    const scored = operators
+      .filter(op => op.status === "AVAILABLE")
+      .map(op => ({
+        operator: op,
+        score: this.scoreOperator(op, taskType, priorityScore),
+      }))
+      .sort((a, b) => b.score - a.score);
+
+    if (!scored.length) return null;
+
+    const best = scored[0];
+
+    return {
+      operatorId: best.operator.id,
+      priorityScore: best.score,
+      reason: `Selected based on tier, performance, and proximity for priority=${priorityScore}`,
+    };
+  }
+
+  private computePriorityScore(context: DispatchContext): number {
+    const contract = context.contractPriority ?? 1;
+    const vendor = context.vendorRisk ?? 1;
+    const urgency = context.operationalUrgency ?? 1;
+
+    // Weighted: contract + vendor + urgency
+    return contract * 3 + vendor * 2 + urgency * 4;
+  }
+
+  private scoreOperator(
+    operator: RapidResponseOperator,
+    taskType: RapidResponseTaskType,
+    priorityScore: number
+  ): number {
+    const tierWeight = this.tierWeight(operator.tier);
+    const performanceWeight = operator.performanceScore / 100;
+
+    // TODO: plug in real distance calc; for now, neutral
+    const proximityWeight = 1;
+
+    // High priority → favor ELITE + high performance
+    const priorityFactor = priorityScore / 50; // normalize a bit
+
+    return (
+      tierWeight * 3 * priorityFactor +
+      performanceWeight * 4 * priorityFactor +
+      proximityWeight * 2
+    );
+  }
+
+  private tierWeight(tier: OperatorTier): number {
+    switch (tier) {
+      case "ELITE":
+        return 1.0;
+      case "SENIOR":
+        return 0.8;
+      default:
+        return 0.6;
+    }
+  }
+}

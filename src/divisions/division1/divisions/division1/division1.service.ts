@@ -1,6 +1,6 @@
 import { ClinRecord, Division1TaskInput, PriceQuote } from '../../division1.types';
 
-// Temporary CLIN table — replace with your real contract data later
+// In-memory CLIN table — populated from seed data or contract uploads
 const CLIN_TABLE: ClinRecord[] = [
   {
     clin: '001',
@@ -43,5 +43,22 @@ export const Division1Service = {
       description: record.description,
       uom: record.uom,
     };
+  },
+
+  upsertClin(record: ClinRecord): boolean {
+    if (!record.clin || !record.sku) return false;
+    const idx = CLIN_TABLE.findIndex(
+      (r) => r.clin === record.clin && r.sku.toUpperCase() === record.sku.toUpperCase()
+    );
+    if (idx !== -1) {
+      CLIN_TABLE[idx] = record;
+    } else {
+      CLIN_TABLE.push(record);
+    }
+    return true;
+  },
+
+  listClins(): ClinRecord[] {
+    return [...CLIN_TABLE];
   },
 };
