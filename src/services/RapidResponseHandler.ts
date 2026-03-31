@@ -22,13 +22,15 @@ interface LogisticsEngine {
   confirmFieldAction(event: RapidResponseEvent): Promise<void>;
 }
 
+import { PerformanceEngine } from "./PerformanceEngine";
 export class RapidResponseHandler {
   constructor(
     private auditWriter: AuditWriter,
     private analytics: AnalyticsEngine,
     private contractEngine: ContractEngine,
     private vendorEngine: VendorEngine,
-    private logisticsEngine: LogisticsEngine
+    private logisticsEngine: LogisticsEngine,
+    private performanceEngine: PerformanceEngine
   ) {}
 
   async handle(event: RapidResponseEvent) {
@@ -48,6 +50,7 @@ export class RapidResponseHandler {
 
     await this.auditWriter.record(event);
     await this.analytics.ingestFieldEvent(event);
+    await this.performanceEngine.evaluate(event);
 
     return { status: "OK", eventId: event.id };
   }

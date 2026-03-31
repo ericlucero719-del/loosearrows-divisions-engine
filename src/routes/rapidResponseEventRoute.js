@@ -4,6 +4,8 @@ const express = require("express");
 const router = express.Router();
 
 const { RapidResponseHandler } = require("../services/RapidResponseHandler");
+const { RapidResponseOperatorService } = require("../services/RapidResponseOperatorService");
+const { PerformanceEngine } = require("../services/PerformanceEngine");
 
 // Placeholder engines (replace with real ones later)
 const auditWriter = { record: async () => {} };
@@ -12,12 +14,16 @@ const contractEngine = { alignFieldEvent: async () => {} };
 const vendorEngine = { updateFromFieldEvent: async () => {} };
 const logisticsEngine = { confirmFieldAction: async () => {} };
 
+const operatorService = new RapidResponseOperatorService();
+const performanceEngine = new PerformanceEngine(operatorService);
+
 const handler = new RapidResponseHandler(
   auditWriter,
   analytics,
   contractEngine,
   vendorEngine,
-  logisticsEngine
+  logisticsEngine,
+  performanceEngine
 );
 
 router.post("/event", async (req, res) => {
