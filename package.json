@@ -24,6 +24,7 @@
   },
   "scripts": {
     "dev": "ts-node-dev --respawn src/server.ts",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "shopify:sync": "ts-node scripts/buildShopifyDivisionCatalogs.ts"
   }
 }
