@@ -5,12 +5,14 @@ import { division9Service } from "./division9.service";
 
 export const division9Controller = {
   createQuote(req: Request, res: Response) {
-    const { lineItems } = req.body;
-    if (!Array.isArray(lineItems) || lineItems.length === 0) {
-      return res.status(400).json({ error: "lineItems array is required" });
+    const { lineItems, contractId, requestId } = req.body;
+    const hasItems = Array.isArray(lineItems) && lineItems.length > 0;
+    if (!hasItems && !contractId) {
+      return res.status(400).json({ error: "lineItems or contractId is required" });
     }
-    const quote = division9Service.createQuote(req.body);
-    return res.status(201).json(quote);
+    const result = division9Service.createQuote({ requestId, contractId, lineItems });
+    if ("error" in result) return res.status(400).json(result);
+    return res.status(201).json(result);
   },
 
   listQuotes(_req: Request, res: Response) {

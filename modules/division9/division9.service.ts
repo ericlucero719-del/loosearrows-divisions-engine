@@ -6,13 +6,39 @@ import { registry } from "../../src/core/engine";
 import { Quote, Invoice, QuoteLineItem, QuoteStatus, InvoiceStatus } from "./division9.types";
 
 export class Division9Service {
+  // Build line items from contract catalog when none are provided
+  private buildLineItemsFromContract(contractId: string): QuoteLineItem[] {
+    const contract = registry.contracts[contractId] as any;
+    if (!contract?.products?.length) return [];
+    return contract.products.map((cp: any) => {
+      const product = registry.products[cp.sku] as any;
+      return {
+        sku: cp.sku,
+        description: `${product?.productName ?? cp.sku}${cp.notes ? " | " + cp.notes : ""}`,
+        quantity: 1,
+        unitPrice: cp.contractPrice,
+        extended: cp.contractPrice,
+      };
+    });
+  }
+
   createQuote(data: {
     requestId?: string;
     contractId?: string;
-    lineItems: QuoteLineItem[];
-  }): Quote {
+    lineItems?: QuoteLineItem[];
+  }): Quote | { error: string } {
     const now = new Date().toISOString();
-    const lineItems = data.lineItems.map((li) => ({
+
+    // Auto-build line items from contract catalog if not supplied
+    let rawItems = data.lineItems ?? [];
+    if (!rawItems.length && data.contractId) {
+      rawItems = this.buildLineItemsFromContract(data.contractId);
+    }
+    if (!rawItems.length) {
+      return { error: "No line items provided and no contract catalog found to build from" };
+    }
+
+    const lineItems = rawItems.map((li) => ({
       ...li,
       extended: li.quantity * li.unitPrice,
     }));
