@@ -1,0 +1,64 @@
+/**
+ * BUILD 10 SHOPIFY CATEGORY CATALOGS
+ * Toner, Medical, Tools, Janitorial, PPE, Office, IT, Construction, Automotive, Lab
+ */
+
+import { registry } from "../src/core/engine";
+
+/**
+ * 1. Define the 10 product categories
+ */
+const categories = [
+  { key: "Toner", handle: "toner-imaging", title: "Toner & Imaging" },
+  { key: "Medical", handle: "medical-supply", title: "Medical & Clinical" },
+  { key: "Tools", handle: "tools-hardware", title: "Tools & Hardware" },
+  { key: "Janitorial", handle: "janitorial-supply", title: "Janitorial & Sanitation" },
+  { key: "PPE", handle: "ppe-safety", title: "PPE & Safety" },
+  { key: "Office", handle: "office-supplies", title: "Office Supplies" },
+  { key: "IT", handle: "it-electronics", title: "IT & Electronics" },
+  { key: "Construction", handle: "construction-industrial", title: "Construction & Industrial" },
+  { key: "Automotive", handle: "automotive-emergency", title: "Automotive & Emergency" },
+  { key: "Lab", handle: "lab-measurement", title: "Lab & Measurement" }
+];
+
+/**
+ * 2. Blueprint functions (Replit agent will implement)
+ */
+async function createShopifyCollection(category) {
+  // Create a Shopify collection for this category
+}
+
+async function createShopifyProduct(product, category) {
+  // Create a Shopify product with category tags
+}
+
+async function addProductToCollection(productId, collectionId) {
+  // Link product to collection
+}
+
+/**
+ * 3. Filter products by category
+ */
+function filterProductsByCategory(categoryKey) {
+  return registry.products.filter(p =>
+    p.category?.toLowerCase().includes(categoryKey.toLowerCase())
+  );
+}
+
+/**
+ * 4. Main builder
+ */
+async function buildAllCategoryCatalogs() {
+  for (const category of categories) {
+    const collectionId = await createShopifyCollection(category);
+
+    const products = filterProductsByCategory(category.key);
+
+    for (const product of products) {
+      const productId = await createShopifyProduct(product, category);
+      await addProductToCollection(productId, collectionId);
+    }
+  }
+}
+
+buildAllCategoryCatalogs();
