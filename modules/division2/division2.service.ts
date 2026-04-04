@@ -62,6 +62,7 @@ export class Division2Service {
       return {
         sku: cp.sku,
         productName: product?.productName ?? "Unknown",
+        clin: cp.clin,
         contractPrice: cp.contractPrice,
         notes: cp.notes,
       };

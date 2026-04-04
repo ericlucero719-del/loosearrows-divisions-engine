@@ -33,12 +33,15 @@ export const division2Controller = {
 
   addProduct(req: Request, res: Response) {
     const { sku, contractPrice, notes } = req.body;
-    if (!sku || contractPrice === undefined) {
+    const clin: string | undefined = req.body.clin ?? req.body.CLIN;
+    const price: number = contractPrice ?? req.body.price;
+    if (!sku || price === undefined) {
       return res.status(400).json({ error: "sku and contractPrice are required" });
     }
     const result = division2Service.addProductToContract(req.params.id, {
       sku,
-      contractPrice,
+      clin,
+      contractPrice: price,
       notes,
     });
     if (!result) return res.status(404).json({ error: "Contract not found" });
