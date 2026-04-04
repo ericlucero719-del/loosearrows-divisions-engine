@@ -5,8 +5,8 @@ import { division7Service } from "./division7.service";
 
 export const division7Controller = {
   createVendor(req: Request, res: Response) {
-    const { name } = req.body;
-    if (!name) return res.status(400).json({ error: "name is required" });
+    const name: string = req.body.name ?? req.body.vendorName;
+    if (!name) return res.status(400).json({ error: "name (or vendorName) is required" });
     const vendor = division7Service.createVendor({
       name,
       categories: req.body.categories ?? [],
