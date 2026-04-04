@@ -26,6 +26,7 @@
     "dev": "ts-node-dev --respawn src/server.ts",
     "test": "jest --runInBand",
     "shopify:sync": "ts-node scripts/buildShopifyDivisionCatalogs.ts",
-    "shopify:categories": "ts-node scripts/buildShopifyCategoryCatalogs.ts"
+    "shopify:categories": "ts-node scripts/buildShopifyCategoryCatalogs.ts",
+    "shopify:build-catalogs": "ts-node scripts/buildCategoryCatalogs.ts"
   }
 }

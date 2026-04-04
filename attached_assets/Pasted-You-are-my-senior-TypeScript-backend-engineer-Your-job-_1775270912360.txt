@@ -1,0 +1,220 @@
+You are my senior TypeScript backend engineer.
+
+Your job is to build a complete, runnable script that automatically creates 10 Shopify catalogs based on product categories from my existing engine.
+
+CONTEXT
+
+- Runtime: Node.js + TypeScript
+- This script will live in: scripts/buildCategoryCatalogs.ts
+- My engine exports a shared in-memory registry from: src/core/engine
+- registry.products is an array of product objects with fields like:
+  - productName
+  - sku
+  - clin
+  - naics
+  - brand
+  - category
+  - description
+  - price
+  - cost
+  - margin
+  - status
+  - imageUrl
+  - source
+  - lastSynced
+
+GOAL
+
+Build a script that:
+
+1) Reads products from registry.products
+2) Groups them into 10 Shopify “category catalogs”:
+   - Toner & Imaging
+   - Medical & Clinical
+   - Tools & Hardware
+   - Janitorial & Sanitation
+   - PPE & Safety
+   - Office Supplies
+   - IT & Electronics
+   - Construction & Industrial
+   - Automotive & Emergency
+   - Lab & Measurement
+3) For each category:
+   - Creates a Shopify collection
+   - Creates Shopify products for matching engine products
+   - Tags products with category + metadata
+   - Links products to the correct collection
+4) Logs progress clearly to the console
+
+SHOPIFY INTEGRATION
+
+Use Shopify REST Admin API.
+
+- Store domain: read from env var SHOPIFY_STORE_DOMAIN (e.g. "my-store.myshopify.com")
+- Access token: read from env var SHOPIFY_ACCESS_TOKEN
+- Base URL: https://{SHOPIFY_STORE_DOMAIN}/admin/api/2024-01
+
+Endpoints to use:
+
+- POST /custom_collections.json
+  - To create a collection for each category
+- POST /products.json
+  - To create products
+- POST /collects.json
+  - To link products to collections
+
+Do NOT hardcode credentials. Only read from process.env.
+
+CATEGORIES
+
+Define this array in the script:
+
+const categories = [
+  { key: "Toner", handle: "toner-imaging", title: "Toner & Imaging" },
+  { key: "Medical", handle: "medical-supply", title: "Medical & Clinical" },
+  { key: "Tools", handle: "tools-hardware", title: "Tools & Hardware" },
+  { key: "Janitorial", handle: "janitorial-supply", title: "Janitorial & Sanitation" },
+  { key: "PPE", handle: "ppe-safety", title: "PPE & Safety" },
+  { key: "Office", handle: "office-supplies", title: "Office Supplies" },
+  { key: "IT", handle: "it-electronics", title: "IT & Electronics" },
+  { key: "Construction", handle: "construction-industrial", title: "Construction & Industrial" },
+  { key: "Automotive", handle: "automotive-emergency", title: "Automotive & Emergency" },
+  { key: "Lab", handle: "lab-measurement", title: "Lab & Measurement" }
+];
+
+PRODUCT FILTERING
+
+Implement a function:
+
+function filterProductsByCategory(categoryKey: string) {
+  return registry.products.filter(p =>
+    (p.category || "").toLowerCase().includes(categoryKey.toLowerCase())
+  );
+}
+
+If no products match a category, log a warning and skip product creation for that category.
+
+SHOPIFY HELPERS
+
+Implement a small helper for Shopify requests:
+
+async function shopifyRequest(path: string, method: string, body?: any) {
+  // Build full URL from SHOPIFY_STORE_DOMAIN
+  // Add headers:
+  //   Content-Type: application/json
+  //   X-Shopify-Access-Token: SHOPIFY_ACCESS_TOKEN
+  // If body is provided, JSON.stringify it
+  // Throw a helpful error if response is not ok
+  // Return parsed JSON
+}
+
+Then implement:
+
+async function createShopifyCollection(category) {
+  // POST /custom_collections.json
+  // Body:
+  // {
+  //   "custom_collection": {
+  //     "title": category.title,
+  //     "handle": category.handle,
+  //     "published": true
+  //   }
+  // }
+  // Return collection ID
+}
+
+async function createShopifyProduct(product, category) {
+  // POST /products.json
+  // Body:
+  // {
+  //   "product": {
+  //     "title": product.productName || product.sku,
+  //     "body_html": product.description || "",
+  //     "vendor": product.brand || "LooseArrows",
+  //     "product_type": category.title,
+  //     "tags": [
+  //       `category:${category.key}`,
+  //       `category-title:${category.title}`,
+  //       product.naics ? `naics:${product.naics}` : null,
+  //       product.clin ? `clin:${product.clin}` : null,
+  //       product.source ? `source:${product.source}` : null
+  //     ].filter(Boolean),
+  //     "variants": [
+  //       {
+  //         "sku": product.sku,
+  //         "price": product.price ? product.price.toString() : "0.00"
+  //       }
+  //     ],
+  //     "images": product.imageUrl
+  //       ? [{ "src": product.imageUrl }]
+  //       : []
+  //   }
+  // }
+  // Return product ID
+}
+
+async function addProductToCollection(productId: number, collectionId: number) {
+  // POST /collects.json
+  // Body:
+  // {
+  //   "collect": {
+  //     "product_id": productId,
+  //     "collection_id": collectionId
+  //   }
+  // }
+}
+
+MAIN FLOW
+
+Implement:
+
+async function buildAllCategoryCatalogs() {
+  if (!registry.products || registry.products.length === 0) {
+    console.warn("No products found in registry.products. Import products via Division 1 before running this script.");
+    return;
+  }
+
+  for (const category of categories) {
+    console.log(`\n=== Building catalog for category: ${category.title} ===`);
+
+    const collectionId = await createShopifyCollection(category);
+    console.log(`Created collection ${category.title} (ID: ${collectionId})`);
+
+    const products = filterProductsByCategory(category.key);
+
+    if (products.length === 0) {
+      console.warn(`No products found for category key "${category.key}". Skipping product creation.`);
+      continue;
+    }
+
+    for (const product of products) {
+      const productId = await createShopifyProduct(product, category);
+      await addProductToCollection(productId, collectionId);
+      console.log(`Linked product ${product.sku || product.productName} to ${category.title}`);
+    }
+  }
+
+  console.log("\nAll 10 category catalogs built in Shopify.");
+}
+
+Then call:
+
+buildAllCategoryCatalogs().catch(err => {
+  console.error("Error building category catalogs:", err);
+  process.exit(1);
+});
+
+REQUIREMENTS
+
+- Use TypeScript types where reasonable (e.g., for category and product shapes).
+- Make sure imports are correct:
+  - import { registry } from "../src/core/engine";
+  - import fetch from "node-fetch" or global fetch depending on environment.
+- Ensure the script compiles with no TypeScript errors.
+- Add minimal inline comments where helpful.
+- Do NOT include any fake or hardcoded credentials.
+
+When you’re done, summarize:
+- The file you created
+- How to run it (e.g., `ts-node scripts/buildCategoryCatalogs.ts` or compiled JS)
+- Any env vars required
