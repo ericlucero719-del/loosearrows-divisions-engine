@@ -15,6 +15,7 @@ export interface Contract {
 export interface ContractProduct {
   contractId: string;
   sku: string;
+  clin?: string;
   contractPrice: number;
   notes?: string;
 }
@@ -22,6 +23,7 @@ export interface ContractProduct {
 export interface ContractCatalogItem {
   sku: string;
   productName: string;
+  clin?: string;
   contractPrice: number;
   notes?: string;
 }

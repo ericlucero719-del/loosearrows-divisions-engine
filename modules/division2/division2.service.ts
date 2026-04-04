@@ -36,7 +36,7 @@ export class Division2Service {
     if (!contract) return null;
     const contractId = contract.contractId;
 
-    const cp: ContractProduct = { ...item, contractId };
+    const cp: ContractProduct = { sku: item.sku, clin: item.clin, contractPrice: item.contractPrice, notes: item.notes, contractId };
     const existing = contract.products.findIndex((p: any) => p.sku === item.sku);
     if (existing !== -1) {
       contract.products[existing] = cp;
@@ -58,7 +58,7 @@ export class Division2Service {
     if (!contract) return null;
 
     return contract.products.map((cp: ContractProduct): ContractCatalogItem => {
-      const product = registry.products[cp.sku];
+      const product = registry.products[cp.sku] as any;
       return {
         sku: cp.sku,
         productName: product?.productName ?? "Unknown",
