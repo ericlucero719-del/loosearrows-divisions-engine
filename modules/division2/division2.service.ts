@@ -6,13 +6,20 @@ import { registry } from "../../src/core/engine";
 import { Contract, ContractProduct, ContractCatalogItem } from "./division2.types";
 
 export class Division2Service {
-  createContract(data: Omit<Contract, "contractId" | "createdAt">): Contract {
+  // Resolve by contractId (UUID) or contractRef ("VA-BPA-001")
+  private resolve(idOrRef: string): any | null {
+    if (registry.contracts[idOrRef]) return registry.contracts[idOrRef];
+    return Object.values(registry.contracts).find((c: any) => c.contractRef === idOrRef) ?? null;
+  }
+
+  createContract(data: Omit<Contract, "contractId" | "createdAt"> & { contractId?: string }): Contract {
+    const contractId = data.contractId ?? randomUUID();
     const contract: Contract = {
       ...data,
-      contractId: randomUUID(),
+      contractId,
       createdAt: new Date().toISOString(),
     };
-    registry.contracts[contract.contractId] = { ...contract, products: [] };
+    registry.contracts[contractId] = { ...contract, products: [] };
     return contract;
   }
 
@@ -20,13 +27,14 @@ export class Division2Service {
     return Object.values(registry.contracts).map(({ products: _p, ...c }) => c) as Contract[];
   }
 
-  getContract(contractId: string): (Contract & { products: ContractProduct[] }) | null {
-    return (registry.contracts[contractId] as any) ?? null;
+  getContract(idOrRef: string): (Contract & { products: ContractProduct[] }) | null {
+    return this.resolve(idOrRef) ?? null;
   }
 
-  addProductToContract(contractId: string, item: Omit<ContractProduct, "contractId">): ContractProduct | null {
-    const contract = registry.contracts[contractId];
+  addProductToContract(idOrRef: string, item: Omit<ContractProduct, "contractId">): ContractProduct | null {
+    const contract = this.resolve(idOrRef);
     if (!contract) return null;
+    const contractId = contract.contractId;
 
     const cp: ContractProduct = { ...item, contractId };
     const existing = contract.products.findIndex((p: any) => p.sku === item.sku);
@@ -38,15 +46,15 @@ export class Division2Service {
     return cp;
   }
 
-  updateContract(contractId: string, updates: Partial<Pick<Contract, "status" | "contractName" | "agency" | "naics" | "periodOfPerformance">>): Contract | null {
-    const contract = registry.contracts[contractId];
+  updateContract(idOrRef: string, updates: Partial<Pick<Contract, "status" | "contractName" | "agency" | "naics" | "periodOfPerformance" | "contractRef">>): Contract | null {
+    const contract = this.resolve(idOrRef);
     if (!contract) return null;
     Object.assign(contract, updates);
     return contract;
   }
 
-  getContractCatalog(contractId: string): ContractCatalogItem[] | null {
-    const contract = registry.contracts[contractId];
+  getContractCatalog(idOrRef: string): ContractCatalogItem[] | null {
+    const contract = this.resolve(idOrRef);
     if (!contract) return null;
 
     return contract.products.map((cp: ContractProduct): ContractCatalogItem => {

@@ -3,6 +3,7 @@
 
 export interface Contract {
   contractId: string;
+  contractRef?: string;       // human-readable reference, e.g. "VA-BPA-001"
   contractName: string;
   agency: string;
   naics?: string;

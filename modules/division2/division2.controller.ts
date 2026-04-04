@@ -5,11 +5,13 @@ import { division2Service } from "./division2.service";
 
 export const division2Controller = {
   createContract(req: Request, res: Response) {
-    const { contractName, agency, naics, periodOfPerformance, status } = req.body;
+    const { contractId, contractRef, contractName, agency, naics, periodOfPerformance, status } = req.body;
     if (!contractName || !agency) {
       return res.status(400).json({ error: "contractName and agency are required" });
     }
     const contract = division2Service.createContract({
+      contractId,
+      contractRef,
       contractName,
       agency,
       naics,
@@ -44,7 +46,7 @@ export const division2Controller = {
   },
 
   updateContract(req: Request, res: Response) {
-    const allowed = ["status", "contractName", "agency", "naics", "periodOfPerformance"];
+    const allowed = ["status", "contractName", "agency", "naics", "periodOfPerformance", "contractRef"];
     const updates = Object.fromEntries(
       Object.entries(req.body).filter(([k]) => allowed.includes(k))
     );
