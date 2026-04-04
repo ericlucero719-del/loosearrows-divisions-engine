@@ -37,3 +37,8 @@ externalPort = 3000
 deploymentTarget = "autoscale"
 run = ["node", "dist/server.js"]
 build = ["bash", "-c", "npx prisma generate && npx tsc"]
+
+[userenv]
+
+[userenv.shared]
+SHOPIFY_STORE_DOMAIN = "loosearrowslogistics.myshopify.com"
