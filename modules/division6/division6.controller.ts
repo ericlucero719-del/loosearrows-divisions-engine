@@ -5,9 +5,10 @@ import { division6Service } from "./division6.service";
 
 export const division6Controller = {
   createRequirement(req: Request, res: Response) {
-    const { entityType, entityId, documentType } = req.body;
+    const { entityType, entityId } = req.body;
+    const documentType: string = req.body.documentType ?? req.body.requirement ?? req.body.name;
     if (!entityType || !entityId || !documentType) {
-      return res.status(400).json({ error: "entityType, entityId, and documentType are required" });
+      return res.status(400).json({ error: "entityType, entityId, and documentType (or requirement) are required" });
     }
     const req_ = division6Service.createRequirement({ entityType, entityId, documentType });
     return res.status(201).json(req_);

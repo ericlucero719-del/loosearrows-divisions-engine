@@ -25,6 +25,13 @@ router.post(
   division6Controller.createRequirement
 );
 
+// Alias: POST /compliance → same as /requirements
+router.post(
+  "/compliance",
+  operatorWorkflow("DIVISION-6", "CREATE_COMPLIANCE_REQUIREMENT"),
+  division6Controller.createRequirement
+);
+
 router.post(
   "/requirements/:id/attach",
   operatorWorkflow("DIVISION-6", "ATTACH_DOCUMENT"),
