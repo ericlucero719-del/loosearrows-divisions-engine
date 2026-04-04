@@ -43,6 +43,16 @@ export const division2Controller = {
     return res.json(result);
   },
 
+  updateContract(req: Request, res: Response) {
+    const allowed = ["status", "contractName", "agency", "naics", "periodOfPerformance"];
+    const updates = Object.fromEntries(
+      Object.entries(req.body).filter(([k]) => allowed.includes(k))
+    );
+    const contract = division2Service.updateContract(req.params.id, updates as any);
+    if (!contract) return res.status(404).json({ error: "Contract not found" });
+    return res.json(contract);
+  },
+
   getContractCatalog(req: Request, res: Response) {
     const catalog = division2Service.getContractCatalog(req.params.id);
     if (!catalog) return res.status(404).json({ error: "Contract not found" });

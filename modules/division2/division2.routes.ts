@@ -43,6 +43,12 @@ router.post(
   division2Controller.addProduct
 );
 
+router.patch(
+  "/contracts/:id",
+  operatorWorkflow("DIVISION-2", "UPDATE_CONTRACT"),
+  division2Controller.updateContract
+);
+
 router.get(
   "/contracts/:id/catalog",
   operatorWorkflow("DIVISION-2", "GET_CONTRACT_CATALOG"),

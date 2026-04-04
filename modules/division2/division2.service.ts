@@ -38,6 +38,13 @@ export class Division2Service {
     return cp;
   }
 
+  updateContract(contractId: string, updates: Partial<Pick<Contract, "status" | "contractName" | "agency" | "naics" | "periodOfPerformance">>): Contract | null {
+    const contract = registry.contracts[contractId];
+    if (!contract) return null;
+    Object.assign(contract, updates);
+    return contract;
+  }
+
   getContractCatalog(contractId: string): ContractCatalogItem[] | null {
     const contract = registry.contracts[contractId];
     if (!contract) return null;
