@@ -32,6 +32,13 @@ router.post(
   division6Controller.createRequirement
 );
 
+// Attach a document by entity (looks up requirement automatically)
+router.post(
+  "/documents",
+  operatorWorkflow("DIVISION-6", "ATTACH_DOCUMENT_BY_ENTITY"),
+  division6Controller.attachDocumentByEntity
+);
+
 router.post(
   "/requirements/:id/attach",
   operatorWorkflow("DIVISION-6", "ATTACH_DOCUMENT"),

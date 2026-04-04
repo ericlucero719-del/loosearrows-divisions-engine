@@ -15,10 +15,22 @@ export const division6Controller = {
   },
 
   attachDocument(req: Request, res: Response) {
-    const { name, url } = req.body;
-    if (!name) return res.status(400).json({ error: "name is required" });
-    const result = division6Service.attachDocument(req.params.id, { name, url });
+    const { url, uploadedBy, uploadedAt } = req.body;
+    const name: string = req.body.name ?? req.body.documentName ?? req.body.fileName;
+    if (!name) return res.status(400).json({ error: "name (or documentName) is required" });
+    const result = division6Service.attachDocument(req.params.id, { name, url, uploadedBy, uploadedAt });
     if (!result) return res.status(404).json({ error: "Compliance requirement not found" });
+    return res.json(result);
+  },
+
+  attachDocumentByEntity(req: Request, res: Response) {
+    const { entityType, entityId, url, uploadedBy, uploadedAt } = req.body;
+    const name: string = req.body.name ?? req.body.documentName ?? req.body.fileName;
+    if (!entityType || !entityId || !name) {
+      return res.status(400).json({ error: "entityType, entityId, and documentName are required" });
+    }
+    const result = division6Service.attachDocumentByEntity(entityType, entityId, { name, url, uploadedBy, uploadedAt });
+    if (!result) return res.status(404).json({ error: "No compliance requirement found for this entity" });
     return res.json(result);
   },
 

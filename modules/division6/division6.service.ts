@@ -26,7 +26,7 @@ export class Division6Service {
     return req;
   }
 
-  attachDocument(id: string, doc: { name: string; url?: string }): ComplianceRequirement | null {
+  attachDocument(id: string, doc: { name: string; url?: string; uploadedBy?: string; uploadedAt?: string }): ComplianceRequirement | null {
     const req = registry.compliance[id] as ComplianceRequirement;
     if (!req) return null;
 
@@ -34,6 +34,8 @@ export class Division6Service {
       documentId: randomUUID(),
       name: doc.name,
       url: doc.url,
+      uploadedBy: doc.uploadedBy,
+      uploadedAt: doc.uploadedAt,
       attachedAt: new Date().toISOString(),
     };
 
@@ -41,6 +43,19 @@ export class Division6Service {
     req.status = "In Progress";
     req.updatedAt = new Date().toISOString();
     return req;
+  }
+
+  // Attach by entity — finds the first matching requirement automatically
+  attachDocumentByEntity(
+    entityType: string,
+    entityId: string,
+    doc: { name: string; url?: string; uploadedBy?: string; uploadedAt?: string }
+  ): ComplianceRequirement | null {
+    const match = Object.values(registry.compliance).find(
+      (r: any) => r.entityId === entityId && r.entityType.toLowerCase() === entityType.toLowerCase()
+    ) as ComplianceRequirement | undefined;
+    if (!match) return null;
+    return this.attachDocument(match.id, doc);
   }
 
   listRequirements(filter?: { entityId?: string; entityType?: string }): ComplianceRequirement[] {

@@ -2,12 +2,15 @@
 // Division 6 — Compliance & Documentation
 
 export type ComplianceStatus = "Pending" | "In Progress" | "Compliant" | "Non-Compliant";
-export type EntityType = "contract" | "request" | "shipment" | "vendor";
+// Accept both cased variants from callers
+export type EntityType = "contract" | "Contract" | "request" | "Request" | "shipment" | "Shipment" | "vendor" | "Vendor";
 
 export interface AttachedDocument {
   documentId: string;
   name: string;
   url?: string;
+  uploadedBy?: string;
+  uploadedAt?: string;
   attachedAt: string;
 }
 
