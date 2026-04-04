@@ -6,6 +6,12 @@ import { registry } from "../../src/core/engine";
 import { Quote, Invoice, QuoteLineItem, QuoteStatus, InvoiceStatus } from "./division9.types";
 
 export class Division9Service {
+  // Resolve quote by UUID id or quoteRef
+  private resolveQuote(idOrRef: string): Quote | null {
+    if (registry.quotes[idOrRef]) return registry.quotes[idOrRef] as Quote;
+    return (Object.values(registry.quotes).find((q: any) => q.quoteRef === idOrRef) as Quote) ?? null;
+  }
+
   // Build line items from contract catalog when none are provided
   private buildLineItemsFromContract(contractId: string): QuoteLineItem[] {
     const contract = registry.contracts[contractId] as any;
@@ -23,6 +29,7 @@ export class Division9Service {
   }
 
   createQuote(data: {
+    quoteRef?: string;
     requestId?: string;
     contractId?: string;
     lineItems?: QuoteLineItem[];
@@ -46,6 +53,7 @@ export class Division9Service {
 
     const quote: Quote = {
       id: randomUUID(),
+      quoteRef: data.quoteRef,
       requestId: data.requestId,
       contractId: data.contractId,
       lineItems,
@@ -74,14 +82,19 @@ export class Division9Service {
     return (registry.quotes[id] as Quote) ?? null;
   }
 
-  createInvoice(quoteId: string): Invoice | null {
-    const quote = registry.quotes[quoteId] as Quote;
+  createInvoice(quoteIdOrRef: string, options?: { billingAddress?: string; invoiceRef?: string }): Invoice | null {
+    const quote = this.resolveQuote(quoteIdOrRef);
     if (!quote) return null;
 
     const now = new Date().toISOString();
     const invoice: Invoice = {
       id: randomUUID(),
-      quoteId,
+      invoiceRef: options?.invoiceRef,
+      quoteId: quote.id,
+      quoteRef: quote.quoteRef,
+      requestId: quote.requestId,
+      contractId: quote.contractId,
+      billingAddress: options?.billingAddress,
       totalAmount: quote.totalAmount,
       paidAmount: 0,
       status: "Unpaid",

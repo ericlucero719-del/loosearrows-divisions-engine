@@ -5,12 +5,12 @@ import { division9Service } from "./division9.service";
 
 export const division9Controller = {
   createQuote(req: Request, res: Response) {
-    const { lineItems, contractId, requestId } = req.body;
+    const { lineItems, contractId, requestId, quoteRef } = req.body;
     const hasItems = Array.isArray(lineItems) && lineItems.length > 0;
     if (!hasItems && !contractId) {
       return res.status(400).json({ error: "lineItems or contractId is required" });
     }
-    const result = division9Service.createQuote({ requestId, contractId, lineItems });
+    const result = division9Service.createQuote({ quoteRef, requestId, contractId, lineItems });
     if ("error" in result) return res.status(400).json(result);
     return res.status(201).json(result);
   },
@@ -34,9 +34,10 @@ export const division9Controller = {
   },
 
   createInvoice(req: Request, res: Response) {
-    const { quoteId } = req.body;
-    if (!quoteId) return res.status(400).json({ error: "quoteId is required" });
-    const invoice = division9Service.createInvoice(quoteId);
+    const { billingAddress, invoiceRef } = req.body;
+    const quoteId: string = req.body.quoteId ?? req.body.quoteRef;
+    if (!quoteId) return res.status(400).json({ error: "quoteId (or quoteRef) is required" });
+    const invoice = division9Service.createInvoice(quoteId, { billingAddress, invoiceRef });
     if (!invoice) return res.status(404).json({ error: "Quote not found" });
     return res.status(201).json(invoice);
   },

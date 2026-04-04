@@ -14,6 +14,7 @@ export interface QuoteLineItem {
 
 export interface Quote {
   id: string;
+  quoteRef?: string;       // human-readable reference e.g. "QUOTE-001"
   requestId?: string;
   contractId?: string;
   lineItems: QuoteLineItem[];
@@ -25,7 +26,12 @@ export interface Quote {
 
 export interface Invoice {
   id: string;
+  invoiceRef?: string;     // human-readable reference e.g. "INV-001"
   quoteId: string;
+  quoteRef?: string;
+  requestId?: string;
+  contractId?: string;
+  billingAddress?: string;
   totalAmount: number;
   paidAmount: number;
   status: InvoiceStatus;
