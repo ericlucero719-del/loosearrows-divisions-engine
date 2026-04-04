@@ -1,0 +1,174 @@
+You are my senior backend engineer and systems implementer.
+
+Your job is to help me complete and extend an existing TypeScript/Node.js backend into a full 10‑division operational engine.
+
+STACK & CONTEXT
+- Runtime: Node.js + TypeScript
+- Framework: Express
+- Testing: Jest (optional for now)
+- ORM: Prisma (to be wired later)
+- Current structure (important):
+  - src/
+    - core/
+      - engine.ts        // operator workflow + registry
+    - server.ts          // main Express app
+  - modules/
+    - division1/
+      - division1.routes.ts
+    - division2/
+      - division2.types.ts
+      - division2.service.ts
+      - division2.controller.ts
+      - division2.routes.ts
+  - prisma/              // will hold schema.prisma later
+
+CORE CONCEPT
+We are building a 10‑division “operations engine” that can run any vendor, any contract, any supply chain. Each division is a module with its own routes, services, types, and controllers, all wired into a shared core engine.
+
+The core engine (src/core/engine.ts) already provides:
+- Operator identity (currentOperator)
+- A shared in‑memory registry:
+  - registry.actions
+  - registry.products
+  - registry.contracts
+- operatorWorkflow(division, actionType) middleware that:
+  - logs each request with division, actionType, operator, timestamp, path, payload preview
+  - pushes the action into registry.actions
+  - attaches req.operatorAction
+
+DIVISION OVERVIEW (HIGH LEVEL)
+We will implement or extend the following divisions:
+
+1) Division 1 — Product Intake & Pricing
+   - Responsibilities:
+     - Ingest product catalogs (e.g., from Bigin export)
+     - Normalize fields: productName, sku, clin, naics, brand, category, description, price, cost, margin, status, imageUrl, source, lastSynced
+     - Expose endpoints to:
+       - import products
+       - list products
+       - fetch product by SKU
+   - Status: Basic routes already exist in modules/division1/division1.routes.ts
+   - Goal: Clean up types, add a service layer, and extend endpoints.
+
+2) Division 2 — Contract Alignment
+   - Responsibilities:
+     - Create and manage contracts (contractId, contractName, agency, naics, periodOfPerformance, status)
+     - Map products to contracts with contract-specific pricing and notes
+     - Generate contract catalogs enriched with product data
+   - Status: Already implemented in modules/division2 (types, service, controller, routes)
+   - Goal: Refine types, add validation, and prepare for Prisma persistence.
+
+3) Division 3 — Requests & Work Orders
+   - Responsibilities:
+     - Represent incoming requests (RFQs, micro-purchases, internal requests)
+     - Link requests to products, contracts, and inventory
+     - Track status: New, In Review, Quoted, Approved, Fulfilled, Closed
+   - Endpoints:
+     - Create request
+     - Attach products to request
+     - Link request to contract
+     - List requests
+     - View single request with full context
+
+4) Division 4 — Inventory & Assets
+   - Responsibilities:
+     - Track inventory by SKU
+     - Fields: sku, onHand, allocated, available, warehouseLocation, reorderPoint, vendorLeadTimeDays
+     - Support allocation and release of inventory
+   - Endpoints:
+     - Get inventory by SKU
+     - Update inventory levels
+     - Allocate inventory to a contract or request
+     - Release inventory
+
+5) Division 5 — Logistics & Fulfillment
+   - Responsibilities:
+     - Track shipments, deliveries, and fulfillment steps
+     - Link shipments to requests, contracts, and inventory allocations
+   - Endpoints:
+     - Create shipment
+     - Update shipment status
+     - List shipments by contract or request
+
+6) Division 6 — Compliance & Documentation
+   - Responsibilities:
+     - Track required documents, certifications, safety checks, and audit artifacts
+     - Attach documents to contracts, requests, shipments, etc.
+   - Endpoints:
+     - Create compliance requirement
+     - Attach document metadata to an entity
+     - List compliance status for a contract or request
+
+7) Division 7 — Vendor & Partner Management
+   - Responsibilities:
+     - Track upstream vendors, partners, and subs
+     - Store capabilities, categories, performance notes
+   - Endpoints:
+     - Create vendor
+     - List vendors
+     - Attach vendor to contracts or requests
+
+8) Division 8 — Agency / Customer Management
+   - Responsibilities:
+     - Track agencies/customers, contacts, and preferences
+   - Endpoints:
+     - Create agency/customer
+     - List agencies/customers
+     - Link agencies to contracts and requests
+
+9) Division 9 — Financials (Quotes, Invoices, Payments)
+   - Responsibilities:
+     - Generate quotes from products + contracts + inventory
+     - Track invoices and payment status
+   - Endpoints:
+     - Create quote from request or contract
+     - List quotes
+     - Create invoice from quote
+     - List invoices
+
+10) Division 10 — Intelligence & System View
+    - Responsibilities:
+      - Provide system-wide reporting and insights
+      - Summarize actions, contracts, products, inventory, and financials
+    - Endpoints:
+      - /system/summary
+      - /system/actions
+      - /system/health
+
+IMPLEMENTATION REQUIREMENTS
+1. Use the existing patterns:
+   - Each division lives under modules/divisionX/
+   - Each division should have:
+     - divisionX.types.ts (interfaces)
+     - divisionX.service.ts (business logic)
+     - divisionX.controller.ts (Express handlers)
+     - divisionX.routes.ts (Express Router)
+   - All routes must use operatorWorkflow(divisionNumber, actionTypeString) middleware.
+
+2. Keep everything in-memory for now using the shared registry object in src/core/engine.ts.
+   - Extend registry as needed:
+     - registry.requests
+     - registry.inventory
+     - registry.shipments
+     - registry.compliance
+     - registry.vendors
+     - registry.agencies
+     - registry.quotes
+     - registry.invoices
+   - Later, we will map these to Prisma models.
+
+3. Update src/server.ts to:
+   - Import and mount all division routes under clear paths, e.g.:
+     - /division/1/...
+     - /division/2/contracts/...
+     - /division/3/requests/...
+     - /division/4/inventory/...
+     - /division/5/logistics/...
+     - /division/6/compliance/...
+     - /division/7/vendors/...
+     - /division/8/agencies/...
+     - /division/9/financials/...
+     - /division/10/system/...
+
+4. For each division:
+   - Define clear TypeScript interfaces in divisionX.types

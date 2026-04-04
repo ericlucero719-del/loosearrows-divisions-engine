@@ -7,7 +7,6 @@ const { RapidResponseHandler } = require("../services/RapidResponseHandler");
 const { RapidResponseOperatorService } = require("../services/RapidResponseOperatorService");
 const { PerformanceEngine } = require("../services/PerformanceEngine");
 
-// Placeholder engines (replace with real ones later)
 const auditWriter = { record: async () => {} };
 const analytics = { ingestFieldEvent: async () => {} };
 const contractEngine = { alignFieldEvent: async () => {} };
@@ -32,8 +31,10 @@ router.post("/event", async (req, res) => {
     const result = await handler.handle(event);
     return res.json(result);
   } catch (err) {
+    const status = err.statusCode === 400 ? 400 : 500;
+    const message = status === 400 ? err.message : "Event submission failed";
     console.error("Event submission error:", err);
-    return res.status(500).json({ error: "Event submission failed" });
+    return res.status(status).json({ error: message });
   }
 });
 

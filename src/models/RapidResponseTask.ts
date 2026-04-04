@@ -1,8 +1,10 @@
 // src/models/RapidResponseTask.ts
 
+import { RapidResponseTaskType } from "./RapidResponseEvent";
+
 export interface RapidResponseTask {
   id: string;
-  taskType: string;
+  taskType: RapidResponseTaskType;
   contractPriority?: number;
   vendorRisk?: number;
   operationalUrgency?: number;

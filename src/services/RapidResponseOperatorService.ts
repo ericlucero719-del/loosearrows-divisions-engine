@@ -4,10 +4,16 @@ import fs from "fs";
 import path from "path";
 import { RapidResponseOperator } from "../models/RapidResponseOperator";
 
+const DATA_PATH = path.join(process.cwd(), "src", "data", "operators.json");
+
 export class RapidResponseOperatorService {
-  private filePath = path.join(__dirname, "..", "data", "operators.json");
+  private filePath = DATA_PATH;
 
   constructor() {
+    const dir = path.dirname(this.filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     if (!fs.existsSync(this.filePath)) {
       fs.writeFileSync(this.filePath, JSON.stringify([]));
     }

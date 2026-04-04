@@ -1,6 +1,7 @@
 // src/services/RapidResponseHandler.ts
 
 import { RapidResponseEvent } from "../models/RapidResponseEvent";
+import { PerformanceEngine } from "./PerformanceEngine";
 
 interface AuditWriter {
   record(event: RapidResponseEvent): Promise<void>;
@@ -22,7 +23,6 @@ interface LogisticsEngine {
   confirmFieldAction(event: RapidResponseEvent): Promise<void>;
 }
 
-import { PerformanceEngine } from "./PerformanceEngine";
 export class RapidResponseHandler {
   constructor(
     private auditWriter: AuditWriter,
@@ -57,7 +57,9 @@ export class RapidResponseHandler {
 
   private validateForgeMark(event: RapidResponseEvent) {
     if (!event.forgeMark || event.forgeMark.operatorId !== event.operatorId) {
-      throw new Error("Invalid Forge Mark");
+      const err = new Error("Invalid Forge Mark") as any;
+      err.statusCode = 400;
+      throw err;
     }
   }
 }
