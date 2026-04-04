@@ -5,11 +5,23 @@ import { division8Service } from "./division8.service";
 
 export const division8Controller = {
   createAgency(req: Request, res: Response) {
-    const { name } = req.body;
-    if (!name) return res.status(400).json({ error: "name is required" });
+    const name: string = req.body.name ?? req.body.agencyName;
+    if (!name) return res.status(400).json({ error: "name (or agencyName) is required" });
+
+    // Build contacts array from flat fields or explicit array
+    let contacts = req.body.contacts ?? [];
+    if (!contacts.length && (req.body.contactName || req.body.contactEmail)) {
+      contacts = [{
+        name: req.body.contactName ?? "Primary Contact",
+        email: req.body.contactEmail,
+        phone: req.body.contactPhone,
+        role: req.body.contactRole,
+      }];
+    }
+
     const agency = division8Service.createAgency({
       name,
-      contacts: req.body.contacts,
+      contacts,
       preferences: req.body.preferences,
     });
     return res.status(201).json(agency);

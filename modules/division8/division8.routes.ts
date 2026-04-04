@@ -48,8 +48,21 @@ router.post(
   division8Controller.linkContract
 );
 
+// Aliases: shorter paths
+router.post(
+  "/agencies/:id/contracts",
+  operatorWorkflow("DIVISION-8", "LINK_CONTRACT_TO_AGENCY"),
+  division8Controller.linkContract
+);
+
 router.post(
   "/agencies/:id/link-request",
+  operatorWorkflow("DIVISION-8", "LINK_REQUEST_TO_AGENCY"),
+  division8Controller.linkRequest
+);
+
+router.post(
+  "/agencies/:id/requests",
   operatorWorkflow("DIVISION-8", "LINK_REQUEST_TO_AGENCY"),
   division8Controller.linkRequest
 );
