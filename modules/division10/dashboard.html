@@ -415,16 +415,31 @@ async function loadInventory() {
 
 async function loadOperators() {
   const d = await get('/intelligence/operators');
+  const statusColor = { active: '#00ff88', busy: '#ffe600', inactive: 'rgba(255,255,255,.3)' };
+  const authColor   = { 3: '#ff2244', 2: '#ff9900', 1: '#00fff7' };
+
   document.getElementById('operators').innerHTML = !d.totalOperators
     ? '<div class="loading">NO OPERATORS REGISTERED</div>'
     : `
-    <div class="finance-row"><span class="label">TOTAL OPERATORS</span><span class="value">${fmt(d.totalOperators)}</span></div>
-    <div class="finance-row"><span class="label">AVG SCORE</span><span class="value">${fmt(d.averageScore)}</span></div>
-    <div class="finance-row"><span class="label" style="color:#00ff88">ELITE</span><span class="value" style="color:#00ff88">${fmt(d.eliteCount)}</span></div>
-    <div class="finance-row"><span class="label" style="color:#00fff7">SENIOR</span><span class="value">${fmt(d.seniorCount)}</span></div>
-    <div class="finance-row"><span class="label">STANDARD</span><span class="value">${fmt(d.standardCount)}</span></div>
-    ${d.topOperator ? `<div class="finance-row" style="margin-top:8px"><span class="label">TOP OPERATOR</span><span class="value" style="color:#ffe600">${d.topOperator.name}</span></div>
-    <div class="finance-row"><span class="label" style="padding-left:12px">SCORE</span><span class="value">${d.topOperator.score} // ${d.topOperator.tier}</span></div>` : ''}
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.75rem">
+      <div class="metric"><div class="val">${fmt(d.totalOperators)}</div><div class="lbl">TOTAL</div></div>
+      <div class="metric"><div class="val" style="color:#00ff88">${fmt(d.eliteCount)}</div><div class="lbl">ELITE</div></div>
+      <div class="metric"><div class="val" style="color:#00fff7">${fmt(d.seniorCount)}</div><div class="lbl">SENIOR</div></div>
+      <div class="metric"><div class="val">${fmt(d.averageScore)}</div><div class="lbl">AVG SCORE</div></div>
+    </div>
+    <div style="font-size:.6rem;letter-spacing:2px;color:rgba(0,255,247,.35);margin-bottom:.4rem">OPERATOR ROSTER</div>
+    ${d.operators?.length
+      ? d.operators.map(o => `
+        <div class="finance-row" style="align-items:center;gap:6px">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${statusColor[o.status] ?? '#555'};box-shadow:0 0 6px ${statusColor[o.status] ?? '#555'}"></span>
+          <span class="label" style="flex:1">${o.name}</span>
+          <span style="color:rgba(255,255,255,.45);font-size:.68rem;min-width:110px">${o.role}</span>
+          <span style="color:${authColor[o.authorityLevel] ?? '#fff'};font-family:'Orbitron',sans-serif;font-size:.65rem">LVL ${o.authorityLevel}</span>
+          <span style="color:rgba(0,255,247,.5);font-size:.65rem;margin-left:6px">⟡ ${fmt(o.relicsCreated)}</span>
+        </div>`).join('')
+      : '<div style="color:rgba(255,255,255,.25);font-size:.75rem;padding:4px 0">No operators on file.</div>'
+    }
+    ${d.topOperator ? `<div class="finance-row" style="margin-top:8px;border-top:1px solid rgba(0,255,247,.1);padding-top:6px"><span class="label">TOP OPERATOR</span><span class="value" style="color:#ffe600">${d.topOperator.name} — ${d.topOperator.score}pts</span></div>` : ''}
   `;
 }
 

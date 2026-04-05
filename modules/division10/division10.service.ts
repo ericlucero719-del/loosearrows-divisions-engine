@@ -6,7 +6,7 @@ import { RapidResponseOperatorService } from "../../src/services/RapidResponseOp
 import {
   SystemSummary, SystemHealth, DivisionStatus,
   FinancialIntelligence, InventoryIntelligence,
-  OperatorIntelligence, ContractIntelligence,
+  OperatorIntelligence, OperatorRecord, ContractIntelligence,
   MarginIntelligence, CategoryMargin, RiskFlag,
   SupplyChainIntelligence, SupplyItem, SupplierAvailability, RestockAlert,
   SystemAlert, FullIntelligenceReport,
@@ -124,16 +124,40 @@ export class Division10Service {
   }
 
   getOperators(): OperatorIntelligence {
-    const operators = operatorService.getAll();
-    if (!operators.length) return { totalOperators: 0, eliteCount: 0, seniorCount: 0, standardCount: 0, averageScore: 0 };
-    const eliteCount    = operators.filter(o => o.tier === "ELITE").length;
-    const seniorCount   = operators.filter(o => o.tier === "SENIOR").length;
-    const standardCount = operators.filter(o => o.tier === "STANDARD").length;
-    const averageScore  = Math.round(operators.reduce((s, o) => s + (o.performanceScore ?? 0), 0) / operators.length);
-    const top = [...operators].sort((a, b) => (b.performanceScore ?? 0) - (a.performanceScore ?? 0))[0];
+    const raw = operatorService.getAll();
+
+    const TIER_ROLE:  Record<string, string> = { ELITE: "Architect", SENIOR: "Senior Operator", STANDARD: "Field Operator" };
+    const TIER_LEVEL: Record<string, number> = { ELITE: 3,           SENIOR: 2,                 STANDARD: 1 };
+
+    const statusMap = (s: string): OperatorRecord["status"] => {
+      if (s === "AVAILABLE") return "active";
+      if (s === "BUSY")      return "busy";
+      return "inactive";
+    };
+
+    const operators: OperatorRecord[] = raw.map(o => ({
+      name:            o.name,
+      role:            o.role ?? TIER_ROLE[o.tier]  ?? "Field Operator",
+      status:          statusMap(o.status),
+      relicsCreated:   o.relicsCreated   ?? 0,
+      authorityLevel:  o.authorityLevel  ?? TIER_LEVEL[o.tier] ?? 1,
+      tier:            o.tier,
+      performanceScore: o.performanceScore,
+    }));
+
+    if (!raw.length) return { totalOperators: 0, eliteCount: 0, seniorCount: 0, standardCount: 0, averageScore: 0, operators: [] };
+
+    const eliteCount    = raw.filter(o => o.tier === "ELITE").length;
+    const seniorCount   = raw.filter(o => o.tier === "SENIOR").length;
+    const standardCount = raw.filter(o => o.tier === "STANDARD").length;
+    const averageScore  = Math.round(raw.reduce((s, o) => s + (o.performanceScore ?? 0), 0) / raw.length);
+    const top = [...raw].sort((a, b) => (b.performanceScore ?? 0) - (a.performanceScore ?? 0))[0];
+
     return {
-      totalOperators: operators.length, eliteCount, seniorCount, standardCount, averageScore,
+      totalOperators: raw.length,
+      eliteCount, seniorCount, standardCount, averageScore,
       topOperator: top ? { id: top.id, name: top.name, score: top.performanceScore ?? 0, tier: top.tier ?? "STANDARD" } : undefined,
+      operators,
     };
   }
 

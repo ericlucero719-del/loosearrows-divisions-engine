@@ -48,13 +48,24 @@ export interface InventoryIntelligence {
   topStockedSKUs: { sku: string; qty: number }[];
 }
 
+export interface OperatorRecord {
+  name:           string;
+  role:           string;
+  status:         "active" | "inactive" | "busy";
+  relicsCreated:  number;
+  authorityLevel: number;
+  tier?:          string;
+  performanceScore?: number;
+}
+
 export interface OperatorIntelligence {
   totalOperators: number;
-  eliteCount: number;
-  seniorCount: number;
-  standardCount: number;
-  topOperator?: { id: string; name: string; score: number; tier: string };
-  averageScore: number;
+  eliteCount:     number;
+  seniorCount:    number;
+  standardCount:  number;
+  topOperator?:   { id: string; name: string; score: number; tier: string };
+  averageScore:   number;
+  operators:      OperatorRecord[];
 }
 
 export interface ContractIntelligence {

@@ -11,4 +11,7 @@ export interface RapidResponseOperator {
   lat: number;
   lng: number;
   performanceScore: number;
+  role?: string;
+  relicsCreated?: number;
+  authorityLevel?: number;
 }
