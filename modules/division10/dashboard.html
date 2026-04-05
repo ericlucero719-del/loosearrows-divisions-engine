@@ -247,6 +247,24 @@
     </div>
   </div>
 
+  <!-- Executive Assessment -->
+  <div class="panel full-width" style="--panel-accent:#ff2244">
+    <div class="panel-header" style="color:#ff2244">EXECUTIVE ASSESSMENT <span class="tag" style="color:#ff2244;border-color:#ff2244">INTELLIGENCE</span></div>
+    <div class="panel-body">
+      <div id="assessment-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(255,34,68,.5);margin-bottom:.5rem">HEALTH DIMENSIONS</div>
+          <div id="assessment-dimensions"></div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(255,34,68,.5);margin-bottom:.5rem">RECOMMENDATIONS</div>
+          <div id="assessment-recommendations"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Division Health -->
   <div class="panel">
     <div class="panel-header">DIVISION STATUS <span class="tag">HEALTH</span></div>
@@ -476,6 +494,57 @@ async function loadContracts() {
   `;
 }
 
+async function loadAssessment() {
+  const d = await get('/intelligence/assessment');
+  const s = d.summary ?? {};
+
+  const healthColor = {
+    unknown:      'rgba(255,255,255,.25)',
+    initializing: '#00fff7',
+    healthy:      '#00ff88',
+    degraded:     '#ff9900',
+    critical:     '#ff2244',
+  };
+  const healthIcon = {
+    unknown: '?', initializing: '◌', healthy: '✓', degraded: '⚠', critical: '✕'
+  };
+
+  const overallColor = healthColor[d.overallStatus] ?? '#fff';
+
+  document.getElementById('assessment-top').innerHTML = [
+    { val: `${healthIcon[d.overallStatus] ?? '?'} ${(d.overallStatus ?? 'unknown').toUpperCase()}`, lbl: 'OVERALL STATUS', color: overallColor },
+    { val: d.scoreBreakdown?.composite ?? 0,   lbl: 'COMPOSITE SCORE',   color: overallColor },
+    { val: d.scoreBreakdown?.financial ?? 0,   lbl: 'FINANCIAL',         color: healthColor[s.financialHealth]   ?? '#fff' },
+    { val: d.scoreBreakdown?.operational ?? 0, lbl: 'OPERATIONAL',       color: healthColor[s.operationalStatus] ?? '#fff' },
+    { val: d.scoreBreakdown?.supply ?? 0,      lbl: 'SUPPLY',            color: healthColor[s.supplierStrength]  ?? '#fff' },
+    { val: d.scoreBreakdown?.agency ?? 0,      lbl: 'AGENCY',            color: healthColor[s.agencyTrust]       ?? '#fff' },
+  ].map(m => `<div class="metric"><div class="val" style="font-size:1.1rem;color:${m.color};text-shadow:0 0 12px ${m.color}">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
+
+  document.getElementById('assessment-dimensions').innerHTML = [
+    { key: 'financialHealth',   label: 'FINANCIAL HEALTH' },
+    { key: 'operationalStatus', label: 'OPERATIONAL STATUS' },
+    { key: 'supplierStrength',  label: 'SUPPLIER STRENGTH' },
+    { key: 'agencyTrust',       label: 'AGENCY TRUST' },
+  ].map(dim => {
+    const val   = s[dim.key] ?? 'unknown';
+    const color = healthColor[val] ?? '#fff';
+    return `<div class="finance-row" style="margin-bottom:6px">
+      <span class="label">${dim.label}</span>
+      <span style="color:${color};font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:1px">
+        ${healthIcon[val] ?? '?'} ${val.toUpperCase()}
+      </span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('assessment-recommendations').innerHTML = !d.recommendations?.length
+    ? `<div style="color:var(--green);font-size:.8rem;padding:4px 0">✓ No recommendations — all systems green.</div>`
+    : d.recommendations.map((r, i) => `
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
+          <span style="color:#ff2244;font-family:'Orbitron',sans-serif;font-size:.65rem;min-width:18px;padding-top:1px">${String(i+1).padStart(2,'0')}</span>
+          <span style="color:rgba(255,255,255,.75);font-size:.75rem;line-height:1.4">${r}</span>
+        </div>`).join('');
+}
+
 async function loadPipeline() {
   const d = await get('/intelligence/pipeline');
   const contractStatus = { ACTIVE: '#00ff88', PENDING: '#ffe600', EXPIRING: '#ff9900', CLOSED: 'rgba(255,255,255,.3)' };
@@ -649,7 +718,7 @@ function updateClock() {
 
 async function loadAll() {
   await Promise.all([
-    loadSummary(), loadHealth(), loadFinancials(),
+    loadAssessment(), loadSummary(), loadHealth(), loadFinancials(),
     loadInventory(), loadOperators(), loadContracts(),
     loadPipeline(), loadSupply(), loadMargins(), loadAlerts(), loadActions()
   ]);

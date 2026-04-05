@@ -206,6 +206,30 @@ export interface SupplyChainIntelligence {
   generatedAt:          string;
 }
 
+export type HealthStatus = "unknown" | "initializing" | "healthy" | "degraded" | "critical";
+
+export interface AssessmentSummary {
+  financialHealth:   HealthStatus;
+  operationalStatus: HealthStatus;
+  supplierStrength:  HealthStatus;
+  agencyTrust:       HealthStatus;
+}
+
+export interface ExecutiveAssessment {
+  divisionId:      number;
+  summary:         AssessmentSummary;
+  recommendations: string[];
+  overallStatus:   HealthStatus;
+  scoreBreakdown: {
+    financial:   number;
+    operational: number;
+    supply:      number;
+    agency:      number;
+    composite:   number;
+  };
+  generatedAt: string;
+}
+
 export interface FullIntelligenceReport {
   summary: SystemSummary;
   health: SystemHealth;
@@ -216,6 +240,7 @@ export interface FullIntelligenceReport {
   margins: MarginIntelligence;
   supply:    SupplyChainIntelligence;
   pipeline:  ContractPipelineIntelligence;
-  alerts:    AlertIntelligence;
+  alerts:     AlertIntelligence;
+  assessment: ExecutiveAssessment;
   generatedAt: string;
 }

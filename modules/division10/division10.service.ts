@@ -10,7 +10,9 @@ import {
   MarginIntelligence, CategoryMargin, RiskFlag,
   SupplyChainIntelligence, SupplyItem, SupplierAvailability, RestockAlert,
   ContractPipelineIntelligence, ActiveContract, PipelineRFQ, AgencyRelationship,
-  SystemAlert, AlertIntelligence, FullIntelligenceReport,
+  SystemAlert, AlertIntelligence,
+  HealthStatus, ExecutiveAssessment, AssessmentSummary,
+  FullIntelligenceReport,
 } from "./division10.types";
 
 const MARGIN_BANDS = { low: 0.08, target: 0.18, premium: 0.27 };
@@ -275,6 +277,7 @@ export class Division10Service {
       supply:     this.getSupply(),
       pipeline:   this.getPipeline(),
       alerts:     this.getAlerts(),
+      assessment: this.getAssessment(),
       generatedAt: new Date().toISOString(),
     };
   }
@@ -600,6 +603,168 @@ export class Division10Service {
       totalPipelineValue:  Math.round(totalPipelineValue * 100) / 100,
       totalContractValue:  Math.round(totalContractValue * 100) / 100,
       generatedAt:         new Date().toISOString(),
+    };
+  }
+
+  getAssessment(): ExecutiveAssessment {
+    const products   = Object.keys(registry.products).length;
+    const inventory  = Object.values(registry.inventory)  as any[];
+    const contracts  = Object.values(registry.contracts)  as any[];
+    const quotes     = Object.values(registry.quotes)     as any[];
+    const agencies   = Object.values(registry.agencies)   as any[];
+    const shipments  = Object.values(registry.shipments)  as any[];
+    const compliance = Object.values(registry.compliance) as any[];
+
+    const recommendations: string[] = [];
+
+    // ─── FINANCIAL HEALTH ────────────────────────────────────────────────────
+    let financialHealth: HealthStatus = "unknown";
+    let financialScore = 0;
+
+    if (products === 0) {
+      financialHealth = "initializing";
+      financialScore  = 25;
+      recommendations.push("Import products via Division 1 to unlock financial analysis.");
+    } else {
+      const margins = this.getMargins();
+      const m       = margins.blendedMargin;
+      if (m < 0)                      { financialHealth = "critical";  financialScore = 10; }
+      else if (m < MARGIN_BANDS.low)  { financialHealth = "degraded";  financialScore = 40; }
+      else if (m < MARGIN_BANDS.target) { financialHealth = "degraded"; financialScore = 65; }
+      else                            { financialHealth = "healthy";   financialScore = 100; }
+
+      if (margins.riskFlags.length > 5)
+        recommendations.push(`${margins.riskFlags.length} SKUs are below margin threshold — review cost data or reprice.`);
+      if (m < MARGIN_BANDS.target)
+        recommendations.push(`Blended margin at ${margins.blendedMarginPct} — target is ${(MARGIN_BANDS.target * 100)}%. Improve product mix or reduce COGS.`);
+    }
+
+    // ─── OPERATIONAL STATUS ──────────────────────────────────────────────────
+    let operationalStatus: HealthStatus = "initializing";
+    let operationalScore = 25;
+
+    if (products > 0) {
+      const alertData = this.getAlerts();
+      const highCount = alertData.severityLevels.high.length;
+      const medCount  = alertData.severityLevels.medium.length;
+
+      if (highCount >= 3)                   { operationalStatus = "critical";  operationalScore = 10; }
+      else if (highCount >= 1)              { operationalStatus = "degraded";  operationalScore = 35; }
+      else if (medCount >= 3)               { operationalStatus = "degraded";  operationalScore = 55; }
+      else if (medCount >= 1)               { operationalStatus = "degraded";  operationalScore = 70; }
+      else                                  { operationalStatus = "healthy";   operationalScore = 100; }
+
+      if (highCount > 0)
+        recommendations.push(`${highCount} critical alert(s) require immediate attention across active divisions.`);
+
+      const overdue = shipments.filter(s =>
+        s.expectedDelivery && new Date(s.expectedDelivery) < new Date() && s.status !== "Delivered"
+      );
+      if (overdue.length)
+        recommendations.push(`${overdue.length} shipment(s) past expected delivery — contact carriers and update status.`);
+
+      const flagged = compliance.filter(c => c.status === "FLAGGED" || c.status === "FAILED");
+      if (flagged.length)
+        recommendations.push(`${flagged.length} compliance record(s) flagged — resolve before next audit cycle.`);
+    }
+
+    // ─── SUPPLIER STRENGTH ───────────────────────────────────────────────────
+    let supplierStrength: HealthStatus = "unknown";
+    let supplyScore = 0;
+
+    if (inventory.length === 0 && Object.keys(registry.vendors).length === 0) {
+      supplierStrength = "unknown";
+      supplyScore      = 0;
+      if (products > 0)
+        recommendations.push("No inventory data found. Register stock levels via Division 4.");
+    } else {
+      const supply     = this.getSupply();
+      const outCount   = supply.items.filter(i => i.status === "OUT").length;
+      const critCount  = supply.items.filter(i => i.status === "CRITICAL").length;
+      const activeVend = supply.supplierAvailability.filter(v => v.status === "ACTIVE").length;
+      const vi         = supply.volatilityIndex;
+
+      if (vi >= 0.6 || outCount > 3)           { supplierStrength = "critical";  supplyScore = 10; }
+      else if (vi >= 0.3 || outCount > 0)      { supplierStrength = "degraded";  supplyScore = 40; }
+      else if (critCount > 0)                  { supplierStrength = "degraded";  supplyScore = 60; }
+      else if (activeVend > 0)                 { supplierStrength = "healthy";   supplyScore = 100; }
+      else                                     { supplierStrength = "initializing"; supplyScore = 25; }
+
+      if (outCount > 0)
+        recommendations.push(`${outCount} SKU(s) completely out of stock — issue purchase orders immediately.`);
+      if (supply.restockAlerts.filter(r => r.urgency === "CRITICAL").length)
+        recommendations.push("Critical restock urgency on multiple SKUs — initiate emergency procurement.");
+      if (activeVend === 0 && supply.supplierAvailability.length > 0)
+        recommendations.push("No active suppliers on file — verify vendor status in Division 4.");
+    }
+
+    // ─── AGENCY TRUST ────────────────────────────────────────────────────────
+    let agencyTrust: HealthStatus = "unknown";
+    let agencyScore = 0;
+
+    const closedQuotes = quotes.filter(q => ["AWARDED","LOST"].includes((q.status ?? "").toUpperCase()));
+    const awarded      = quotes.filter(q => (q.status ?? "").toUpperCase() === "AWARDED").length;
+    const winRate      = closedQuotes.length > 0 ? awarded / closedQuotes.length : null;
+    const preferred    = agencies.filter(a => a.tier === "PREFERRED").length;
+    const hasAgencies  = agencies.length > 0 || contracts.length > 0;
+
+    if (!hasAgencies && quotes.length === 0) {
+      agencyTrust = "unknown";
+      agencyScore = 0;
+      if (products > 0)
+        recommendations.push("No agency relationships or pipeline RFQs on file. Register agencies to begin acquisition tracking.");
+    } else if (winRate === null) {
+      agencyTrust  = "initializing";
+      agencyScore  = 25;
+      recommendations.push("No closed RFQs yet — win rate will populate once quotes reach AWARDED or LOST status.");
+    } else if (winRate < 0.25) {
+      agencyTrust = "critical";  agencyScore = 15;
+      recommendations.push(`Win rate at ${(winRate * 100).toFixed(0)}% — review proposal quality and pricing strategy.`);
+    } else if (winRate < 0.50) {
+      agencyTrust = "degraded";  agencyScore = 50;
+      recommendations.push(`Win rate at ${(winRate * 100).toFixed(0)}% — target 50%+ through agency relationship development.`);
+    } else {
+      agencyTrust = "healthy";   agencyScore = 100;
+      if (preferred === 0 && agencies.length > 0)
+        recommendations.push("No PREFERRED-tier agencies yet — deepen existing relationships to earn preferred status.");
+    }
+
+    // ─── COMPOSITE ───────────────────────────────────────────────────────────
+    const nonZeroScores = [financialScore, operationalScore, supplyScore, agencyScore].filter(s => s > 0);
+    const composite     = nonZeroScores.length
+      ? Math.round(nonZeroScores.reduce((a, b) => a + b, 0) / nonZeroScores.length)
+      : 0;
+
+    const overallStatus: HealthStatus =
+      [financialHealth, operationalStatus, supplierStrength, agencyTrust].includes("critical")
+        ? "critical"
+        : composite === 0              ? "unknown"
+        : composite <= 25              ? "initializing"
+        : composite <= 55              ? "degraded"
+        : "healthy";
+
+    // Deduplicate recommendations
+    const seen = new Set<string>();
+    const dedupedRecs = recommendations.filter(r => !seen.has(r) && seen.add(r));
+
+    return {
+      divisionId: 10,
+      summary: {
+        financialHealth,
+        operationalStatus,
+        supplierStrength,
+        agencyTrust,
+      },
+      recommendations:  dedupedRecs,
+      overallStatus,
+      scoreBreakdown: {
+        financial:   financialScore,
+        operational: operationalScore,
+        supply:      supplyScore,
+        agency:      agencyScore,
+        composite,
+      },
+      generatedAt: new Date().toISOString(),
     };
   }
 
