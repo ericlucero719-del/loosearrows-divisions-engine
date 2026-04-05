@@ -48,4 +48,8 @@ export const division10Controller = {
   getMargins(_req: Request, res: Response) {
     return res.json(division10Service.getMargins());
   },
+
+  getSupply(_req: Request, res: Response) {
+    return res.json(division10Service.getSupply());
+  },
 };

@@ -8,6 +8,7 @@ import {
   FinancialIntelligence, InventoryIntelligence,
   OperatorIntelligence, ContractIntelligence,
   MarginIntelligence, CategoryMargin, RiskFlag,
+  SupplyChainIntelligence, SupplyItem, SupplierAvailability, RestockAlert,
   SystemAlert, FullIntelligenceReport,
 } from "./division10.types";
 
@@ -186,6 +187,7 @@ export class Division10Service {
       operators:  this.getOperators(),
       contracts:  this.getContracts(),
       margins:    this.getMargins(),
+      supply:     this.getSupply(),
       alerts:     this.getAlerts(),
       generatedAt: new Date().toISOString(),
     };
@@ -291,6 +293,109 @@ export class Division10Service {
       topCategories,
       riskFlags,
       generatedAt:            new Date().toISOString(),
+    };
+  }
+
+  getSupply(): SupplyChainIntelligence {
+    const products  = Object.values(registry.products)  as any[];
+    const inventory = Object.values(registry.inventory) as any[];
+    const vendors   = Object.values(registry.vendors ?? {}) as any[];
+
+    // ── Build SupplyItem list ──────────────────────────────────────────────
+    const REORDER_DEFAULT = 5;
+
+    const items: SupplyItem[] = inventory.map(inv => {
+      const prod        = products.find(p => p.sku === (inv.sku ?? inv.productId));
+      const qty         = inv.quantity ?? inv.qty ?? 0;
+      const reorderPoint= inv.reorderPoint ?? prod?.reorderPoint ?? REORDER_DEFAULT;
+      const ratio       = reorderPoint > 0 ? qty / reorderPoint : 1;
+
+      const status: SupplyItem["status"] =
+        qty === 0           ? "OUT"
+        : ratio < 0.5       ? "CRITICAL"
+        : ratio < 1.0       ? "LOW"
+        : "OK";
+
+      return {
+        sku:          inv.sku ?? prod?.sku ?? "UNKNOWN",
+        productName:  prod?.name ?? prod?.title ?? inv.sku ?? "Unknown Product",
+        qty,
+        reorderPoint,
+        status,
+        vendor:       inv.vendorId ?? prod?.vendorId,
+        lastRestocked: inv.lastRestocked,
+      };
+    });
+
+    // ── Supplier availability: aggregate skus per vendor ──────────────────
+    const vendorMap: Record<string, { name: string; skus: Set<string>; active: boolean }> = {};
+
+    // Seed from vendor registry
+    vendors.forEach(v => {
+      const id = v.vendorId ?? v.id;
+      if (!id) return;
+      vendorMap[id] = {
+        name:   v.name ?? v.vendorName ?? id,
+        skus:   new Set(),
+        active: v.status === "ACTIVE" || v.active !== false,
+      };
+    });
+
+    // Populate from product catalog
+    products.forEach(p => {
+      const vid = p.vendorId ?? p.vendor;
+      if (!vid) return;
+      if (!vendorMap[vid]) vendorMap[vid] = { name: vid, skus: new Set(), active: true };
+      vendorMap[vid].skus.add(p.sku);
+    });
+
+    const supplierAvailability: SupplierAvailability[] = Object.entries(vendorMap).map(([id, v]) => ({
+      vendorId:   id,
+      vendorName: v.name,
+      skus:       [...v.skus],
+      skuCount:   v.skus.size,
+      status:     v.active ? "ACTIVE" : "INACTIVE",
+    }));
+
+    // ── Restock alerts: items at or below reorder point ───────────────────
+    const urgency = (item: SupplyItem): RestockAlert["urgency"] => {
+      if (item.status === "OUT")      return "CRITICAL";
+      if (item.status === "CRITICAL") return "HIGH";
+      if (item.status === "LOW")      return "MEDIUM";
+      return "LOW";
+    };
+
+    const restockAlerts: RestockAlert[] = items
+      .filter(i => i.status !== "OK")
+      .map(i => {
+        const suggested = Math.max((i.reorderPoint * 2) - i.qty, 1);
+        return {
+          sku:          i.sku,
+          productName:  i.productName,
+          currentQty:   i.qty,
+          reorderPoint: i.reorderPoint,
+          suggestedQty: suggested,
+          vendor:       i.vendor,
+          urgency:      urgency(i),
+        };
+      })
+      .sort((a, b) => {
+        const rank = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+        return rank[a.urgency] - rank[b.urgency];
+      });
+
+    // ── Volatility index: ratio of non-OK items to total ─────────────────
+    const volatilityIndex = items.length > 0
+      ? Math.round((restockAlerts.length / items.length) * 100) / 100
+      : 0;
+
+    return {
+      divisionId:           10,
+      items,
+      supplierAvailability,
+      restockAlerts,
+      volatilityIndex,
+      generatedAt:          new Date().toISOString(),
     };
   }
 

@@ -287,6 +287,28 @@
     </div>
   </div>
 
+  <!-- Supply Chain Intelligence -->
+  <div class="panel full-width" style="--panel-accent: #ff9900;">
+    <div class="panel-header" style="color:#ff9900">SUPPLY CHAIN INTELLIGENCE <span class="tag" style="color:#ff9900;border-color:#ff9900">LOGISTICS</span></div>
+    <div class="panel-body">
+      <div id="supply-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">INVENTORY ITEMS</div>
+          <div id="supply-items"></div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">SUPPLIER STATUS</div>
+          <div id="supply-vendors"></div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:#ff2244;margin-bottom:.5rem">RESTOCK ALERTS</div>
+          <div id="supply-alerts"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Margin Intelligence -->
   <div class="panel full-width" style="--panel-accent: #ffe600;">
     <div class="panel-header" style="color:var(--yellow)">MARGIN INTELLIGENCE <span class="tag" style="color:var(--yellow);border-color:var(--yellow)">CAPITAL</span></div>
@@ -416,6 +438,52 @@ async function loadContracts() {
   `;
 }
 
+async function loadSupply() {
+  const d = await get('/intelligence/supply');
+  const statusColor = { OK: '#00ff88', LOW: '#ffe600', CRITICAL: '#ff9900', OUT: '#ff2244' };
+  const urgColor    = { LOW: '#00ff88', MEDIUM: '#ffe600', HIGH: '#ff9900', CRITICAL: '#ff2244' };
+
+  const total     = d.items?.length ?? 0;
+  const outCount  = d.items?.filter(i => i.status === 'OUT').length ?? 0;
+  const critCount = d.items?.filter(i => i.status === 'CRITICAL').length ?? 0;
+  const lowCount  = d.items?.filter(i => i.status === 'LOW').length ?? 0;
+
+  document.getElementById('supply-top').innerHTML = [
+    { val: total,                           lbl: 'TRACKED SKUs' },
+    { val: d.supplierAvailability?.filter(v => v.status === 'ACTIVE').length ?? 0, lbl: 'ACTIVE SUPPLIERS' },
+    { val: d.restockAlerts?.length ?? 0,   lbl: 'RESTOCK ALERTS' },
+    { val: outCount,                        lbl: 'OUT OF STOCK', warn: outCount > 0 },
+    { val: ((1 - (d.volatilityIndex ?? 0)) * 100).toFixed(0) + '%', lbl: 'SUPPLY STABILITY' },
+  ].map(m => `<div class="metric"><div class="val" style="font-size:1.3rem;color:${m.warn ? '#ff2244' : '#ff9900'};text-shadow:0 0 15px ${m.warn ? '#ff2244' : '#ff9900'}">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
+
+  document.getElementById('supply-items').innerHTML = !d.items?.length
+    ? '<div class="loading">NO INVENTORY DATA</div>'
+    : d.items.slice(0, 12).map(i => `
+        <div class="finance-row">
+          <span class="label">${i.sku}</span>
+          <span style="color:${statusColor[i.status]};font-family:'Orbitron',sans-serif;font-size:.7rem">${i.qty}</span>
+          <span class="badge ${i.status === 'OK' ? 'ACTIVE' : i.status === 'OUT' ? 'ALERT' : 'EMPTY'}" style="margin-left:6px;font-size:.5rem">${i.status}</span>
+        </div>`).join('');
+
+  document.getElementById('supply-vendors').innerHTML = !d.supplierAvailability?.length
+    ? '<div class="loading">NO VENDOR DATA</div>'
+    : d.supplierAvailability.slice(0, 10).map(v => `
+        <div class="finance-row">
+          <span class="label">${v.vendorName}</span>
+          <span style="color:rgba(0,255,247,.6);font-size:.7rem">${v.skuCount} SKUs</span>
+          <span class="badge ${v.status === 'ACTIVE' ? 'ACTIVE' : 'EMPTY'}" style="margin-left:6px;font-size:.5rem">${v.status}</span>
+        </div>`).join('');
+
+  document.getElementById('supply-alerts').innerHTML = !d.restockAlerts?.length
+    ? '<div class="loading" style="color:var(--green)">ALL STOCKED</div>'
+    : d.restockAlerts.slice(0, 10).map(r => `
+        <div class="finance-row">
+          <span class="label" style="color:${urgColor[r.urgency]}">${r.sku}</span>
+          <span style="color:rgba(255,255,255,.5);font-size:.7rem">qty:${r.currentQty}→${r.suggestedQty}</span>
+          <span class="badge ALERT" style="margin-left:4px;font-size:.5rem;border-color:${urgColor[r.urgency]};color:${urgColor[r.urgency]}">${r.urgency}</span>
+        </div>`).join('');
+}
+
 async function loadMargins() {
   const d = await get('/intelligence/margins');
   const bandColor = { PREMIUM: '#00ff88', TARGET: '#00fff7', LOW: '#ffe600', BELOW_LOW: '#ff2244' };
@@ -478,7 +546,7 @@ async function loadAll() {
   await Promise.all([
     loadSummary(), loadHealth(), loadFinancials(),
     loadInventory(), loadOperators(), loadContracts(),
-    loadMargins(), loadAlerts(), loadActions()
+    loadSupply(), loadMargins(), loadAlerts(), loadActions()
   ]);
 }
 

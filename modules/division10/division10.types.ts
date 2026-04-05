@@ -107,6 +107,43 @@ export interface MarginIntelligence {
   generatedAt:             string;
 }
 
+export interface SupplyItem {
+  sku:          string;
+  productName:  string;
+  qty:          number;
+  reorderPoint: number;
+  status:       "OK" | "LOW" | "CRITICAL" | "OUT";
+  vendor?:      string;
+  lastRestocked?: string;
+}
+
+export interface SupplierAvailability {
+  vendorId:   string;
+  vendorName: string;
+  skus:       string[];
+  skuCount:   number;
+  status:     "ACTIVE" | "INACTIVE" | "UNKNOWN";
+}
+
+export interface RestockAlert {
+  sku:          string;
+  productName:  string;
+  currentQty:   number;
+  reorderPoint: number;
+  suggestedQty: number;
+  vendor?:      string;
+  urgency:      "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+}
+
+export interface SupplyChainIntelligence {
+  divisionId:           number;
+  items:                SupplyItem[];
+  supplierAvailability: SupplierAvailability[];
+  restockAlerts:        RestockAlert[];
+  volatilityIndex:      number;
+  generatedAt:          string;
+}
+
 export interface FullIntelligenceReport {
   summary: SystemSummary;
   health: SystemHealth;
@@ -115,6 +152,7 @@ export interface FullIntelligenceReport {
   operators: OperatorIntelligence;
   contracts: ContractIntelligence;
   margins: MarginIntelligence;
+  supply: SupplyChainIntelligence;
   alerts: SystemAlert[];
   generatedAt: string;
 }
