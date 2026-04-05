@@ -52,4 +52,8 @@ export const division10Controller = {
   getSupply(_req: Request, res: Response) {
     return res.json(division10Service.getSupply());
   },
+
+  getPipeline(_req: Request, res: Response) {
+    return res.json(division10Service.getPipeline());
+  },
 };

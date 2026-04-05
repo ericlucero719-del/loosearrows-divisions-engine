@@ -287,6 +287,28 @@
     </div>
   </div>
 
+  <!-- Contract Pipeline Intelligence -->
+  <div class="panel full-width" style="--panel-accent: #cc44ff;">
+    <div class="panel-header" style="color:#cc44ff">CONTRACT PIPELINE <span class="tag" style="color:#cc44ff;border-color:#cc44ff">ACQUISITION</span></div>
+    <div class="panel-body">
+      <div id="pipeline-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">ACTIVE CONTRACTS</div>
+          <div id="pipeline-contracts"></div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(204,68,255,.6);margin-bottom:.5rem">PIPELINE RFQs</div>
+          <div id="pipeline-rfqs"></div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">AGENCY RELATIONSHIPS</div>
+          <div id="pipeline-agencies"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Supply Chain Intelligence -->
   <div class="panel full-width" style="--panel-accent: #ff9900;">
     <div class="panel-header" style="color:#ff9900">SUPPLY CHAIN INTELLIGENCE <span class="tag" style="color:#ff9900;border-color:#ff9900">LOGISTICS</span></div>
@@ -453,6 +475,59 @@ async function loadContracts() {
   `;
 }
 
+async function loadPipeline() {
+  const d = await get('/intelligence/pipeline');
+  const contractStatus = { ACTIVE: '#00ff88', PENDING: '#ffe600', EXPIRING: '#ff9900', CLOSED: 'rgba(255,255,255,.3)' };
+  const rfqStatus      = { DRAFT: 'rgba(255,255,255,.3)', SUBMITTED: '#00fff7', UNDER_REVIEW: '#ffe600', AWARDED: '#00ff88', LOST: '#ff2244' };
+  const agencyTier     = { PREFERRED: '#cc44ff', ACTIVE: '#00fff7', PROSPECT: '#ffe600', DORMANT: 'rgba(255,255,255,.3)' };
+
+  document.getElementById('pipeline-top').innerHTML = [
+    { val: d.activeContracts?.length ?? 0,               lbl: 'ACTIVE CONTRACTS' },
+    { val: fmtUSD(d.totalContractValue),                  lbl: 'CONTRACT VALUE' },
+    { val: d.pipelineRFQs?.length ?? 0,                  lbl: 'PIPELINE RFQs' },
+    { val: fmtUSD(d.totalPipelineValue),                  lbl: 'PIPELINE VALUE' },
+    { val: ((d.winRate ?? 0) * 100).toFixed(0) + '%',    lbl: 'WIN RATE' },
+    { val: d.agencyRelationships?.length ?? 0,           lbl: 'AGENCIES' },
+  ].map(m => `<div class="metric"><div class="val" style="font-size:1.3rem;color:#cc44ff;text-shadow:0 0 15px #cc44ff">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
+
+  document.getElementById('pipeline-contracts').innerHTML = !d.activeContracts?.length
+    ? '<div class="loading">NO ACTIVE CONTRACTS</div>'
+    : d.activeContracts.map(c => `
+        <div class="finance-row">
+          <span class="label">${c.contractRef}</span>
+          <span style="color:${contractStatus[c.status]};font-size:.7rem">${c.clinCount} CLINs</span>
+          <span class="badge ${c.status === 'ACTIVE' ? 'ACTIVE' : c.status === 'EXPIRING' ? 'ALERT' : 'EMPTY'}" style="margin-left:4px;font-size:.5rem">${c.status}</span>
+        </div>
+        <div class="finance-row" style="padding-left:10px;margin-top:-4px">
+          <span style="color:rgba(255,255,255,.4);font-size:.65rem">${c.agency}</span>
+          <span style="color:#cc44ff;font-size:.65rem">${fmtUSD(c.value)}</span>
+        </div>`).join('');
+
+  document.getElementById('pipeline-rfqs').innerHTML = !d.pipelineRFQs?.length
+    ? '<div class="loading">NO RFQS IN PIPELINE</div>'
+    : d.pipelineRFQs.map(r => `
+        <div class="finance-row">
+          <span class="label">${r.rfqId}</span>
+          <span style="color:${rfqStatus[r.status]};font-size:.7rem">${fmtUSD(r.estimatedValue)}</span>
+          <span class="badge ${r.status === 'AWARDED' ? 'ACTIVE' : r.status === 'LOST' ? 'ALERT' : 'EMPTY'}" style="margin-left:4px;font-size:.5rem">${r.status}</span>
+        </div>
+        <div class="finance-row" style="padding-left:10px;margin-top:-4px">
+          <span style="color:rgba(255,255,255,.4);font-size:.65rem">${r.agency} — ${r.description.slice(0,28)}${r.description.length>28?'…':''}</span>
+        </div>`).join('');
+
+  document.getElementById('pipeline-agencies').innerHTML = !d.agencyRelationships?.length
+    ? '<div class="loading">NO AGENCY DATA</div>'
+    : d.agencyRelationships.map(a => `
+        <div class="finance-row">
+          <span class="label">${a.agencyName}</span>
+          <span style="color:${agencyTier[a.tier]};font-size:.65rem">${a.tier}</span>
+          <span style="color:rgba(255,255,255,.4);font-size:.65rem;margin-left:6px">${a.contracts} cntr</span>
+        </div>
+        <div class="finance-row" style="padding-left:10px;margin-top:-4px">
+          <span style="color:#cc44ff;font-size:.65rem">${fmtUSD(a.totalValue)}</span>
+        </div>`).join('');
+}
+
 async function loadSupply() {
   const d = await get('/intelligence/supply');
   const statusColor = { OK: '#00ff88', LOW: '#ffe600', CRITICAL: '#ff9900', OUT: '#ff2244' };
@@ -561,7 +636,7 @@ async function loadAll() {
   await Promise.all([
     loadSummary(), loadHealth(), loadFinancials(),
     loadInventory(), loadOperators(), loadContracts(),
-    loadSupply(), loadMargins(), loadAlerts(), loadActions()
+    loadPipeline(), loadSupply(), loadMargins(), loadAlerts(), loadActions()
   ]);
 }
 

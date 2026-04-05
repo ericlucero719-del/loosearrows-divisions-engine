@@ -9,6 +9,7 @@ import {
   OperatorIntelligence, OperatorRecord, ContractIntelligence,
   MarginIntelligence, CategoryMargin, RiskFlag,
   SupplyChainIntelligence, SupplyItem, SupplierAvailability, RestockAlert,
+  ContractPipelineIntelligence, ActiveContract, PipelineRFQ, AgencyRelationship,
   SystemAlert, FullIntelligenceReport,
 } from "./division10.types";
 
@@ -212,6 +213,7 @@ export class Division10Service {
       contracts:  this.getContracts(),
       margins:    this.getMargins(),
       supply:     this.getSupply(),
+      pipeline:   this.getPipeline(),
       alerts:     this.getAlerts(),
       generatedAt: new Date().toISOString(),
     };
@@ -420,6 +422,124 @@ export class Division10Service {
       restockAlerts,
       volatilityIndex,
       generatedAt:          new Date().toISOString(),
+    };
+  }
+
+  getPipeline(): ContractPipelineIntelligence {
+    const contracts = Object.values(registry.contracts) as any[];
+    const quotes    = Object.values(registry.quotes)    as any[];
+    const agencies  = Object.values(registry.agencies)  as any[];
+
+    // ── Active Contracts ────────────────────────────────────────────────────
+    const activeContracts: ActiveContract[] = contracts.map(c => {
+      const clins = (c.catalog ?? c.products ?? c.clins ?? []).length;
+      const val   = c.totalValue ?? c.value ?? c.estimatedValue ??
+                    (c.catalog ?? []).reduce((s: number, p: any) => s + (p.unitPrice ?? p.price ?? 0), 0);
+
+      const rawStatus = (c.status ?? "ACTIVE").toUpperCase();
+      const status: ActiveContract["status"] =
+        ["ACTIVE","PENDING","EXPIRING","CLOSED"].includes(rawStatus)
+          ? (rawStatus as ActiveContract["status"])
+          : "ACTIVE";
+
+      return {
+        contractRef: c.contractRef ?? c.id ?? c.contractId ?? "UNKNOWN",
+        agency:      c.agency ?? c.agencyName ?? c.customer ?? "Unspecified",
+        value:       Math.round((val ?? 0) * 100) / 100,
+        status,
+        clinCount:   clins,
+        expiresAt:   c.expiresAt ?? c.endDate,
+      };
+    });
+
+    const totalContractValue = activeContracts.reduce((s, c) => s + c.value, 0);
+
+    // ── Pipeline RFQs ────────────────────────────────────────────────────────
+    const pipelineRFQs: PipelineRFQ[] = quotes.map(q => {
+      const rawStatus = (q.status ?? "DRAFT").toUpperCase().replace(/ /g, "_");
+      const status: PipelineRFQ["status"] =
+        ["DRAFT","SUBMITTED","UNDER_REVIEW","AWARDED","LOST"].includes(rawStatus)
+          ? (rawStatus as PipelineRFQ["status"])
+          : "DRAFT";
+
+      const est = q.estimatedValue ?? q.totalAmount ?? q.total ??
+                  (q.lineItems ?? []).reduce((s: number, li: any) => s + (li.unitPrice ?? li.price ?? 0) * (li.quantity ?? li.qty ?? 1), 0);
+
+      return {
+        rfqId:          q.rfqId ?? q.quoteId ?? q.id ?? "UNKNOWN",
+        agency:         q.agency ?? q.agencyName ?? q.customer ?? "Unknown",
+        description:    q.description ?? q.title ?? q.subject ?? "Unspecified",
+        estimatedValue: Math.round((est ?? 0) * 100) / 100,
+        status,
+        submittedAt:    q.submittedAt ?? q.createdAt,
+        dueDate:        q.dueDate ?? q.deadline,
+      };
+    });
+
+    const totalPipelineValue = pipelineRFQs
+      .filter(r => r.status !== "LOST")
+      .reduce((s, r) => s + r.estimatedValue, 0);
+
+    // Win rate — awarded / (awarded + lost)
+    const awarded = quotes.filter(q => (q.status ?? "").toUpperCase() === "AWARDED").length;
+    const lost    = quotes.filter(q => (q.status ?? "").toUpperCase() === "LOST").length;
+    const winRate = (awarded + lost) > 0
+      ? Math.round((awarded / (awarded + lost)) * 10000) / 10000
+      : 0;
+
+    // ── Agency Relationships ─────────────────────────────────────────────────
+    // Aggregate contract + quote data per agency name
+    const agencyMap: Record<string, { id: string; name: string; raw?: any; contracts: number; value: number; lastContact?: string }> = {};
+
+    // Seed from agencies registry
+    agencies.forEach(a => {
+      const id = a.agencyId ?? a.id;
+      if (!id) return;
+      agencyMap[id] = {
+        id,
+        name:        a.name ?? a.agencyName ?? id,
+        raw:         a,
+        contracts:   0,
+        value:       0,
+        lastContact: a.lastContact,
+      };
+    });
+
+    // Tally from contracts
+    activeContracts.forEach(c => {
+      const key = c.agency;
+      if (!agencyMap[key]) agencyMap[key] = { id: key, name: key, contracts: 0, value: 0 };
+      agencyMap[key].contracts += 1;
+      agencyMap[key].value     += c.value;
+    });
+
+    const tierFor = (a: typeof agencyMap[string]): AgencyRelationship["tier"] => {
+      if (a.contracts >= 3 || a.value >= 500000) return "PREFERRED";
+      if (a.contracts >= 1 || a.value > 0)       return "ACTIVE";
+      if (a.raw?.prospect)                        return "PROSPECT";
+      return "DORMANT";
+    };
+
+    const agencyRelationships: AgencyRelationship[] = Object.values(agencyMap)
+      .map(a => ({
+        agencyId:    a.id,
+        agencyName:  a.name,
+        tier:        tierFor(a),
+        contracts:   a.contracts,
+        totalValue:  Math.round(a.value * 100) / 100,
+        lastContact: a.lastContact,
+      }))
+      .sort((a, b) => b.totalValue - a.totalValue);
+
+    return {
+      divisionId:          10,
+      activeContracts,
+      pipelineRFQs,
+      winRate,
+      agencyRelationships,
+      totalPipelineValue:  Math.round(totalPipelineValue * 100) / 100,
+      totalContractValue:  Math.round(totalContractValue * 100) / 100,
+      generatedAt:         new Date().toISOString(),
     };
   }
 

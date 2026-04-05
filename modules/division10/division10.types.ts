@@ -75,6 +75,45 @@ export interface ContractIntelligence {
   topContracts: { contractRef: string; productCount: number }[];
 }
 
+export interface ActiveContract {
+  contractRef:   string;
+  agency:        string;
+  value:         number;
+  status:        "ACTIVE" | "PENDING" | "EXPIRING" | "CLOSED";
+  clinCount:     number;
+  expiresAt?:    string;
+}
+
+export interface PipelineRFQ {
+  rfqId:          string;
+  agency:         string;
+  description:    string;
+  estimatedValue: number;
+  status:         "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "AWARDED" | "LOST";
+  submittedAt?:   string;
+  dueDate?:       string;
+}
+
+export interface AgencyRelationship {
+  agencyId:     string;
+  agencyName:   string;
+  tier:         "PREFERRED" | "ACTIVE" | "PROSPECT" | "DORMANT";
+  contracts:    number;
+  totalValue:   number;
+  lastContact?: string;
+}
+
+export interface ContractPipelineIntelligence {
+  divisionId:          number;
+  activeContracts:     ActiveContract[];
+  pipelineRFQs:        PipelineRFQ[];
+  winRate:             number;
+  agencyRelationships: AgencyRelationship[];
+  totalPipelineValue:  number;
+  totalContractValue:  number;
+  generatedAt:         string;
+}
+
 export interface SystemAlert {
   level: "INFO" | "WARN" | "CRITICAL";
   division: number;
@@ -163,7 +202,8 @@ export interface FullIntelligenceReport {
   operators: OperatorIntelligence;
   contracts: ContractIntelligence;
   margins: MarginIntelligence;
-  supply: SupplyChainIntelligence;
-  alerts: SystemAlert[];
+  supply:    SupplyChainIntelligence;
+  pipeline:  ContractPipelineIntelligence;
+  alerts:    SystemAlert[];
   generatedAt: string;
 }
