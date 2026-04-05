@@ -10,7 +10,7 @@ import {
   MarginIntelligence, CategoryMargin, RiskFlag,
   SupplyChainIntelligence, SupplyItem, SupplierAvailability, RestockAlert,
   ContractPipelineIntelligence, ActiveContract, PipelineRFQ, AgencyRelationship,
-  SystemAlert, FullIntelligenceReport,
+  SystemAlert, AlertIntelligence, FullIntelligenceReport,
 } from "./division10.types";
 
 const MARGIN_BANDS = { low: 0.08, target: 0.18, premium: 0.27 };
@@ -172,35 +172,95 @@ export class Division10Service {
     return { totalContracts: contracts.length, totalCLINs, contractsWithProducts, topContracts };
   }
 
-  getAlerts(): SystemAlert[] {
-    const alerts: SystemAlert[] = [];
-    const now = new Date().toISOString();
-    const products  = Object.keys(registry.products).length;
-    const contracts = Object.keys(registry.contracts).length;
-    const inventory = Object.values(registry.inventory) as any[];
-    const shipments = Object.values(registry.shipments) as any[];
-    const requests  = Object.values(registry.requests)  as any[];
+  getAlerts(): AlertIntelligence {
+    const raw: Omit<SystemAlert, "severity">[] = [];
+    const now        = new Date().toISOString();
+    const products   = Object.keys(registry.products).length;
+    const contracts  = Object.keys(registry.contracts).length;
+    const inventory  = Object.values(registry.inventory) as any[];
+    const shipments  = Object.values(registry.shipments) as any[];
+    const requests   = Object.values(registry.requests)  as any[];
+    const quotes     = Object.values(registry.quotes)    as any[];
+    const compliance = Object.values(registry.compliance) as any[];
 
+    // ── Division 1 — Product Catalog ─────────────────────────────────────
     if (products === 0)
-      alerts.push({ level: "WARN", division: 1, message: "No products imported. Run Division 1 import.", detectedAt: now });
-    if (products > 0 && contracts === 0)
-      alerts.push({ level: "WARN", division: 2, message: "Products exist but no contracts defined.", detectedAt: now });
+      raw.push({ level: "WARN",     division: 1,  message: "No products imported. Run Division 1 intake.", detectedAt: now });
 
+    // ── Division 2 — Contracts ────────────────────────────────────────────
+    if (products > 0 && contracts === 0)
+      raw.push({ level: "WARN",     division: 2,  message: "Products exist but no contracts defined.", detectedAt: now });
+
+    const expiringContracts = (Object.values(registry.contracts) as any[])
+      .filter(c => c.expiresAt && new Date(c.expiresAt) < new Date(Date.now() + 30 * 86_400_000));
+    if (expiringContracts.length)
+      raw.push({ level: "CRITICAL", division: 2,  message: `${expiringContracts.length} contract(s) expiring within 30 days.`, detectedAt: now });
+
+    // ── Division 3 — Requests ─────────────────────────────────────────────
     const openRequests = requests.filter(r => r.status === "OPEN" || r.status === "PENDING");
     if (openRequests.length)
-      alerts.push({ level: "INFO", division: 3, message: `${openRequests.length} open request(s) pending fulfillment.`, detectedAt: now });
+      raw.push({ level: "INFO",     division: 3,  message: `${openRequests.length} open request(s) pending fulfillment.`, detectedAt: now });
 
-    const lowStock = inventory.filter(i => (i.quantity ?? i.qty ?? 0) <= 5);
+    // ── Division 4 — Inventory ────────────────────────────────────────────
+    const outOfStock = inventory.filter(i => (i.quantity ?? i.qty ?? 0) === 0);
+    if (outOfStock.length)
+      raw.push({ level: "CRITICAL", division: 4,  message: `${outOfStock.length} SKU(s) completely out of stock.`, detectedAt: now });
+
+    const lowStock = inventory.filter(i => { const q = i.quantity ?? i.qty ?? 0; return q > 0 && q <= 5; });
     if (lowStock.length)
-      alerts.push({ level: "WARN", division: 4, message: `${lowStock.length} SKU(s) at or below low-stock threshold (≤5 units).`, detectedAt: now });
+      raw.push({ level: "WARN",     division: 4,  message: `${lowStock.length} SKU(s) at or below low-stock threshold (≤5 units).`, detectedAt: now });
 
+    // ── Division 5 — Shipments ────────────────────────────────────────────
     const pendingShipments = shipments.filter(s => s.status === "Pending" || s.status === "In Transit");
     if (pendingShipments.length)
-      alerts.push({ level: "INFO", division: 5, message: `${pendingShipments.length} shipment(s) in transit or pending.`, detectedAt: now });
+      raw.push({ level: "INFO",     division: 5,  message: `${pendingShipments.length} shipment(s) in transit or pending.`, detectedAt: now });
 
-    if (!alerts.length)
-      alerts.push({ level: "INFO", division: 10, message: "All systems nominal.", detectedAt: now });
-    return alerts;
+    const overdueShipments = shipments.filter(s =>
+      s.expectedDelivery && new Date(s.expectedDelivery) < new Date() && s.status !== "Delivered"
+    );
+    if (overdueShipments.length)
+      raw.push({ level: "CRITICAL", division: 5,  message: `${overdueShipments.length} shipment(s) past expected delivery date.`, detectedAt: now });
+
+    // ── Division 6 — Compliance ───────────────────────────────────────────
+    const flaggedCompliance = compliance.filter(c => c.status === "FLAGGED" || c.status === "FAILED");
+    if (flaggedCompliance.length)
+      raw.push({ level: "CRITICAL", division: 6,  message: `${flaggedCompliance.length} compliance record(s) flagged or failed.`, detectedAt: now });
+
+    // ── Division 8 — Quotes / Pipeline ───────────────────────────────────
+    const staleRFQs = quotes.filter(q =>
+      q.createdAt && new Date(q.createdAt) < new Date(Date.now() - 14 * 86_400_000) &&
+      (q.status ?? "DRAFT").toUpperCase() === "DRAFT"
+    );
+    if (staleRFQs.length)
+      raw.push({ level: "WARN",     division: 8,  message: `${staleRFQs.length} RFQ(s) in DRAFT status for over 14 days.`, detectedAt: now });
+
+    // ── Division 10 — System ──────────────────────────────────────────────
+    const uptimeMs = Date.now() - startTime;
+    if (uptimeMs < 60_000)
+      raw.push({ level: "INFO",     division: 10, message: "System recently restarted. Data may still be seeding.", detectedAt: now });
+
+    if (!raw.length)
+      raw.push({ level: "INFO",     division: 10, message: "All systems nominal.", detectedAt: now });
+
+    // ── Map level → severity ──────────────────────────────────────────────
+    const severityOf = (level: SystemAlert["level"]): SystemAlert["severity"] => {
+      if (level === "CRITICAL") return "high";
+      if (level === "WARN")     return "medium";
+      return "low";
+    };
+
+    const alerts: SystemAlert[] = raw.map(a => ({ ...a, severity: severityOf(a.level) }));
+
+    return {
+      divisionId: 10,
+      alerts,
+      severityLevels: {
+        low:    alerts.filter(a => a.severity === "low"),
+        medium: alerts.filter(a => a.severity === "medium"),
+        high:   alerts.filter(a => a.severity === "high"),
+      },
+      generatedAt: now,
+    };
   }
 
   getFullReport(): FullIntelligenceReport {

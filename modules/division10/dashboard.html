@@ -352,8 +352,9 @@
   <!-- Alerts -->
   <div class="panel alert-panel">
     <div class="panel-header">SYSTEM ALERTS <span class="tag">LIVE</span></div>
-    <div class="panel-body" id="alerts">
-      <div class="loading">LOADING...</div>
+    <div class="panel-body">
+      <div id="alerts-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.75rem"></div>
+      <div id="alerts"></div>
     </div>
   </div>
 
@@ -605,14 +606,28 @@ async function loadMargins() {
 }
 
 async function loadAlerts() {
-  const alerts = await get('/intelligence/alerts');
+  const d = await get('/intelligence/alerts');
+  const alerts = d.alerts ?? d;  // handle both old flat array and new envelope
+
+  const hi  = d.severityLevels?.high?.length   ?? alerts.filter(a => a.level === 'CRITICAL').length;
+  const med = d.severityLevels?.medium?.length  ?? alerts.filter(a => a.level === 'WARN').length;
+  const lo  = d.severityLevels?.low?.length     ?? alerts.filter(a => a.level === 'INFO').length;
+
+  document.getElementById('alerts-summary').innerHTML = [
+    { val: hi,  lbl: 'HIGH',   color: '#ff2244' },
+    { val: med, lbl: 'MEDIUM', color: '#ff9900' },
+    { val: lo,  lbl: 'LOW',    color: '#00ff88' },
+  ].map(b => `<div class="metric"><div class="val" style="color:${b.color};text-shadow:0 0 10px ${b.color};font-size:1.4rem">${b.val}</div><div class="lbl">${b.lbl}</div></div>`).join('');
+
+  const levelColor = { CRITICAL: '#ff2244', WARN: '#ff9900', INFO: '#00ff88' };
+
   document.getElementById('alerts').innerHTML = alerts.map(a =>
     `<div class="alert-row">
-      <span class="alert-level level-${a.level}">${a.level}</span>
+      <span class="alert-level level-${a.level}" style="color:${levelColor[a.level]};border-color:${levelColor[a.level]}">${a.severity?.toUpperCase() ?? a.level}</span>
       <span class="alert-msg">${a.message}</span>
       <span class="alert-div">DIV-${a.division}</span>
     </div>`
-  ).join('') || '<div class="loading">NO ALERTS</div>';
+  ).join('') || '<div class="loading" style="color:var(--green)">ALL SYSTEMS NOMINAL</div>';
 }
 
 async function loadActions() {

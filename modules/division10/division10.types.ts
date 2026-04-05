@@ -115,10 +115,22 @@ export interface ContractPipelineIntelligence {
 }
 
 export interface SystemAlert {
-  level: "INFO" | "WARN" | "CRITICAL";
-  division: number;
-  message: string;
+  level:     "INFO" | "WARN" | "CRITICAL";
+  severity:  "low" | "medium" | "high";
+  division:  number;
+  message:   string;
   detectedAt: string;
+}
+
+export interface AlertIntelligence {
+  divisionId:     number;
+  alerts:         SystemAlert[];
+  severityLevels: {
+    low:    SystemAlert[];
+    medium: SystemAlert[];
+    high:   SystemAlert[];
+  };
+  generatedAt: string;
 }
 
 export interface MarginBands {
@@ -204,6 +216,6 @@ export interface FullIntelligenceReport {
   margins: MarginIntelligence;
   supply:    SupplyChainIntelligence;
   pipeline:  ContractPipelineIntelligence;
-  alerts:    SystemAlert[];
+  alerts:    AlertIntelligence;
   generatedAt: string;
 }
