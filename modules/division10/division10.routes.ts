@@ -36,6 +36,10 @@ router.get("/intelligence/pipeline",    operatorWorkflow("DIVISION-10", "VIEW_PI
 router.get("/intelligence/assessment",  operatorWorkflow("DIVISION-10", "VIEW_ASSESSMENT"),  division10Controller.getAssessment);
 router.get("/intelligence/report",     operatorWorkflow("DIVISION-10", "VIEW_FULL_REPORT"), division10Controller.getFullReport);
 
+// ── Relic Feed ────────────────────────────────────────────────────────────────
+router.get( "/relics", operatorWorkflow("DIVISION-10", "VIEW_RELICS"),   division10Controller.getRelics);
+router.post("/relics", operatorWorkflow("DIVISION-10", "CREATE_RELIC"),  division10Controller.createRelic);
+
 // ── Cyberpunk dashboard UI ────────────────────────────────────────────────────
 router.get("/dashboard", (_req, res) => {
   res.sendFile(path.join(__dirname, "dashboard.html"));

@@ -17,6 +17,23 @@ export const division10Controller = {
     return res.json(division10Service.getSystemHealth());
   },
 
+  getRelics(_req: Request, res: Response) {
+    return res.json(division10Service.getRelics());
+  },
+
+  createRelic(req: Request, res: Response) {
+    const { type, source, entity, meaning, timestamp, operatorId, divisionId } = req.body ?? {};
+    if (!type || !source || !entity || !meaning) {
+      return res.status(400).json({ error: "type, source, entity, and meaning are required." });
+    }
+    const valid = ["Engagement","Contract","Shipment","Operator","Supply","System","Custom"];
+    if (!valid.includes(type)) {
+      return res.status(400).json({ error: `type must be one of: ${valid.join(", ")}` });
+    }
+    const relic = division10Service.createRelic({ type, source, entity, meaning, timestamp, operatorId, divisionId });
+    return res.status(201).json(relic);
+  },
+
   getOperatorInfo(_req: Request, res: Response) {
     return res.json(division10Service.getOperatorInfo());
   },

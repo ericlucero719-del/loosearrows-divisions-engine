@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LOOSE ARROWS // DIVISION 10 // INTELLIGENCE</title>
+<title>LOOSE ARROWS // DIV-10 // COCKPIT</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 
@@ -13,6 +13,8 @@
     --yellow:  #ffe600;
     --green:   #00ff88;
     --red:     #ff2244;
+    --orange:  #ff9900;
+    --purple:  #cc44ff;
     --dim:     #0a0a1a;
     --panel:   #0d0d2b;
     --border:  #1a1a4a;
@@ -28,48 +30,91 @@
     overflow-x: hidden;
   }
 
-  /* Scanline overlay */
   body::before {
     content: '';
     position: fixed; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,247,0.02) 2px, rgba(0,255,247,0.02) 4px);
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,247,.02) 2px,rgba(0,255,247,.02) 4px);
     pointer-events: none; z-index: 9999;
   }
 
+  /* ── Header ─────────────────────────────────────────── */
   header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--cyan);
+    padding: .9rem 2rem;
+    border-bottom: 2px solid var(--cyan);
     background: var(--panel);
+    flex-wrap: wrap; gap: .75rem;
   }
 
   .logo {
     font-family: 'Orbitron', sans-serif;
-    font-weight: 900; font-size: 1.2rem;
+    font-weight: 900; font-size: 1.05rem;
     color: var(--cyan);
     text-shadow: 0 0 20px var(--cyan);
     letter-spacing: 4px;
   }
-
   .logo span { color: var(--magenta); }
 
-  .status-bar {
-    display: flex; gap: 1.5rem; align-items: center; font-size: 0.75rem;
+  .op-info {
+    display: flex; gap: 2rem; align-items: center; font-size: .7rem;
   }
+  .op-field { display: flex; flex-direction: column; gap: 2px; }
+  .op-label { color: rgba(0,255,247,.35); font-size: .58rem; letter-spacing: 2px; }
+  .op-value { color: var(--cyan); }
+  .op-value.hl { color: var(--yellow); font-family: 'Orbitron',sans-serif; font-size: .75rem; }
 
-  .pulse {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
+  .status-bar { display: flex; gap: 1.5rem; align-items: center; font-size: .75rem; }
+  .pulse { width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
   #uptime { color: var(--yellow); }
-  #clock  { color: var(--cyan); opacity: 0.7; }
+  #clock  { color: var(--cyan); opacity: .7; }
 
-  /* Grid layout */
+  /* ── Refresh btn ─────────────────────────────────────── */
+  .refresh-btn {
+    background: transparent; border: 1px solid var(--cyan);
+    color: var(--cyan); font-family: 'Share Tech Mono', monospace;
+    font-size: .7rem; padding: 4px 12px; cursor: pointer;
+    letter-spacing: 2px; transition: all .2s;
+  }
+  .refresh-btn:hover { background: var(--cyan); color: var(--dim); box-shadow: 0 0 15px var(--cyan); }
+
+  /* ── Intelligence Snapshot Strip ─────────────────────── */
+  .snap-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+  @media (max-width:900px) { .snap-strip { grid-template-columns: repeat(2,1fr); } }
+
+  .snap-card {
+    background: var(--panel);
+    padding: 1rem 1.25rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .snap-card:last-child { border-right: none; }
+  .snap-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .snap-card.financial::before   { background: linear-gradient(90deg,transparent,var(--green),transparent); }
+  .snap-card.operational::before { background: linear-gradient(90deg,transparent,var(--cyan),transparent); }
+  .snap-card.supply::before      { background: linear-gradient(90deg,transparent,var(--orange),transparent); }
+  .snap-card.agency::before      { background: linear-gradient(90deg,transparent,var(--purple),transparent); }
+
+  .snap-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .58rem; letter-spacing: 3px;
+    margin-bottom: .65rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .snap-badge {
+    font-size: .5rem; padding: 2px 7px; border-radius: 2px;
+    font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
+  }
+  .snap-field { display: flex; justify-content: space-between; padding: 3px 0; font-size: .75rem; }
+  .snap-field .sf-l { color: rgba(0,255,247,.4); }
+
+  /* ── Grid ─────────────────────────────────────────────── */
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -83,150 +128,166 @@
     overflow: hidden;
     position: relative;
   }
-
   .panel::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    content: ''; position: absolute; top:0;left:0;right:0; height:2px;
+    background: linear-gradient(90deg,transparent,var(--cyan),transparent);
   }
-
-  .panel.alert-panel::before { background: linear-gradient(90deg, transparent, var(--magenta), transparent); }
-  .panel.finance-panel::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+  .panel.alert-panel::before  { background: linear-gradient(90deg,transparent,var(--magenta),transparent); }
+  .panel.orange-panel::before { background: linear-gradient(90deg,transparent,var(--orange),transparent); }
+  .panel.purple-panel::before { background: linear-gradient(90deg,transparent,var(--purple),transparent); }
+  .panel.red-panel::before    { background: linear-gradient(90deg,transparent,var(--red),transparent); }
+  .panel.yellow-panel::before { background: linear-gradient(90deg,transparent,var(--yellow),transparent); }
+  .panel.green-panel::before  { background: linear-gradient(90deg,transparent,var(--green),transparent); }
   .panel.full-width { grid-column: 1 / -1; }
+  .panel.span2 { grid-column: span 2; }
 
   .panel-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0.75rem 1rem;
+    padding: .75rem 1rem;
     border-bottom: 1px solid var(--border);
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.7rem; letter-spacing: 2px;
+    font-size: .68rem; letter-spacing: 2px;
     text-transform: uppercase;
   }
-
   .panel-header .tag {
-    font-size: 0.6rem; color: var(--magenta);
+    font-size: .58rem; color: var(--magenta);
     border: 1px solid var(--magenta); padding: 1px 6px; border-radius: 2px;
   }
-
   .panel-body { padding: 1rem; }
 
-  /* Summary grid */
-  .summary-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.75rem;
-  }
-
+  /* ── Metric cards ─────────────────────────────────────── */
   .metric {
-    background: rgba(0,255,247,0.04);
-    border: 1px solid rgba(0,255,247,0.1);
-    border-radius: 4px; padding: 0.75rem;
+    background: rgba(0,255,247,.04);
+    border: 1px solid rgba(0,255,247,.1);
+    border-radius: 4px; padding: .65rem;
     text-align: center;
   }
+  .metric .val { font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:700;color:var(--cyan);text-shadow:0 0 12px var(--cyan); }
+  .metric .lbl { font-size:.58rem;color:rgba(0,255,247,.45);margin-top:4px; }
 
-  .metric .val {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.8rem; font-weight: 700;
-    color: var(--cyan);
-    text-shadow: 0 0 15px var(--cyan);
-  }
-
-  .metric .lbl { font-size: 0.65rem; color: rgba(0,255,247,0.5); margin-top: 4px; }
-
-  /* Division status list */
-  .div-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    font-size: 0.8rem;
-  }
-
-  .div-row:last-child { border-bottom: none; }
-
-  .div-id {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.65rem; color: var(--magenta);
-    min-width: 28px;
-  }
-
-  .div-name { flex: 1; padding: 0 0.75rem; color: rgba(0,255,247,0.8); }
-  .div-count { color: var(--yellow); min-width: 40px; text-align: right; }
-
-  .badge {
-    font-size: 0.55rem; padding: 2px 6px; border-radius: 2px;
-    font-family: 'Orbitron', sans-serif; letter-spacing: 1px; min-width: 52px; text-align: center;
-  }
-
-  .badge.ACTIVE   { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid var(--green); }
-  .badge.EMPTY    { background: rgba(255,230,0,0.1);  color: var(--yellow); border: 1px solid var(--yellow); }
-  .badge.ALERT    { background: rgba(255,34,68,0.15); color: var(--red);   border: 1px solid var(--red); }
-
-  /* Finance panel */
+  /* ── Finance rows ─────────────────────────────────────── */
   .finance-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-    font-size: 0.82rem;
+    padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
+    font-size: .8rem;
   }
-
   .finance-row:last-child { border-bottom: none; }
-  .finance-row .label { color: rgba(0,255,247,0.6); }
-  .finance-row .value { color: var(--green); font-family: 'Orbitron', sans-serif; font-size: 0.85rem; }
+  .finance-row .label { color: rgba(0,255,247,.55); }
+  .finance-row .value { color: var(--green); font-family:'Orbitron',sans-serif;font-size:.82rem; }
 
-  /* Alerts */
+  /* ── Badge ───────────────────────────────────────────── */
+  .badge {
+    font-size:.52rem;padding:2px 6px;border-radius:2px;
+    font-family:'Orbitron',sans-serif;letter-spacing:1px;min-width:48px;text-align:center;
+  }
+  .badge.ACTIVE { background:rgba(0,255,136,.15);color:var(--green);border:1px solid var(--green); }
+  .badge.EMPTY  { background:rgba(255,230,0,.1); color:var(--yellow);border:1px solid var(--yellow); }
+  .badge.ALERT  { background:rgba(255,34,68,.15);color:var(--red);  border:1px solid var(--red); }
+
+  /* ── Alert rows ───────────────────────────────────────── */
   .alert-row {
-    display: flex; align-items: flex-start; gap: 0.75rem;
-    padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-    font-size: 0.8rem;
+    display: flex; align-items: flex-start; gap: .75rem;
+    padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
+    font-size: .78rem;
   }
-
   .alert-row:last-child { border-bottom: none; }
+  .alert-level { font-family:'Orbitron',sans-serif;font-size:.57rem;padding:2px 5px;border-radius:2px;min-width:54px;text-align:center;flex-shrink:0; }
+  .alert-msg   { color: rgba(0,255,247,.8); flex: 1; }
+  .alert-div   { color: var(--magenta); font-size: .68rem; flex-shrink: 0; }
 
-  .alert-level {
-    font-family: 'Orbitron', sans-serif; font-size: 0.6rem;
-    padding: 2px 5px; border-radius: 2px; min-width: 58px; text-align: center;
-    flex-shrink: 0;
+  /* ── Inventory table ──────────────────────────────────── */
+  .inv-table { width:100%;border-collapse:collapse;font-size:.77rem; }
+  .inv-table th { font-family:'Orbitron',sans-serif;font-size:.57rem;color:rgba(0,255,247,.4);letter-spacing:2px;border-bottom:1px solid var(--border);padding:6px 8px;text-align:left;background:rgba(0,255,247,.02); }
+  .inv-table td { padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);color:rgba(0,255,247,.8); }
+  .inv-table tr:last-child td { border-bottom:none; }
+  .inv-table tr:hover td { background:rgba(0,255,247,.03); }
+
+  /* ── Supplier Matrix ──────────────────────────────────── */
+  .supplier-card {
+    background:rgba(255,153,0,.04);border:1px solid rgba(255,153,0,.15);
+    border-radius:4px;padding:.75rem;margin-bottom:.65rem;
   }
+  .supplier-card:last-of-type { margin-bottom:0; }
+  .supplier-card .s-name { font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--orange);margin-bottom:.45rem;display:flex;justify-content:space-between;align-items:center; }
+  .supplier-card .s-field { display:flex;justify-content:space-between;padding:2px 0;font-size:.74rem; }
+  .supplier-card .s-label { color:rgba(0,255,247,.4); }
 
-  .level-INFO     { background: rgba(0,255,247,0.1);  color: var(--cyan);    border: 1px solid var(--cyan); }
-  .level-WARN     { background: rgba(255,230,0,0.1);  color: var(--yellow);  border: 1px solid var(--yellow); }
-  .level-CRITICAL { background: rgba(255,34,68,0.15); color: var(--red);     border: 1px solid var(--red); }
-
-  .alert-msg { color: rgba(0,255,247,0.8); flex: 1; }
-  .alert-div { color: var(--magenta); font-size: 0.7rem; flex-shrink: 0; }
-
-  /* Actions log */
-  .action-row {
-    display: flex; gap: 0.75rem; align-items: baseline;
-    padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 0.75rem;
+  /* ── Relic Feed ───────────────────────────────────────── */
+  .relic-row {
+    display:flex;gap:1rem;align-items:flex-start;
+    padding:.65rem 0;border-bottom:1px solid rgba(255,230,0,.07);
+    font-size:.78rem;
   }
+  .relic-row:last-child { border-bottom:none; }
+  .relic-id    { font-family:'Orbitron',sans-serif;font-size:.58rem;color:var(--yellow);min-width:52px;padding-top:2px; }
+  .relic-body  { flex:1; }
+  .relic-type  { color:var(--yellow);font-family:'Orbitron',sans-serif;font-size:.62rem;margin-bottom:3px; }
+  .relic-meaning { color:rgba(0,255,247,.8);font-size:.78rem; }
+  .relic-meta  { color:rgba(0,255,247,.35);font-size:.63rem;margin-top:3px; }
+  .relic-ts    { color:rgba(255,255,255,.2);font-size:.62rem;flex-shrink:0;white-space:nowrap; }
 
-  .action-row:last-child { border-bottom: none; }
-  .action-div  { color: var(--magenta); min-width: 80px; font-size: 0.65rem; }
-  .action-type { color: var(--cyan); flex: 1; }
-  .action-time { color: rgba(0,255,247,0.4); font-size: 0.65rem; flex-shrink: 0; }
+  /* ── Operator roster row ──────────────────────────────── */
+  .op-row { display:flex;align-items:center;gap:7px;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.78rem; }
+  .op-row:last-child { border-bottom:none; }
+  .op-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
 
-  /* Refresh button */
-  .refresh-btn {
-    background: transparent; border: 1px solid var(--cyan);
-    color: var(--cyan); font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem; padding: 4px 12px; cursor: pointer;
-    letter-spacing: 2px; transition: all 0.2s;
+  /* ── Division list ────────────────────────────────────── */
+  .div-row { display:flex;align-items:center;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.78rem; }
+  .div-row:last-child { border-bottom:none; }
+  .div-id   { font-family:'Orbitron',sans-serif;font-size:.62rem;color:var(--magenta);min-width:28px; }
+  .div-name { flex:1;padding:0 .75rem;color:rgba(0,255,247,.8); }
+  .div-count{ color:var(--yellow);min-width:40px;text-align:right; }
+
+  /* ── Action log ───────────────────────────────────────── */
+  .action-row { display:flex;gap:.75rem;align-items:baseline;padding:.28rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.73rem; }
+  .action-row:last-child { border-bottom:none; }
+  .action-div  { color:var(--magenta);min-width:80px;font-size:.62rem; }
+  .action-type { color:var(--cyan);flex:1; }
+  .action-time { color:rgba(0,255,247,.35);font-size:.62rem;flex-shrink:0; }
+
+  /* ── Misc ─────────────────────────────────────────────── */
+  .loading { color:rgba(0,255,247,.3);font-size:.78rem;padding:1rem 0;text-align:center; }
+  .grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem; }
+  .section-label { font-size:.6rem;letter-spacing:2px;color:rgba(0,255,247,.35);margin-bottom:.4rem; }
+
+  /* ── Footer ───────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    padding: .65rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .62rem; color: rgba(0,255,247,.3);
+    flex-wrap: wrap; gap: .4rem;
   }
-
-  .refresh-btn:hover {
-    background: var(--cyan); color: var(--dim);
-    box-shadow: 0 0 15px var(--cyan);
-  }
-
-  .loading { color: rgba(0,255,247,0.3); font-size: 0.8rem; padding: 1rem 0; text-align: center; }
-  .error   { color: var(--red); font-size: 0.8rem; padding: 0.5rem 0; }
+  footer .f-val { color: rgba(0,255,247,.65); }
+  footer .f-sep { color: rgba(0,255,247,.15); margin: 0 .4rem; }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════════════════ HEADER -->
 <header>
-  <div class="logo">LOOSE<span>ARROWS</span> // DIV-10 // INTEL</div>
+  <div class="logo">LOOSE<span>ARROWS</span>™ // DIV-10 // COCKPIT</div>
+
+  <div class="op-info">
+    <div class="op-field">
+      <span class="op-label">OPERATOR</span>
+      <span class="op-value hl" id="hdr-operator">—</span>
+    </div>
+    <div class="op-field">
+      <span class="op-label">ROLE</span>
+      <span class="op-value" id="hdr-role">—</span>
+    </div>
+    <div class="op-field">
+      <span class="op-label">DIVISION</span>
+      <span class="op-value">LOGISTICS &amp; FLEET INTEL</span>
+    </div>
+    <div class="op-field">
+      <span class="op-label">STATUS</span>
+      <span class="op-value" style="color:var(--green)">OPERATIONAL</span>
+    </div>
+  </div>
+
   <div class="status-bar">
     <div class="pulse"></div>
     <span id="uptime">UPTIME: --</span>
@@ -235,37 +296,130 @@
   </div>
 </header>
 
+<!-- ═══════════════════════════════════════════ INTELLIGENCE SNAPSHOT -->
+<div class="snap-strip">
+
+  <!-- Financial Health -->
+  <div class="snap-card financial">
+    <div class="snap-title" style="color:var(--green)">
+      FINANCIAL HEALTH
+      <span class="snap-badge" id="snap-fin-badge" style="border:1px solid var(--green);color:var(--green)">--</span>
+    </div>
+    <div class="snap-field"><span class="sf-l">REVENUE</span><span id="sf-revenue" style="color:var(--green)">--</span></div>
+    <div class="snap-field"><span class="sf-l">MARGIN BAND</span><span id="sf-margin">--</span></div>
+    <div class="snap-field"><span class="sf-l">CAPITAL EFF.</span><span id="sf-capeff">--</span></div>
+  </div>
+
+  <!-- Operational Status -->
+  <div class="snap-card operational">
+    <div class="snap-title" style="color:var(--cyan)">
+      OPERATIONAL STATUS
+      <span class="snap-badge" id="snap-op-badge" style="border:1px solid var(--cyan);color:var(--cyan)">--</span>
+    </div>
+    <div class="snap-field"><span class="sf-l">ACTIVE OPERATORS</span><span id="sf-active-ops" style="color:var(--green)">--</span></div>
+    <div class="snap-field"><span class="sf-l">PENDING</span><span id="sf-pending-ops" style="color:var(--yellow)">--</span></div>
+    <div class="snap-field"><span class="sf-l">RELICS CREATED</span><span id="sf-relics" style="color:var(--yellow)">--</span></div>
+  </div>
+
+  <!-- Supplier Strength -->
+  <div class="snap-card supply">
+    <div class="snap-title" style="color:var(--orange)">
+      SUPPLIER STRENGTH
+      <span class="snap-badge" id="snap-sup-badge" style="border:1px solid var(--orange);color:var(--orange)">--</span>
+    </div>
+    <div class="snap-field"><span class="sf-l">ACTIVE SUPPLIER</span><span id="sf-top-supplier" style="color:var(--orange)">--</span></div>
+    <div class="snap-field"><span class="sf-l">RELIABILITY</span><span id="sf-reliability">--</span></div>
+    <div class="snap-field"><span class="sf-l">VOLATILITY IDX</span><span id="sf-volatility">--</span></div>
+  </div>
+
+  <!-- Agency Trust -->
+  <div class="snap-card agency">
+    <div class="snap-title" style="color:var(--purple)">
+      AGENCY TRUST
+      <span class="snap-badge" id="snap-ag-badge" style="border:1px solid var(--purple);color:var(--purple)">--</span>
+    </div>
+    <div class="snap-field"><span class="sf-l">AGENCY</span><span id="sf-top-agency" style="color:var(--purple)">--</span></div>
+    <div class="snap-field"><span class="sf-l">STATUS</span><span id="sf-agency-tier">--</span></div>
+    <div class="snap-field"><span class="sf-l">LAST INTERACTION</span><span id="sf-last-interaction">--</span></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ MAIN GRID -->
 <div class="grid">
 
-  <!-- Summary -->
-  <div class="panel full-width">
-    <div class="panel-header">SYSTEM SUMMARY <span class="tag">DIV-10</span></div>
+  <!-- ── Alerts ─────────────────────────────────────────── -->
+  <div class="panel alert-panel">
+    <div class="panel-header" style="color:var(--magenta)">ALERTS <span class="tag" style="color:var(--magenta);border-color:var(--magenta)">LIVE</span></div>
     <div class="panel-body">
-      <div class="summary-grid" id="summary-grid">
-        <div class="loading">LOADING...</div>
+      <div id="alert-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-bottom:.75rem"></div>
+      <div id="alerts"></div>
+    </div>
+  </div>
+
+  <!-- ── Inventory Intelligence (wide) ─────────────────── -->
+  <div class="panel span2">
+    <div class="panel-header">INVENTORY INTELLIGENCE <span class="tag">DIV-4</span></div>
+    <div class="panel-body" style="overflow-x:auto">
+      <div id="inv-table-wrap"><div class="loading">LOADING...</div></div>
+    </div>
+  </div>
+
+  <!-- ── Supplier Matrix ────────────────────────────────── -->
+  <div class="panel orange-panel">
+    <div class="panel-header" style="color:var(--orange)">SUPPLIER MATRIX <span class="tag" style="color:var(--orange);border-color:var(--orange)">VENDORS</span></div>
+    <div class="panel-body" id="supplier-matrix">
+      <div class="loading">LOADING...</div>
+    </div>
+  </div>
+
+  <!-- ── RFQ & Contract Pipeline (full-width, 3-col) ────── -->
+  <div class="panel purple-panel full-width">
+    <div class="panel-header" style="color:var(--purple)">RFQ &amp; CONTRACT PIPELINE <span class="tag" style="color:var(--purple);border-color:var(--purple)">ACQUISITION</span></div>
+    <div class="panel-body">
+      <div id="pipeline-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1rem"></div>
+      <div class="grid-3">
+        <div>
+          <div class="section-label">PIPELINE RFQs</div>
+          <div id="pipeline-rfqs"></div>
+        </div>
+        <div>
+          <div class="section-label">ACTIVE CONTRACTS</div>
+          <div id="pipeline-contracts"></div>
+        </div>
+        <div>
+          <div class="section-label" style="color:rgba(204,68,255,.5)">AGENCY RELATIONSHIPS</div>
+          <div id="pipeline-agencies"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Executive Assessment -->
-  <div class="panel full-width" style="--panel-accent:#ff2244">
-    <div class="panel-header" style="color:#ff2244">EXECUTIVE ASSESSMENT <span class="tag" style="color:#ff2244;border-color:#ff2244">INTELLIGENCE</span></div>
-    <div class="panel-body">
-      <div id="assessment-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(255,34,68,.5);margin-bottom:.5rem">HEALTH DIMENSIONS</div>
-          <div id="assessment-dimensions"></div>
-        </div>
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(255,34,68,.5);margin-bottom:.5rem">RECOMMENDATIONS</div>
-          <div id="assessment-recommendations"></div>
-        </div>
-      </div>
+  <!-- ── Operator Corps ─────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-header">OPERATOR CORPS <span class="tag">ROSTER</span></div>
+    <div class="panel-body" id="operators">
+      <div class="loading">LOADING...</div>
     </div>
   </div>
 
-  <!-- Division Health -->
+  <!-- ── Recommendations Engine ────────────────────────── -->
+  <div class="panel red-panel">
+    <div class="panel-header" style="color:var(--red)">RECOMMENDATIONS ENGINE <span class="tag" style="color:var(--red);border-color:var(--red)">AI</span></div>
+    <div class="panel-body" id="recommendations">
+      <div class="loading">LOADING...</div>
+    </div>
+  </div>
+
+  <!-- ── Relic Feed (full-width) ───────────────────────── -->
+  <div class="panel yellow-panel full-width">
+    <div class="panel-header" style="color:var(--yellow)">RELIC FEED <span class="tag" style="color:var(--yellow);border-color:var(--yellow)">CHRONOLOGICAL</span></div>
+    <div class="panel-body" id="relic-feed">
+      <div class="loading">LOADING...</div>
+    </div>
+  </div>
+
+  <!-- ── Division Status ───────────────────────────────── -->
   <div class="panel">
     <div class="panel-header">DIVISION STATUS <span class="tag">HEALTH</span></div>
     <div class="panel-body" id="division-list">
@@ -273,110 +427,17 @@
     </div>
   </div>
 
-  <!-- Financials -->
-  <div class="panel finance-panel">
-    <div class="panel-header">FINANCIAL INTELLIGENCE <span class="tag">DIV-9</span></div>
-    <div class="panel-body" id="financials">
-      <div class="loading">LOADING...</div>
-    </div>
-  </div>
-
-  <!-- Inventory -->
+  <!-- ── System Registry ───────────────────────────────── -->
   <div class="panel">
-    <div class="panel-header">INVENTORY INTELLIGENCE <span class="tag">DIV-4</span></div>
-    <div class="panel-body" id="inventory">
-      <div class="loading">LOADING...</div>
-    </div>
-  </div>
-
-  <!-- Operators -->
-  <div class="panel">
-    <div class="panel-header">OPERATOR INTELLIGENCE <span class="tag">FIELD</span></div>
-    <div class="panel-body" id="operators">
-      <div class="loading">LOADING...</div>
-    </div>
-  </div>
-
-  <!-- Contracts -->
-  <div class="panel">
-    <div class="panel-header">CONTRACT INTELLIGENCE <span class="tag">DIV-2</span></div>
-    <div class="panel-body" id="contracts">
-      <div class="loading">LOADING...</div>
-    </div>
-  </div>
-
-  <!-- Contract Pipeline Intelligence -->
-  <div class="panel full-width" style="--panel-accent: #cc44ff;">
-    <div class="panel-header" style="color:#cc44ff">CONTRACT PIPELINE <span class="tag" style="color:#cc44ff;border-color:#cc44ff">ACQUISITION</span></div>
+    <div class="panel-header">SYSTEM REGISTRY <span class="tag">COUNTS</span></div>
     <div class="panel-body">
-      <div id="pipeline-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">ACTIVE CONTRACTS</div>
-          <div id="pipeline-contracts"></div>
-        </div>
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(204,68,255,.6);margin-bottom:.5rem">PIPELINE RFQs</div>
-          <div id="pipeline-rfqs"></div>
-        </div>
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">AGENCY RELATIONSHIPS</div>
-          <div id="pipeline-agencies"></div>
-        </div>
+      <div id="summary-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:.4rem">
+        <div class="loading">LOADING...</div>
       </div>
     </div>
   </div>
 
-  <!-- Supply Chain Intelligence -->
-  <div class="panel full-width" style="--panel-accent: #ff9900;">
-    <div class="panel-header" style="color:#ff9900">SUPPLY CHAIN INTELLIGENCE <span class="tag" style="color:#ff9900;border-color:#ff9900">LOGISTICS</span></div>
-    <div class="panel-body">
-      <div id="supply-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">INVENTORY ITEMS</div>
-          <div id="supply-items"></div>
-        </div>
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">SUPPLIER STATUS</div>
-          <div id="supply-vendors"></div>
-        </div>
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:#ff2244;margin-bottom:.5rem">RESTOCK ALERTS</div>
-          <div id="supply-alerts"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Margin Intelligence -->
-  <div class="panel full-width" style="--panel-accent: #ffe600;">
-    <div class="panel-header" style="color:var(--yellow)">MARGIN INTELLIGENCE <span class="tag" style="color:var(--yellow);border-color:var(--yellow)">CAPITAL</span></div>
-    <div class="panel-body">
-      <div id="margins-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">TOP CATEGORIES</div>
-          <div id="margins-categories"></div>
-        </div>
-        <div>
-          <div style="font-size:.65rem;letter-spacing:2px;color:#ff2244;margin-bottom:.5rem">RISK FLAGS</div>
-          <div id="margins-risks"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Alerts -->
-  <div class="panel alert-panel">
-    <div class="panel-header">SYSTEM ALERTS <span class="tag">LIVE</span></div>
-    <div class="panel-body">
-      <div id="alerts-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.75rem"></div>
-      <div id="alerts"></div>
-    </div>
-  </div>
-
-  <!-- Action Log -->
+  <!-- ── Operator Action Log (full-width) ──────────────── -->
   <div class="panel full-width">
     <div class="panel-header">OPERATOR ACTION LOG <span class="tag">LAST 20</span></div>
     <div class="panel-body" id="actions">
@@ -386,203 +447,225 @@
 
 </div>
 
+<!-- ═══════════════════════════════════════════════════════ FOOTER -->
+<footer>
+  <span>VERSION: <span class="f-val">Division 10 Intelligence Core v1.0</span></span>
+  <span>
+    STATUS: <span class="f-val">ACTIVE</span>
+    <span class="f-sep">|</span>
+    FEDERATION: <span class="f-val">SINGLE-CELL MODE</span>
+    <span class="f-sep">|</span>
+    NEXT UPGRADE: <span class="f-val">MULTI-CELL EXPANSION</span>
+  </span>
+  <span id="footer-clock" style="color:rgba(0,255,247,.25)">--</span>
+</footer>
+
 <script>
 const BASE = '/division/10';
 
-function fmt(n) {
-  return typeof n === 'number' ? n.toLocaleString() : (n ?? '--');
-}
-
-function fmtUSD(n) {
-  return typeof n === 'number'
-    ? '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    : '--';
-}
-
-function fmtTime(iso) {
-  if (!iso) return '--';
-  return new Date(iso).toLocaleTimeString();
-}
+/* ── Formatters ────────────────────────────────────────── */
+function fmt(n)    { return typeof n === 'number' ? n.toLocaleString() : (n ?? '--'); }
+function fmtUSD(n) { return typeof n === 'number' ? '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '--'; }
+function fmtTime(iso) { return iso ? new Date(iso).toLocaleTimeString() : '--'; }
+function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString() : '--'; }
+function pct(n)    { return typeof n === 'number' ? (n * 100).toFixed(0) + '%' : '--'; }
 
 async function get(path) {
   const r = await fetch(BASE + path);
   return r.json();
 }
 
-async function loadSummary() {
-  const d = await get('/system/summary');
-  const keys = ['products','contracts','requests','inventory','shipments','compliance','vendors','agencies','quotes','invoices','totalActions'];
-  const labels = ['Products','Contracts','Requests','Inventory','Shipments','Compliance','Vendors','Agencies','Quotes','Invoices','Actions'];
-  document.getElementById('summary-grid').innerHTML = keys.map((k,i) =>
-    `<div class="metric"><div class="val">${fmt(d[k])}</div><div class="lbl">${labels[i]}</div></div>`
-  ).join('');
+/* ── Health color map ──────────────────────────────────── */
+const HC = {
+  unknown:      'rgba(255,255,255,.25)',
+  initializing: '#00fff7',
+  healthy:      '#00ff88',
+  degraded:     '#ff9900',
+  critical:     '#ff2244',
+};
+function hColor(key) { return HC[key] ?? '#fff'; }
+
+/* ── Intelligence Snapshot ─────────────────────────────── */
+async function loadSnapshot() {
+  const [assessment, margins, supply, pipeline, operators] = await Promise.all([
+    get('/intelligence/assessment'),
+    get('/intelligence/margins'),
+    get('/intelligence/supply'),
+    get('/intelligence/pipeline'),
+    get('/intelligence/operators'),
+  ]);
+
+  const s = assessment.summary ?? {};
+
+  function setBadge(id, status) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const c = hColor(status);
+    el.textContent = (status ?? 'unknown').toUpperCase();
+    el.style.color       = c;
+    el.style.borderColor = c;
+  }
+
+  function set(id, val, color) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val ?? '--';
+    if (color) el.style.color = color;
+  }
+
+  // Financial
+  setBadge('snap-fin-badge', s.financialHealth);
+  set('sf-revenue',  fmtUSD(margins.monthlyRevenue),     hColor(s.financialHealth));
+  set('sf-margin',   margins.blendedMarginPct ?? '18% target');
+  set('sf-capeff',   margins.capitalEfficiencyScore != null ? margins.capitalEfficiencyScore.toFixed(2) : '0.00');
+
+  // Operational
+  setBadge('snap-op-badge', s.operationalStatus);
+  const ops      = operators.operators ?? [];
+  const active   = ops.filter(o => o.status === 'active').length;
+  const pending  = ops.filter(o => o.status === 'inactive').length;
+  const relics   = ops.reduce((acc, o) => acc + (o.relicsCreated ?? 0), 0);
+  set('sf-active-ops',  fmt(active));
+  set('sf-pending-ops', fmt(pending));
+  set('sf-relics',      fmt(relics));
+
+  // Header operator info
+  const topOp = ops[0];
+  if (topOp) {
+    document.getElementById('hdr-operator').textContent = topOp.name;
+    document.getElementById('hdr-role').textContent     = topOp.role;
+  }
+
+  // Supplier
+  setBadge('snap-sup-badge', s.supplierStrength);
+  const topV = supply.supplierAvailability?.find(v => v.status === 'ACTIVE') ?? supply.supplierAvailability?.[0];
+  set('sf-top-supplier', topV?.vendorName ?? 'None', topV ? '#ff9900' : 'rgba(255,255,255,.3)');
+  set('sf-reliability',  topV?.reliability != null ? topV.reliability.toFixed(2) : 'N/A');
+  set('sf-volatility',   supply.volatilityIndex != null ? supply.volatilityIndex.toFixed(2) : '0.00');
+
+  // Agency
+  setBadge('snap-ag-badge', s.agencyTrust);
+  const topA = pipeline.agencyRelationships?.[0];
+  set('sf-top-agency',       topA?.agencyName ?? 'None',          topA ? '#cc44ff' : 'rgba(255,255,255,.3)');
+  set('sf-agency-tier',      topA?.tier ?? 'Neutral');
+  set('sf-last-interaction', topA?.lastContact ? fmtDate(topA.lastContact) : 'Initial outreach');
 }
 
-async function loadHealth() {
-  const d = await get('/system/health');
-  document.getElementById('uptime').textContent = `UPTIME: ${fmt(d.uptime)}s`;
-  document.getElementById('division-list').innerHTML = (d.divisions || []).map(div =>
-    `<div class="div-row">
-      <span class="div-id">${div.id}</span>
-      <span class="div-name">${div.name}</span>
-      <span class="div-count">${fmt(div.recordCount)}</span>
-      <span class="badge ${div.status}">${div.status}</span>
-    </div>`
-  ).join('');
+/* ── Alerts ─────────────────────────────────────────────── */
+async function loadAlerts() {
+  const d = await get('/intelligence/alerts');
+  const alerts = d.alerts ?? (Array.isArray(d) ? d : []);
+  const sl     = d.severityLevels ?? {};
+  const hi  = sl.high?.length   ?? alerts.filter(a => a.level === 'CRITICAL').length;
+  const med = sl.medium?.length  ?? alerts.filter(a => a.level === 'WARN').length;
+  const lo  = sl.low?.length     ?? alerts.filter(a => a.level === 'INFO').length;
+
+  document.getElementById('alert-summary').innerHTML = [
+    { v: hi,  l: 'HIGH',   c: '#ff2244' },
+    { v: med, l: 'MEDIUM', c: '#ff9900' },
+    { v: lo,  l: 'LOW',    c: '#00ff88' },
+  ].map(b => `<div class="metric"><div class="val" style="font-size:1.3rem;color:${b.c};text-shadow:0 0 10px ${b.c}">${b.v}</div><div class="lbl">${b.l}</div></div>`).join('');
+
+  const lc = { CRITICAL:'#ff2244', WARN:'#ff9900', INFO:'#00ff88' };
+  document.getElementById('alerts').innerHTML = alerts.length
+    ? alerts.map(a => `<div class="alert-row">
+        <span class="alert-level" style="color:${lc[a.level]};border:1px solid ${lc[a.level]}">${(a.severity ?? a.level).toUpperCase()}</span>
+        <span class="alert-msg">${a.message}</span>
+        <span class="alert-div">DIV-${a.division}</span>
+      </div>`).join('')
+    : '<div class="loading" style="color:var(--green)">✓ ALL SYSTEMS NOMINAL</div>';
 }
 
-async function loadFinancials() {
-  const d = await get('/intelligence/financials');
-  document.getElementById('financials').innerHTML = `
-    <div class="finance-row"><span class="label">TOTAL QUOTED</span><span class="value">${fmtUSD(d.totalQuoted)}</span></div>
-    <div class="finance-row"><span class="label">TOTAL INVOICED</span><span class="value">${fmtUSD(d.totalInvoiced)}</span></div>
-    <div class="finance-row"><span class="label">CONVERSION RATE</span><span class="value">${d.conversionRate}</span></div>
-    <div class="finance-row"><span class="label">OPEN QUOTES</span><span class="value">${fmt(d.openQuotes)}</span></div>
-    <div class="finance-row"><span class="label">PAID INVOICES</span><span class="value">${fmt(d.paidInvoices)}</span></div>
-    <div class="finance-row"><span class="label">PENDING INVOICES</span><span class="value">${fmt(d.pendingInvoices)}</span></div>
-    ${d.topQuotedProducts?.length ? '<div class="finance-row" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,255,247,0.1)"><span class="label">TOP QUOTED SKUs</span></div>' + d.topQuotedProducts.map(p => `<div class="finance-row"><span class="label" style="padding-left:12px">${p.sku}</span><span class="value">${p.count}x</span></div>`).join('') : ''}
-  `;
+/* ── Inventory Table ────────────────────────────────────── */
+async function loadInventoryTable() {
+  const d = await get('/intelligence/supply');
+  const items = d.items ?? [];
+  const sc = { OK:'#00ff88', LOW:'#ffe600', CRITICAL:'#ff9900', OUT:'#ff2244' };
+
+  document.getElementById('inv-table-wrap').innerHTML = !items.length
+    ? '<div class="loading">NO INVENTORY DATA — ADD ITEMS VIA DIVISION 4</div>'
+    : `<table class="inv-table">
+        <thead><tr><th>ITEM</th><th>SKU</th><th>CATEGORY</th><th>STOCK</th><th>STATUS</th><th>SUPPLIER</th></tr></thead>
+        <tbody>${items.map(i => `<tr>
+          <td>${i.productName}</td>
+          <td style="font-family:'Orbitron',sans-serif;font-size:.62rem;color:var(--magenta)">${i.sku}</td>
+          <td style="color:rgba(0,255,247,.5)">${i.category ?? '—'}</td>
+          <td style="font-family:'Orbitron',sans-serif;color:${sc[i.status]}">${fmt(i.qty)}</td>
+          <td><span class="badge ${i.status==='OK'?'ACTIVE':i.status==='OUT'?'ALERT':'EMPTY'}" style="font-size:.48rem">${i.status}</span></td>
+          <td style="color:rgba(0,255,247,.55)">${i.vendor ?? '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
 }
 
-async function loadInventory() {
-  const d = await get('/intelligence/inventory');
-  document.getElementById('inventory').innerHTML = `
-    <div class="finance-row"><span class="label">TOTAL SKUs</span><span class="value">${fmt(d.totalSKUs)}</span></div>
-    <div class="finance-row"><span class="label">TOTAL UNITS</span><span class="value">${fmt(d.totalUnits)}</span></div>
-    <div class="finance-row"><span class="label" style="color:#ff2244">LOW STOCK ALERTS</span><span class="value" style="color:#ff2244">${fmt(d.lowStockAlerts?.length)}</span></div>
-    ${d.lowStockAlerts?.map(a => `<div class="finance-row"><span class="label" style="padding-left:12px;color:#ff2244">${a.sku}</span><span class="value" style="color:#ff2244">${a.qty} units</span></div>`).join('') || ''}
-  `;
+/* ── Supplier Matrix ─────────────────────────────────────── */
+async function loadSupplierMatrix() {
+  const d = await get('/intelligence/supply');
+  const vendors = d.supplierAvailability ?? [];
+
+  if (!vendors.length) {
+    document.getElementById('supplier-matrix').innerHTML =
+      '<div class="loading">NO VENDOR DATA</div>' +
+      '<div style="margin-top:.6rem;color:rgba(255,153,0,.5);font-size:.7rem;text-align:center">Recommended: Add 2+ suppliers to stabilize load.</div>';
+    return;
+  }
+
+  document.getElementById('supplier-matrix').innerHTML =
+    vendors.map(v => `
+      <div class="supplier-card">
+        <div class="s-name">
+          ${v.vendorName}
+          <span class="badge ${v.status==='ACTIVE'?'ACTIVE':'EMPTY'}" style="font-size:.48rem">${v.status}</span>
+        </div>
+        ${v.reliability != null ? `<div class="s-field"><span class="s-label">RELIABILITY</span><span style="color:${v.reliability>=.9?'#00ff88':v.reliability>=.7?'#ff9900':'#ff2244'}">${v.reliability.toFixed(2)}</span></div>` : ''}
+        ${v.responseTime ? `<div class="s-field"><span class="s-label">RESPONSE TIME</span><span>${v.responseTime}</span></div>` : ''}
+        <div class="s-field"><span class="s-label">SKUs COVERED</span><span style="color:var(--cyan)">${fmt(v.skuCount)}</span></div>
+        ${v.categoryFit?.length ? `<div class="s-field" style="align-items:flex-start"><span class="s-label">CATEGORY FIT</span><span style="color:rgba(0,255,247,.55);text-align:right;max-width:55%">${v.categoryFit.join(', ')}</span></div>` : ''}
+      </div>`).join('')
+    + (vendors.length < 2
+        ? `<div style="margin-top:.65rem;color:rgba(255,153,0,.55);font-size:.68rem">⚠ Add ${2-vendors.length} more supplier(s) to stabilize load.</div>`
+        : '');
 }
 
-async function loadOperators() {
-  const d = await get('/intelligence/operators');
-  const statusColor = { active: '#00ff88', busy: '#ffe600', inactive: 'rgba(255,255,255,.3)' };
-  const authColor   = { 3: '#ff2244', 2: '#ff9900', 1: '#00fff7' };
-
-  document.getElementById('operators').innerHTML = !d.totalOperators
-    ? '<div class="loading">NO OPERATORS REGISTERED</div>'
-    : `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.75rem">
-      <div class="metric"><div class="val">${fmt(d.totalOperators)}</div><div class="lbl">TOTAL</div></div>
-      <div class="metric"><div class="val" style="color:#00ff88">${fmt(d.eliteCount)}</div><div class="lbl">ELITE</div></div>
-      <div class="metric"><div class="val" style="color:#00fff7">${fmt(d.seniorCount)}</div><div class="lbl">SENIOR</div></div>
-      <div class="metric"><div class="val">${fmt(d.averageScore)}</div><div class="lbl">AVG SCORE</div></div>
-    </div>
-    <div style="font-size:.6rem;letter-spacing:2px;color:rgba(0,255,247,.35);margin-bottom:.4rem">OPERATOR ROSTER</div>
-    ${d.operators?.length
-      ? d.operators.map(o => `
-        <div class="finance-row" style="align-items:center;gap:6px">
-          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${statusColor[o.status] ?? '#555'};box-shadow:0 0 6px ${statusColor[o.status] ?? '#555'}"></span>
-          <span class="label" style="flex:1">${o.name}</span>
-          <span style="color:rgba(255,255,255,.45);font-size:.68rem;min-width:110px">${o.role}</span>
-          <span style="color:${authColor[o.authorityLevel] ?? '#fff'};font-family:'Orbitron',sans-serif;font-size:.65rem">LVL ${o.authorityLevel}</span>
-          <span style="color:rgba(0,255,247,.5);font-size:.65rem;margin-left:6px">⟡ ${fmt(o.relicsCreated)}</span>
-        </div>`).join('')
-      : '<div style="color:rgba(255,255,255,.25);font-size:.75rem;padding:4px 0">No operators on file.</div>'
-    }
-    ${d.topOperator ? `<div class="finance-row" style="margin-top:8px;border-top:1px solid rgba(0,255,247,.1);padding-top:6px"><span class="label">TOP OPERATOR</span><span class="value" style="color:#ffe600">${d.topOperator.name} — ${d.topOperator.score}pts</span></div>` : ''}
-  `;
-}
-
-async function loadContracts() {
-  const d = await get('/intelligence/contracts');
-  document.getElementById('contracts').innerHTML = `
-    <div class="finance-row"><span class="label">TOTAL CONTRACTS</span><span class="value">${fmt(d.totalContracts)}</span></div>
-    <div class="finance-row"><span class="label">TOTAL CLINs</span><span class="value">${fmt(d.totalCLINs)}</span></div>
-    <div class="finance-row"><span class="label">WITH PRODUCTS</span><span class="value">${fmt(d.contractsWithProducts)}</span></div>
-    ${d.topContracts?.map(c => `<div class="finance-row"><span class="label" style="padding-left:12px">${c.contractRef}</span><span class="value">${c.productCount} CLINs</span></div>`).join('') || ''}
-  `;
-}
-
-async function loadAssessment() {
-  const d = await get('/intelligence/assessment');
-  const s = d.summary ?? {};
-
-  const healthColor = {
-    unknown:      'rgba(255,255,255,.25)',
-    initializing: '#00fff7',
-    healthy:      '#00ff88',
-    degraded:     '#ff9900',
-    critical:     '#ff2244',
-  };
-  const healthIcon = {
-    unknown: '?', initializing: '◌', healthy: '✓', degraded: '⚠', critical: '✕'
-  };
-
-  const overallColor = healthColor[d.overallStatus] ?? '#fff';
-
-  document.getElementById('assessment-top').innerHTML = [
-    { val: `${healthIcon[d.overallStatus] ?? '?'} ${(d.overallStatus ?? 'unknown').toUpperCase()}`, lbl: 'OVERALL STATUS', color: overallColor },
-    { val: d.scoreBreakdown?.composite ?? 0,   lbl: 'COMPOSITE SCORE',   color: overallColor },
-    { val: d.scoreBreakdown?.financial ?? 0,   lbl: 'FINANCIAL',         color: healthColor[s.financialHealth]   ?? '#fff' },
-    { val: d.scoreBreakdown?.operational ?? 0, lbl: 'OPERATIONAL',       color: healthColor[s.operationalStatus] ?? '#fff' },
-    { val: d.scoreBreakdown?.supply ?? 0,      lbl: 'SUPPLY',            color: healthColor[s.supplierStrength]  ?? '#fff' },
-    { val: d.scoreBreakdown?.agency ?? 0,      lbl: 'AGENCY',            color: healthColor[s.agencyTrust]       ?? '#fff' },
-  ].map(m => `<div class="metric"><div class="val" style="font-size:1.1rem;color:${m.color};text-shadow:0 0 12px ${m.color}">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
-
-  document.getElementById('assessment-dimensions').innerHTML = [
-    { key: 'financialHealth',   label: 'FINANCIAL HEALTH' },
-    { key: 'operationalStatus', label: 'OPERATIONAL STATUS' },
-    { key: 'supplierStrength',  label: 'SUPPLIER STRENGTH' },
-    { key: 'agencyTrust',       label: 'AGENCY TRUST' },
-  ].map(dim => {
-    const val   = s[dim.key] ?? 'unknown';
-    const color = healthColor[val] ?? '#fff';
-    return `<div class="finance-row" style="margin-bottom:6px">
-      <span class="label">${dim.label}</span>
-      <span style="color:${color};font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:1px">
-        ${healthIcon[val] ?? '?'} ${val.toUpperCase()}
-      </span>
-    </div>`;
-  }).join('');
-
-  document.getElementById('assessment-recommendations').innerHTML = !d.recommendations?.length
-    ? `<div style="color:var(--green);font-size:.8rem;padding:4px 0">✓ No recommendations — all systems green.</div>`
-    : d.recommendations.map((r, i) => `
-        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
-          <span style="color:#ff2244;font-family:'Orbitron',sans-serif;font-size:.65rem;min-width:18px;padding-top:1px">${String(i+1).padStart(2,'0')}</span>
-          <span style="color:rgba(255,255,255,.75);font-size:.75rem;line-height:1.4">${r}</span>
-        </div>`).join('');
-}
-
+/* ── Pipeline ─────────────────────────────────────────────── */
 async function loadPipeline() {
   const d = await get('/intelligence/pipeline');
-  const contractStatus = { ACTIVE: '#00ff88', PENDING: '#ffe600', EXPIRING: '#ff9900', CLOSED: 'rgba(255,255,255,.3)' };
-  const rfqStatus      = { DRAFT: 'rgba(255,255,255,.3)', SUBMITTED: '#00fff7', UNDER_REVIEW: '#ffe600', AWARDED: '#00ff88', LOST: '#ff2244' };
-  const agencyTier     = { PREFERRED: '#cc44ff', ACTIVE: '#00fff7', PROSPECT: '#ffe600', DORMANT: 'rgba(255,255,255,.3)' };
+  const cStat = { ACTIVE:'#00ff88', PENDING:'#ffe600', EXPIRING:'#ff9900', CLOSED:'rgba(255,255,255,.3)' };
+  const rStat = { DRAFT:'rgba(255,255,255,.3)', SUBMITTED:'#00fff7', UNDER_REVIEW:'#ffe600', AWARDED:'#00ff88', LOST:'#ff2244' };
+  const aTier = { PREFERRED:'#cc44ff', ACTIVE:'#00fff7', PROSPECT:'#ffe600', DORMANT:'rgba(255,255,255,.3)' };
 
   document.getElementById('pipeline-top').innerHTML = [
-    { val: d.activeContracts?.length ?? 0,               lbl: 'ACTIVE CONTRACTS' },
-    { val: fmtUSD(d.totalContractValue),                  lbl: 'CONTRACT VALUE' },
-    { val: d.pipelineRFQs?.length ?? 0,                  lbl: 'PIPELINE RFQs' },
-    { val: fmtUSD(d.totalPipelineValue),                  lbl: 'PIPELINE VALUE' },
-    { val: ((d.winRate ?? 0) * 100).toFixed(0) + '%',    lbl: 'WIN RATE' },
-    { val: d.agencyRelationships?.length ?? 0,           lbl: 'AGENCIES' },
-  ].map(m => `<div class="metric"><div class="val" style="font-size:1.3rem;color:#cc44ff;text-shadow:0 0 15px #cc44ff">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
-
-  document.getElementById('pipeline-contracts').innerHTML = !d.activeContracts?.length
-    ? '<div class="loading">NO ACTIVE CONTRACTS</div>'
-    : d.activeContracts.map(c => `
-        <div class="finance-row">
-          <span class="label">${c.contractRef}</span>
-          <span style="color:${contractStatus[c.status]};font-size:.7rem">${c.clinCount} CLINs</span>
-          <span class="badge ${c.status === 'ACTIVE' ? 'ACTIVE' : c.status === 'EXPIRING' ? 'ALERT' : 'EMPTY'}" style="margin-left:4px;font-size:.5rem">${c.status}</span>
-        </div>
-        <div class="finance-row" style="padding-left:10px;margin-top:-4px">
-          <span style="color:rgba(255,255,255,.4);font-size:.65rem">${c.agency}</span>
-          <span style="color:#cc44ff;font-size:.65rem">${fmtUSD(c.value)}</span>
-        </div>`).join('');
+    { v: d.activeContracts?.length ?? 0,  l: 'CONTRACTS' },
+    { v: fmtUSD(d.totalContractValue),    l: 'CONTRACT $' },
+    { v: d.pipelineRFQs?.length ?? 0,    l: 'PIPELINE RFQs' },
+    { v: fmtUSD(d.totalPipelineValue),   l: 'PIPELINE $' },
+    { v: pct(d.winRate),                 l: 'WIN RATE' },
+    { v: d.agencyRelationships?.length ?? 0, l: 'AGENCIES' },
+  ].map(m => `<div class="metric"><div class="val" style="font-size:1rem;color:#cc44ff;text-shadow:0 0 12px #cc44ff">${m.v}</div><div class="lbl">${m.l}</div></div>`).join('');
 
   document.getElementById('pipeline-rfqs').innerHTML = !d.pipelineRFQs?.length
-    ? '<div class="loading">NO RFQS IN PIPELINE</div>'
+    ? '<div class="loading">NO RFQs IN PIPELINE</div>'
     : d.pipelineRFQs.map(r => `
         <div class="finance-row">
           <span class="label">${r.rfqId}</span>
-          <span style="color:${rfqStatus[r.status]};font-size:.7rem">${fmtUSD(r.estimatedValue)}</span>
-          <span class="badge ${r.status === 'AWARDED' ? 'ACTIVE' : r.status === 'LOST' ? 'ALERT' : 'EMPTY'}" style="margin-left:4px;font-size:.5rem">${r.status}</span>
+          <span style="color:${rStat[r.status]};font-size:.68rem">${fmtUSD(r.estimatedValue)}</span>
+          <span class="badge ${r.status==='AWARDED'?'ACTIVE':r.status==='LOST'?'ALERT':'EMPTY'}" style="margin-left:4px;font-size:.48rem">${r.status}</span>
         </div>
         <div class="finance-row" style="padding-left:10px;margin-top:-4px">
-          <span style="color:rgba(255,255,255,.4);font-size:.65rem">${r.agency} — ${r.description.slice(0,28)}${r.description.length>28?'…':''}</span>
+          <span style="color:rgba(255,255,255,.35);font-size:.65rem">${r.agency}${r.description?' — '+r.description.slice(0,22)+(r.description.length>22?'…':''):''}</span>
+          ${r.winProbability != null ? `<span style="color:#cc44ff;font-size:.63rem">W:${pct(r.winProbability)}</span>` : ''}
+        </div>`).join('');
+
+  document.getElementById('pipeline-contracts').innerHTML = !d.activeContracts?.length
+    ? '<div class="loading">NO ACTIVE CONTRACTS<br><span style="color:rgba(255,255,255,.2);font-size:.68rem">(expected for new division)</span></div>'
+    : d.activeContracts.map(c => `
+        <div class="finance-row">
+          <span class="label">${c.contractRef}</span>
+          <span style="color:${cStat[c.status]};font-size:.68rem">${c.clinCount} CLINs</span>
+          <span class="badge ${c.status==='ACTIVE'?'ACTIVE':'EMPTY'}" style="margin-left:4px;font-size:.48rem">${c.status}</span>
+        </div>
+        <div class="finance-row" style="padding-left:10px;margin-top:-4px">
+          <span style="color:rgba(255,255,255,.35);font-size:.65rem">${c.agency}</span>
+          <span style="color:#cc44ff;font-size:.65rem">${fmtUSD(c.value)}</span>
         </div>`).join('');
 
   document.getElementById('pipeline-agencies').innerHTML = !d.agencyRelationships?.length
@@ -590,145 +673,143 @@ async function loadPipeline() {
     : d.agencyRelationships.map(a => `
         <div class="finance-row">
           <span class="label">${a.agencyName}</span>
-          <span style="color:${agencyTier[a.tier]};font-size:.65rem">${a.tier}</span>
-          <span style="color:rgba(255,255,255,.4);font-size:.65rem;margin-left:6px">${a.contracts} cntr</span>
+          <span style="color:${aTier[a.tier]};font-size:.68rem">${a.tier}</span>
         </div>
         <div class="finance-row" style="padding-left:10px;margin-top:-4px">
+          <span style="color:rgba(255,255,255,.3);font-size:.65rem">${a.contracts} contract(s)</span>
           <span style="color:#cc44ff;font-size:.65rem">${fmtUSD(a.totalValue)}</span>
         </div>`).join('');
 }
 
-async function loadSupply() {
-  const d = await get('/intelligence/supply');
-  const statusColor = { OK: '#00ff88', LOW: '#ffe600', CRITICAL: '#ff9900', OUT: '#ff2244' };
-  const urgColor    = { LOW: '#00ff88', MEDIUM: '#ffe600', HIGH: '#ff9900', CRITICAL: '#ff2244' };
+/* ── Operators ───────────────────────────────────────────── */
+async function loadOperators() {
+  const d = await get('/intelligence/operators');
+  const sc = { active:'#00ff88', busy:'#ffe600', inactive:'rgba(255,255,255,.3)' };
+  const ac = { 3:'#ff2244', 2:'#ff9900', 1:'#00fff7' };
 
-  const total     = d.items?.length ?? 0;
-  const outCount  = d.items?.filter(i => i.status === 'OUT').length ?? 0;
-  const critCount = d.items?.filter(i => i.status === 'CRITICAL').length ?? 0;
-  const lowCount  = d.items?.filter(i => i.status === 'LOW').length ?? 0;
+  document.getElementById('operators').innerHTML = !d.totalOperators
+    ? '<div class="loading">NO OPERATORS REGISTERED</div>'
+    : `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:.75rem">
+        <div class="metric"><div class="val">${fmt(d.totalOperators)}</div><div class="lbl">TOTAL</div></div>
+        <div class="metric"><div class="val" style="color:#00ff88">${fmt(d.eliteCount)}</div><div class="lbl">ELITE</div></div>
+        <div class="metric"><div class="val" style="color:#00fff7">${fmt(d.seniorCount)}</div><div class="lbl">SENIOR</div></div>
+        <div class="metric"><div class="val">${fmt(d.averageScore)}</div><div class="lbl">AVG SCORE</div></div>
+      </div>
+      <div class="section-label" style="margin-bottom:.4rem">ROSTER</div>
+      ${(d.operators ?? []).map(o => `
+        <div class="op-row">
+          <span class="op-dot" style="background:${sc[o.status]??'#555'};box-shadow:0 0 5px ${sc[o.status]??'#555'}"></span>
+          <span style="flex:1;color:rgba(0,255,247,.8)">${o.name}</span>
+          <span style="color:rgba(255,255,255,.4);font-size:.67rem;min-width:100px">${o.role}</span>
+          <span style="color:${ac[o.authorityLevel]??'#fff'};font-family:'Orbitron',sans-serif;font-size:.62rem">LVL ${o.authorityLevel}</span>
+          <span style="color:rgba(255,230,0,.55);font-size:.63rem;margin-left:6px">⟡ ${fmt(o.relicsCreated)}</span>
+        </div>`).join('')}
+      ${d.topOperator ? `<div class="finance-row" style="margin-top:8px;border-top:1px solid rgba(0,255,247,.1);padding-top:6px"><span class="label">TOP OPERATOR</span><span class="value" style="color:#ffe600">${d.topOperator.name} — ${d.topOperator.score}pts</span></div>` : ''}`;
+}
 
-  document.getElementById('supply-top').innerHTML = [
-    { val: total,                           lbl: 'TRACKED SKUs' },
-    { val: d.supplierAvailability?.filter(v => v.status === 'ACTIVE').length ?? 0, lbl: 'ACTIVE SUPPLIERS' },
-    { val: d.restockAlerts?.length ?? 0,   lbl: 'RESTOCK ALERTS' },
-    { val: outCount,                        lbl: 'OUT OF STOCK', warn: outCount > 0 },
-    { val: ((1 - (d.volatilityIndex ?? 0)) * 100).toFixed(0) + '%', lbl: 'SUPPLY STABILITY' },
-  ].map(m => `<div class="metric"><div class="val" style="font-size:1.3rem;color:${m.warn ? '#ff2244' : '#ff9900'};text-shadow:0 0 15px ${m.warn ? '#ff2244' : '#ff9900'}">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
-
-  document.getElementById('supply-items').innerHTML = !d.items?.length
-    ? '<div class="loading">NO INVENTORY DATA</div>'
-    : d.items.slice(0, 12).map(i => `
-        <div class="finance-row">
-          <span class="label">${i.sku}</span>
-          <span style="color:${statusColor[i.status]};font-family:'Orbitron',sans-serif;font-size:.7rem">${i.qty}</span>
-          <span class="badge ${i.status === 'OK' ? 'ACTIVE' : i.status === 'OUT' ? 'ALERT' : 'EMPTY'}" style="margin-left:6px;font-size:.5rem">${i.status}</span>
-        </div>`).join('');
-
-  document.getElementById('supply-vendors').innerHTML = !d.supplierAvailability?.length
-    ? '<div class="loading">NO VENDOR DATA</div>'
-    : d.supplierAvailability.slice(0, 10).map(v => `
-        <div class="finance-row">
-          <span class="label">${v.vendorName}</span>
-          <span style="color:rgba(0,255,247,.6);font-size:.7rem">${v.skuCount} SKUs</span>
-          <span class="badge ${v.status === 'ACTIVE' ? 'ACTIVE' : 'EMPTY'}" style="margin-left:6px;font-size:.5rem">${v.status}</span>
-        </div>`).join('');
-
-  document.getElementById('supply-alerts').innerHTML = !d.restockAlerts?.length
-    ? '<div class="loading" style="color:var(--green)">ALL STOCKED</div>'
-    : d.restockAlerts.slice(0, 10).map(r => `
-        <div class="finance-row">
-          <span class="label" style="color:${urgColor[r.urgency]}">${r.sku}</span>
-          <span style="color:rgba(255,255,255,.5);font-size:.7rem">qty:${r.currentQty}→${r.suggestedQty}</span>
-          <span class="badge ALERT" style="margin-left:4px;font-size:.5rem;border-color:${urgColor[r.urgency]};color:${urgColor[r.urgency]}">${r.urgency}</span>
+/* ── Recommendations ─────────────────────────────────────── */
+async function loadRecommendations() {
+  const d = await get('/intelligence/assessment');
+  const recs = d.recommendations ?? [];
+  document.getElementById('recommendations').innerHTML = !recs.length
+    ? '<div style="color:var(--green);font-size:.8rem">✓ All systems green — no action items.</div>'
+    : recs.map((r, i) => `
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px">
+          <span style="color:#ff2244;font-family:'Orbitron',sans-serif;font-size:.62rem;min-width:20px;flex-shrink:0">${String(i+1).padStart(2,'0')}</span>
+          <span style="color:rgba(255,255,255,.8);font-size:.78rem;line-height:1.5">${r}</span>
         </div>`).join('');
 }
 
-async function loadMargins() {
-  const d = await get('/intelligence/margins');
-  const bandColor = { PREMIUM: '#00ff88', TARGET: '#00fff7', LOW: '#ffe600', BELOW_LOW: '#ff2244' };
-
-  document.getElementById('margins-top').innerHTML = [
-    { val: fmtUSD(d.monthlyRevenue),         lbl: 'MONTHLY REVENUE' },
-    { val: fmtUSD(d.monthlyCost),             lbl: 'MONTHLY COST' },
-    { val: d.blendedMarginPct,                lbl: 'BLENDED MARGIN' },
-    { val: fmt(d.capitalEfficiencyScore)+'x', lbl: 'CAPITAL EFFICIENCY' },
-    { val: fmt(d.riskFlags?.length),          lbl: 'RISK FLAGS' },
-  ].map(m => `<div class="metric"><div class="val" style="font-size:1.3rem;color:var(--yellow);text-shadow:0 0 15px var(--yellow)">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
-
-  document.getElementById('margins-categories').innerHTML = !d.topCategories?.length
-    ? '<div class="loading">NO CATEGORY DATA</div>'
-    : d.topCategories.map(c => `
-        <div class="finance-row">
-          <span class="label">${c.category}</span>
-          <span style="color:${bandColor[c.band]};font-family:'Orbitron',sans-serif;font-size:.75rem">${c.marginPct}</span>
-          <span class="badge ${c.band === 'PREMIUM' ? 'ACTIVE' : c.band === 'BELOW_LOW' ? 'ALERT' : 'EMPTY'}" style="margin-left:6px;font-size:.5rem">${c.band}</span>
-        </div>`).join('');
-
-  document.getElementById('margins-risks').innerHTML = !d.riskFlags?.length
-    ? '<div class="loading" style="color:var(--green)">NO RISK FLAGS</div>'
-    : d.riskFlags.map(r => `
-        <div class="finance-row">
-          <span class="label" style="color:#ff2244">${r.sku}</span>
-          <span style="color:rgba(255,34,68,.7);font-size:.7rem">${r.reason}</span>
-        </div>`).join('');
+/* ── Relic Feed ──────────────────────────────────────────── */
+async function loadRelicFeed() {
+  const relics = await get('/relics');
+  if (!Array.isArray(relics) || !relics.length) {
+    document.getElementById('relic-feed').innerHTML =
+      `<div class="loading">NO RELICS RECORDED</div>
+       <div style="margin-top:.5rem;text-align:center;color:rgba(255,230,0,.3);font-size:.68rem">
+         Relics log system activity — create via POST /division/10/relics<br>
+         Fields: type, source, entity, meaning
+       </div>`;
+    return;
+  }
+  const sorted = [...relics].reverse();
+  document.getElementById('relic-feed').innerHTML = sorted.map((r, i) => `
+    <div class="relic-row">
+      <div class="relic-id">⟡ ${String(relics.length - i).padStart(3,'0')}</div>
+      <div class="relic-body">
+        <div class="relic-type">${(r.type ?? 'UNKNOWN').toUpperCase()}</div>
+        <div class="relic-meaning">${r.meaning}</div>
+        <div class="relic-meta">SOURCE: ${r.source} &nbsp;|&nbsp; ENTITY: ${r.entity}${r.operatorId?' &nbsp;|&nbsp; OP: '+r.operatorId:''}</div>
+      </div>
+      <div class="relic-ts">${fmtDate(r.timestamp)}</div>
+    </div>`).join('');
 }
 
-async function loadAlerts() {
-  const d = await get('/intelligence/alerts');
-  const alerts = d.alerts ?? d;  // handle both old flat array and new envelope
-
-  const hi  = d.severityLevels?.high?.length   ?? alerts.filter(a => a.level === 'CRITICAL').length;
-  const med = d.severityLevels?.medium?.length  ?? alerts.filter(a => a.level === 'WARN').length;
-  const lo  = d.severityLevels?.low?.length     ?? alerts.filter(a => a.level === 'INFO').length;
-
-  document.getElementById('alerts-summary').innerHTML = [
-    { val: hi,  lbl: 'HIGH',   color: '#ff2244' },
-    { val: med, lbl: 'MEDIUM', color: '#ff9900' },
-    { val: lo,  lbl: 'LOW',    color: '#00ff88' },
-  ].map(b => `<div class="metric"><div class="val" style="color:${b.color};text-shadow:0 0 10px ${b.color};font-size:1.4rem">${b.val}</div><div class="lbl">${b.lbl}</div></div>`).join('');
-
-  const levelColor = { CRITICAL: '#ff2244', WARN: '#ff9900', INFO: '#00ff88' };
-
-  document.getElementById('alerts').innerHTML = alerts.map(a =>
-    `<div class="alert-row">
-      <span class="alert-level level-${a.level}" style="color:${levelColor[a.level]};border-color:${levelColor[a.level]}">${a.severity?.toUpperCase() ?? a.level}</span>
-      <span class="alert-msg">${a.message}</span>
-      <span class="alert-div">DIV-${a.division}</span>
-    </div>`
-  ).join('') || '<div class="loading" style="color:var(--green)">ALL SYSTEMS NOMINAL</div>';
+/* ── Division Health ─────────────────────────────────────── */
+async function loadHealth() {
+  const d = await get('/system/health');
+  document.getElementById('uptime').textContent = `UPTIME: ${fmt(d.uptime)}s`;
+  document.getElementById('division-list').innerHTML = (d.divisions ?? []).map(div => `
+    <div class="div-row">
+      <span class="div-id">${div.id}</span>
+      <span class="div-name">${div.name}</span>
+      <span class="div-count">${fmt(div.recordCount)}</span>
+      <span class="badge ${div.status}">${div.status}</span>
+    </div>`).join('');
 }
 
+/* ── System Registry ─────────────────────────────────────── */
+async function loadSummary() {
+  const d = await get('/system/summary');
+  const keys   = ['products','contracts','requests','inventory','shipments','compliance','vendors','agencies','quotes','invoices','totalActions'];
+  const labels = ['Products','Contracts','Requests','Inventory','Shipments','Compliance','Vendors','Agencies','Quotes','Invoices','Actions'];
+  document.getElementById('summary-grid').innerHTML = keys.map((k,i) =>
+    `<div class="metric"><div class="val" style="font-size:1rem">${fmt(d[k])}</div><div class="lbl">${labels[i]}</div></div>`
+  ).join('');
+}
+
+/* ── Action Log ──────────────────────────────────────────── */
 async function loadActions() {
   const actions = await get('/system/actions?limit=20');
   document.getElementById('actions').innerHTML = !actions.length
     ? '<div class="loading">NO ACTIONS RECORDED YET</div>'
-    : actions.map(a =>
-        `<div class="action-row">
-          <span class="action-div">${a.division}</span>
+    : actions.map(a => `
+        <div class="action-row">
+          <span class="action-div">[${a.division}]</span>
           <span class="action-type">${a.actionType}</span>
           <span class="action-time">${fmtTime(a.timestamp)}</span>
-        </div>`
-      ).join('');
+        </div>`).join('');
 }
 
-function updateClock() {
-  document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+/* ── Clock ───────────────────────────────────────────────── */
+function tick() {
+  const t = new Date().toLocaleTimeString();
+  document.getElementById('clock').textContent       = t;
+  document.getElementById('footer-clock').textContent = new Date().toLocaleString();
 }
 
+/* ── loadAll ─────────────────────────────────────────────── */
 async function loadAll() {
   await Promise.all([
-    loadAssessment(), loadSummary(), loadHealth(), loadFinancials(),
-    loadInventory(), loadOperators(), loadContracts(),
-    loadPipeline(), loadSupply(), loadMargins(), loadAlerts(), loadActions()
+    loadSnapshot(),
+    loadAlerts(),
+    loadInventoryTable(),
+    loadSupplierMatrix(),
+    loadPipeline(),
+    loadOperators(),
+    loadRecommendations(),
+    loadRelicFeed(),
+    loadHealth(),
+    loadSummary(),
+    loadActions(),
   ]);
 }
 
-// Boot
+/* ── Boot ────────────────────────────────────────────────── */
 loadAll();
-setInterval(loadAll, 15000);  // auto-refresh every 15s
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(loadAll, 15000);
+setInterval(tick, 1000);
+tick();
 </script>
 </body>
 </html>

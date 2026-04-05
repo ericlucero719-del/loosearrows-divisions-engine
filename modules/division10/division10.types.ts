@@ -85,13 +85,25 @@ export interface ActiveContract {
 }
 
 export interface PipelineRFQ {
-  rfqId:          string;
-  agency:         string;
-  description:    string;
-  estimatedValue: number;
-  status:         "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "AWARDED" | "LOST";
-  submittedAt?:   string;
-  dueDate?:       string;
+  rfqId:           string;
+  agency:          string;
+  description:     string;
+  estimatedValue:  number;
+  status:          "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "AWARDED" | "LOST";
+  submittedAt?:    string;
+  dueDate?:        string;
+  winProbability?: number;
+}
+
+export interface Relic {
+  relicId:    string;
+  type:       "Engagement" | "Contract" | "Shipment" | "Operator" | "Supply" | "System" | "Custom";
+  source:     string;
+  entity:     string;
+  meaning:    string;
+  timestamp:  string;
+  operatorId?: string;
+  divisionId?: number;
 }
 
 export interface AgencyRelationship {
@@ -170,21 +182,25 @@ export interface MarginIntelligence {
 }
 
 export interface SupplyItem {
-  sku:          string;
-  productName:  string;
-  qty:          number;
-  reorderPoint: number;
-  status:       "OK" | "LOW" | "CRITICAL" | "OUT";
-  vendor?:      string;
+  sku:           string;
+  productName:   string;
+  qty:           number;
+  reorderPoint:  number;
+  status:        "OK" | "LOW" | "CRITICAL" | "OUT";
+  category?:     string;
+  vendor?:       string;
   lastRestocked?: string;
 }
 
 export interface SupplierAvailability {
-  vendorId:   string;
-  vendorName: string;
-  skus:       string[];
-  skuCount:   number;
-  status:     "ACTIVE" | "INACTIVE" | "UNKNOWN";
+  vendorId:      string;
+  vendorName:    string;
+  skus:          string[];
+  skuCount:      number;
+  status:        "ACTIVE" | "INACTIVE" | "UNKNOWN";
+  reliability?:  number;
+  responseTime?: string;
+  categoryFit?:  string[];
 }
 
 export interface RestockAlert {

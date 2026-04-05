@@ -9,7 +9,7 @@ import {
   OperatorIntelligence, OperatorRecord, ContractIntelligence,
   MarginIntelligence, CategoryMargin, RiskFlag,
   SupplyChainIntelligence, SupplyItem, SupplierAvailability, RestockAlert,
-  ContractPipelineIntelligence, ActiveContract, PipelineRFQ, AgencyRelationship,
+  ContractPipelineIntelligence, ActiveContract, PipelineRFQ, AgencyRelationship, Relic,
   SystemAlert, AlertIntelligence,
   HealthStatus, ExecutiveAssessment, AssessmentSummary,
   FullIntelligenceReport,
@@ -411,6 +411,7 @@ export class Division10Service {
         qty,
         reorderPoint,
         status,
+        category:     prod?.category ?? prod?.productType ?? inv.category,
         vendor:       inv.vendorId ?? prod?.vendorId,
         lastRestocked: inv.lastRestocked,
       };
@@ -438,13 +439,19 @@ export class Division10Service {
       vendorMap[vid].skus.add(p.sku);
     });
 
-    const supplierAvailability: SupplierAvailability[] = Object.entries(vendorMap).map(([id, v]) => ({
-      vendorId:   id,
-      vendorName: v.name,
-      skus:       [...v.skus],
-      skuCount:   v.skus.size,
-      status:     v.active ? "ACTIVE" : "INACTIVE",
-    }));
+    const supplierAvailability: SupplierAvailability[] = Object.entries(vendorMap).map(([id, v]) => {
+      const raw = vendors.find(x => (x.vendorId ?? x.id) === id);
+      return {
+        vendorId:     id,
+        vendorName:   v.name,
+        skus:         [...v.skus],
+        skuCount:     v.skus.size,
+        status:       v.active ? "ACTIVE" : "INACTIVE",
+        reliability:  raw?.reliability   ?? raw?.reliabilityScore,
+        responseTime: raw?.responseTime  ?? raw?.leadTime,
+        categoryFit:  raw?.categoryFit   ?? raw?.categories ?? [],
+      };
+    });
 
     // ── Restock alerts: items at or below reorder point ───────────────────
     const urgency = (item: SupplyItem): RestockAlert["urgency"] => {
@@ -529,13 +536,14 @@ export class Division10Service {
                   (q.lineItems ?? []).reduce((s: number, li: any) => s + (li.unitPrice ?? li.price ?? 0) * (li.quantity ?? li.qty ?? 1), 0);
 
       return {
-        rfqId:          q.rfqId ?? q.quoteId ?? q.id ?? "UNKNOWN",
-        agency:         q.agency ?? q.agencyName ?? q.customer ?? "Unknown",
-        description:    q.description ?? q.title ?? q.subject ?? "Unspecified",
-        estimatedValue: Math.round((est ?? 0) * 100) / 100,
+        rfqId:           q.rfqId ?? q.quoteId ?? q.id ?? "UNKNOWN",
+        agency:          q.agency ?? q.agencyName ?? q.customer ?? "Unknown",
+        description:     q.description ?? q.title ?? q.subject ?? "Unspecified",
+        estimatedValue:  Math.round((est ?? 0) * 100) / 100,
         status,
-        submittedAt:    q.submittedAt ?? q.createdAt,
-        dueDate:        q.dueDate ?? q.deadline,
+        submittedAt:     q.submittedAt ?? q.createdAt,
+        dueDate:         q.dueDate ?? q.deadline,
+        winProbability:  q.winProbability ?? q.win_probability,
       };
     });
 
@@ -774,6 +782,27 @@ export class Division10Service {
   }
 
   getOperatorInfo() { return currentOperator; }
+
+  // ── Relics ────────────────────────────────────────────────────────────
+  getRelics(): Relic[] {
+    return registry.relics as Relic[];
+  }
+
+  createRelic(data: Partial<Relic> & { type: Relic["type"]; source: string; entity: string; meaning: string }): Relic {
+    const relicId = `RELIC-${String(registry.relics.length + 1).padStart(3, "0")}`;
+    const relic: Relic = {
+      relicId,
+      type:       data.type,
+      source:     data.source,
+      entity:     data.entity,
+      meaning:    data.meaning,
+      timestamp:  data.timestamp ?? new Date().toISOString(),
+      operatorId: data.operatorId ?? currentOperator.id,
+      divisionId: data.divisionId ?? 10,
+    };
+    registry.relics.push(relic);
+    return relic;
+  }
 }
 
 export const division10Service = new Division10Service();

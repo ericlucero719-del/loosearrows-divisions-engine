@@ -17,6 +17,7 @@ export const currentOperator = {
 // ---------------------------------------------------------------------------
 export const registry: {
   actions: OperatorAction[];
+  relics:  any[];
   products: Record<string, any>;
   contracts: Record<string, any>;
   requests: Record<string, any>;
@@ -29,6 +30,7 @@ export const registry: {
   invoices: Record<string, any>;
 } = {
   actions: [],
+  relics:  [],
   products: {},
   contracts: {},
   requests: {},
