@@ -20,4 +20,28 @@ export const division10Controller = {
   getOperatorInfo(_req: Request, res: Response) {
     return res.json(division10Service.getOperatorInfo());
   },
+
+  getFinancials(_req: Request, res: Response) {
+    return res.json(division10Service.getFinancials());
+  },
+
+  getInventory(_req: Request, res: Response) {
+    return res.json(division10Service.getInventory());
+  },
+
+  getOperators(_req: Request, res: Response) {
+    return res.json(division10Service.getOperators());
+  },
+
+  getContracts(_req: Request, res: Response) {
+    return res.json(division10Service.getContracts());
+  },
+
+  getAlerts(_req: Request, res: Response) {
+    return res.json(division10Service.getAlerts());
+  },
+
+  getFullReport(_req: Request, res: Response) {
+    return res.json(division10Service.getFullReport());
+  },
 };
