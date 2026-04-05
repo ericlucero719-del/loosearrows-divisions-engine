@@ -3,17 +3,22 @@
  * Bootstraps the full Shopify store structure for LooseArrows Supply & Logistics.
  * Creates 10 category collections and 4 core federal pages in one shot.
  *
- * Run:
+ * Live run:
  *   SHOPIFY_STORE_DOMAIN=my-store.myshopify.com \
  *   SHOPIFY_ACCESS_TOKEN=shpat_xxxx \
- *   npx ts-node scripts/bootstrapStore.ts
+ *   npm run shopify:bootstrap
+ *
+ * Dry run (no credentials needed — just previews what would be created):
+ *   npm run shopify:bootstrap -- --dry-run
  */
 
+const DRY_RUN = process.argv.includes("--dry-run");
 const SHOPIFY_STORE_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN;
 const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 
-if (!SHOPIFY_STORE_DOMAIN || !SHOPIFY_ACCESS_TOKEN) {
+if (!DRY_RUN && (!SHOPIFY_STORE_DOMAIN || !SHOPIFY_ACCESS_TOKEN)) {
   console.error("Error: SHOPIFY_STORE_DOMAIN and SHOPIFY_ACCESS_TOKEN env vars are required.");
+  console.error("Tip: run with --dry-run to preview without credentials.");
   process.exit(1);
 }
 
@@ -94,7 +99,19 @@ async function shopifyRequest(path: string, method: string, body?: any): Promise
 
 // ─── Collection creation ──────────────────────────────────────────────────────
 
+let dryRunId = 1000;
+
 async function createCollection(category: Category): Promise<number> {
+  if (DRY_RUN) {
+    const id = dryRunId++;
+    console.log(`  [DRY RUN] Would create collection:`);
+    console.log(`    title:       ${category.title}`);
+    console.log(`    handle:      ${category.handle}`);
+    console.log(`    description: ${category.description}`);
+    console.log(`    → simulated ID: ${id}`);
+    return id;
+  }
+
   const data = await shopifyRequest("/custom_collections.json", "POST", {
     custom_collection: {
       title:     category.title,
@@ -111,6 +128,15 @@ async function createCollection(category: Category): Promise<number> {
 // ─── Page creation ────────────────────────────────────────────────────────────
 
 async function createPage(page: Page): Promise<number> {
+  if (DRY_RUN) {
+    const id = dryRunId++;
+    console.log(`  [DRY RUN] Would create page:`);
+    console.log(`    title:  ${page.title}`);
+    console.log(`    handle: ${page.handle}`);
+    console.log(`    → simulated ID: ${id}`);
+    return id;
+  }
+
   const data = await shopifyRequest("/pages.json", "POST", {
     page: {
       title:     page.title,
@@ -127,19 +153,33 @@ async function createPage(page: Page): Promise<number> {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log("Bootstrapping Shopify store structure...");
+  if (DRY_RUN) {
+    console.log("=======================================================");
+    console.log("  DRY RUN — nothing will be sent to Shopify");
+    console.log("  Store: loosearrowslogistics.myshopify.com");
+    console.log("=======================================================\n");
+  } else {
+    console.log(`Bootstrapping Shopify store: ${SHOPIFY_STORE_DOMAIN}`);
+  }
 
-  console.log("\n=== Creating category collections ===");
+  console.log("\n=== 10 Category Collections ===");
   for (const category of categories) {
     await createCollection(category);
   }
 
-  console.log("\n=== Creating core pages ===");
+  console.log("\n=== 4 Core Federal Pages ===");
   for (const page of pages) {
     await createPage(page);
   }
 
-  console.log("\nStore structure bootstrap complete.");
+  if (DRY_RUN) {
+    console.log("\n=======================================================");
+    console.log("  Dry run complete. 14 items would be created.");
+    console.log("  When ready: add SHOPIFY_ACCESS_TOKEN and run live.");
+    console.log("=======================================================");
+  } else {
+    console.log("\nStore structure bootstrap complete.");
+  }
 }
 
 main().catch(err => {
