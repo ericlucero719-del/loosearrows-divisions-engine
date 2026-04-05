@@ -30,6 +30,7 @@ router.get("/intelligence/inventory",  operatorWorkflow("DIVISION-10", "VIEW_INV
 router.get("/intelligence/operators",  operatorWorkflow("DIVISION-10", "VIEW_OPERATORS"),  division10Controller.getOperators);
 router.get("/intelligence/contracts",  operatorWorkflow("DIVISION-10", "VIEW_CONTRACTS"),  division10Controller.getContracts);
 router.get("/intelligence/alerts",     operatorWorkflow("DIVISION-10", "VIEW_ALERTS"),     division10Controller.getAlerts);
+router.get("/intelligence/margins",    operatorWorkflow("DIVISION-10", "VIEW_MARGINS"),    division10Controller.getMargins);
 router.get("/intelligence/report",     operatorWorkflow("DIVISION-10", "VIEW_FULL_REPORT"), division10Controller.getFullReport);
 
 // ── Cyberpunk dashboard UI ────────────────────────────────────────────────────

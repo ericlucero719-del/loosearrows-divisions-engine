@@ -44,4 +44,8 @@ export const division10Controller = {
   getFullReport(_req: Request, res: Response) {
     return res.json(division10Service.getFullReport());
   },
+
+  getMargins(_req: Request, res: Response) {
+    return res.json(division10Service.getMargins());
+  },
 };

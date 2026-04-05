@@ -7,8 +7,11 @@ import {
   SystemSummary, SystemHealth, DivisionStatus,
   FinancialIntelligence, InventoryIntelligence,
   OperatorIntelligence, ContractIntelligence,
+  MarginIntelligence, CategoryMargin, RiskFlag,
   SystemAlert, FullIntelligenceReport,
 } from "./division10.types";
+
+const MARGIN_BANDS = { low: 0.08, target: 0.18, premium: 0.27 };
 
 const startTime = Date.now();
 const operatorService = new RapidResponseOperatorService();
@@ -182,8 +185,112 @@ export class Division10Service {
       inventory:  this.getInventory(),
       operators:  this.getOperators(),
       contracts:  this.getContracts(),
+      margins:    this.getMargins(),
       alerts:     this.getAlerts(),
       generatedAt: new Date().toISOString(),
+    };
+  }
+
+  getMargins(): MarginIntelligence {
+    const products  = Object.values(registry.products)  as any[];
+    const inventory = Object.values(registry.inventory) as any[];
+    const invoices  = Object.values(registry.invoices)  as any[];
+
+    // Build revenue/cost totals from invoices + product catalog pricing
+    let monthlyRevenue = invoices.reduce((s, i) => s + (i.totalAmount ?? i.total ?? 0), 0);
+    let monthlyCost    = 0;
+
+    // Enrich with cost data from product catalog
+    invoices.forEach(inv => {
+      (inv.lineItems ?? []).forEach((li: any) => {
+        const prod = products.find(p => p.sku === li.sku);
+        if (prod?.cost) monthlyCost += prod.cost * (li.quantity ?? 1);
+      });
+    });
+
+    // Fall back to product-level margin estimates when no invoices exist
+    if (monthlyRevenue === 0) {
+      products.forEach(p => {
+        monthlyRevenue += (p.price ?? 0);
+        monthlyCost    += (p.cost  ?? (p.price ?? 0) * (1 - (p.margin ?? 0.18)));
+      });
+    }
+
+    const blendedMargin    = monthlyRevenue > 0 ? (monthlyRevenue - monthlyCost) / monthlyRevenue : 0;
+    const blendedMarginPct = `${(blendedMargin * 100).toFixed(1)}%`;
+
+    // Capital efficiency = revenue generated per dollar of inventory held
+    const inventoryValue   = inventory.reduce((s, i) => {
+      const prod = products.find(p => p.sku === (i.sku ?? i.productId));
+      return s + (prod?.cost ?? 0) * (i.quantity ?? i.qty ?? 0);
+    }, 0);
+    const capitalEfficiencyScore = inventoryValue > 0
+      ? Math.round((monthlyRevenue / inventoryValue) * 100) / 100
+      : 0;
+
+    // Group by category
+    const catMap: Record<string, { revenue: number; cost: number; skus: Set<string> }> = {};
+    products.forEach(p => {
+      const cat = p.category ?? "Uncategorized";
+      if (!catMap[cat]) catMap[cat] = { revenue: 0, cost: 0, skus: new Set() };
+      catMap[cat].revenue += p.price ?? 0;
+      catMap[cat].cost    += p.cost  ?? (p.price ?? 0) * 0.82;
+      catMap[cat].skus.add(p.sku);
+    });
+
+    const bandFor = (m: number): CategoryMargin["band"] => {
+      if (m >= MARGIN_BANDS.premium) return "PREMIUM";
+      if (m >= MARGIN_BANDS.target)  return "TARGET";
+      if (m >= MARGIN_BANDS.low)     return "LOW";
+      return "BELOW_LOW";
+    };
+
+    const topCategories: CategoryMargin[] = Object.entries(catMap)
+      .map(([category, v]) => {
+        const margin    = v.revenue > 0 ? (v.revenue - v.cost) / v.revenue : 0;
+        return {
+          category,
+          revenue:   Math.round(v.revenue * 100) / 100,
+          cost:      Math.round(v.cost    * 100) / 100,
+          margin:    Math.round(margin    * 10000) / 10000,
+          marginPct: `${(margin * 100).toFixed(1)}%`,
+          band:      bandFor(margin),
+          skuCount:  v.skus.size,
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    // Risk flags — products with margin below low band or missing cost data
+    const riskFlags: RiskFlag[] = products
+      .filter(p => {
+        if (!p.price) return false;
+        const m = p.cost ? (p.price - p.cost) / p.price : null;
+        return m === null || m < MARGIN_BANDS.low;
+      })
+      .map(p => {
+        const m    = p.cost ? (p.price - p.cost) / p.price : null;
+        const flag: RiskFlag = {
+          sku:      p.sku,
+          reason:   m === null ? "Missing cost data" : `Margin ${(m * 100).toFixed(1)}% below low threshold (${(MARGIN_BANDS.low * 100)}%)`,
+          margin:   m !== null ? Math.round(m * 10000) / 10000 : 0,
+          severity: m === null ? "MEDIUM" : m < 0 ? "HIGH" : "LOW",
+        };
+        return flag;
+      })
+      .slice(0, 20);
+
+    return {
+      divisionId:             10,
+      marginBands:            MARGIN_BANDS,
+      monthlyRevenue:         Math.round(monthlyRevenue * 100) / 100,
+      monthlyCost:            Math.round(monthlyCost    * 100) / 100,
+      blendedMargin:          Math.round(blendedMargin  * 10000) / 10000,
+      blendedMarginPct,
+      capitalEfficiencyScore,
+      topCategories,
+      riskFlags,
+      generatedAt:            new Date().toISOString(),
     };
   }
 

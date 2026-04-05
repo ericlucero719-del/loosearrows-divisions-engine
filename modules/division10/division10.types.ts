@@ -71,6 +71,42 @@ export interface SystemAlert {
   detectedAt: string;
 }
 
+export interface MarginBands {
+  low:     number;
+  target:  number;
+  premium: number;
+}
+
+export interface CategoryMargin {
+  category:    string;
+  revenue:     number;
+  cost:        number;
+  margin:      number;
+  marginPct:   string;
+  band:        "PREMIUM" | "TARGET" | "LOW" | "BELOW_LOW";
+  skuCount:    number;
+}
+
+export interface RiskFlag {
+  sku:      string;
+  reason:   string;
+  margin:   number;
+  severity: "LOW" | "MEDIUM" | "HIGH";
+}
+
+export interface MarginIntelligence {
+  divisionId:              number;
+  marginBands:             MarginBands;
+  monthlyRevenue:          number;
+  monthlyCost:             number;
+  blendedMargin:           number;
+  blendedMarginPct:        string;
+  capitalEfficiencyScore:  number;
+  topCategories:           CategoryMargin[];
+  riskFlags:               RiskFlag[];
+  generatedAt:             string;
+}
+
 export interface FullIntelligenceReport {
   summary: SystemSummary;
   health: SystemHealth;
@@ -78,6 +114,7 @@ export interface FullIntelligenceReport {
   inventory: InventoryIntelligence;
   operators: OperatorIntelligence;
   contracts: ContractIntelligence;
+  margins: MarginIntelligence;
   alerts: SystemAlert[];
   generatedAt: string;
 }

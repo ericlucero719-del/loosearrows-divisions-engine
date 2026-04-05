@@ -287,6 +287,24 @@
     </div>
   </div>
 
+  <!-- Margin Intelligence -->
+  <div class="panel full-width" style="--panel-accent: #ffe600;">
+    <div class="panel-header" style="color:var(--yellow)">MARGIN INTELLIGENCE <span class="tag" style="color:var(--yellow);border-color:var(--yellow)">CAPITAL</span></div>
+    <div class="panel-body">
+      <div id="margins-top" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:rgba(0,255,247,.4);margin-bottom:.5rem">TOP CATEGORIES</div>
+          <div id="margins-categories"></div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;letter-spacing:2px;color:#ff2244;margin-bottom:.5rem">RISK FLAGS</div>
+          <div id="margins-risks"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Alerts -->
   <div class="panel alert-panel">
     <div class="panel-header">SYSTEM ALERTS <span class="tag">LIVE</span></div>
@@ -398,6 +416,36 @@ async function loadContracts() {
   `;
 }
 
+async function loadMargins() {
+  const d = await get('/intelligence/margins');
+  const bandColor = { PREMIUM: '#00ff88', TARGET: '#00fff7', LOW: '#ffe600', BELOW_LOW: '#ff2244' };
+
+  document.getElementById('margins-top').innerHTML = [
+    { val: fmtUSD(d.monthlyRevenue),         lbl: 'MONTHLY REVENUE' },
+    { val: fmtUSD(d.monthlyCost),             lbl: 'MONTHLY COST' },
+    { val: d.blendedMarginPct,                lbl: 'BLENDED MARGIN' },
+    { val: fmt(d.capitalEfficiencyScore)+'x', lbl: 'CAPITAL EFFICIENCY' },
+    { val: fmt(d.riskFlags?.length),          lbl: 'RISK FLAGS' },
+  ].map(m => `<div class="metric"><div class="val" style="font-size:1.3rem;color:var(--yellow);text-shadow:0 0 15px var(--yellow)">${m.val}</div><div class="lbl">${m.lbl}</div></div>`).join('');
+
+  document.getElementById('margins-categories').innerHTML = !d.topCategories?.length
+    ? '<div class="loading">NO CATEGORY DATA</div>'
+    : d.topCategories.map(c => `
+        <div class="finance-row">
+          <span class="label">${c.category}</span>
+          <span style="color:${bandColor[c.band]};font-family:'Orbitron',sans-serif;font-size:.75rem">${c.marginPct}</span>
+          <span class="badge ${c.band === 'PREMIUM' ? 'ACTIVE' : c.band === 'BELOW_LOW' ? 'ALERT' : 'EMPTY'}" style="margin-left:6px;font-size:.5rem">${c.band}</span>
+        </div>`).join('');
+
+  document.getElementById('margins-risks').innerHTML = !d.riskFlags?.length
+    ? '<div class="loading" style="color:var(--green)">NO RISK FLAGS</div>'
+    : d.riskFlags.map(r => `
+        <div class="finance-row">
+          <span class="label" style="color:#ff2244">${r.sku}</span>
+          <span style="color:rgba(255,34,68,.7);font-size:.7rem">${r.reason}</span>
+        </div>`).join('');
+}
+
 async function loadAlerts() {
   const alerts = await get('/intelligence/alerts');
   document.getElementById('alerts').innerHTML = alerts.map(a =>
@@ -430,7 +478,7 @@ async function loadAll() {
   await Promise.all([
     loadSummary(), loadHealth(), loadFinancials(),
     loadInventory(), loadOperators(), loadContracts(),
-    loadAlerts(), loadActions()
+    loadMargins(), loadAlerts(), loadActions()
   ]);
 }
 
