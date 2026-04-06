@@ -1,5 +1,11 @@
 import express from "express";
 import path from "path";
+import { PrismaClient } from "@prisma/client";
+import { randomBytes } from "crypto";
+
+// ── Auth middleware + Admin routes ────────────────────────────────────────────
+import { requireApiKey } from "./middleware/apiKey";
+import adminRouter from "./routes/admin";
 
 // ── Legacy routes (preserved) ────────────────────────────────────────────────
 import { division1Routes } from './divisions/division1';
@@ -35,39 +41,21 @@ const port = process.env.PORT || 5000;
 
 app.use(express.json());
 
-// ── Static frontend ──────────────────────────────────────────────────────────
+// ── Static frontend (always public) ──────────────────────────────────────────
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ── Legacy API routes ────────────────────────────────────────────────────────
-app.use('/division1', division1UploadRouter);
-app.use('/division1', division1Routes);
-app.use("/division2", division2Router);
-app.use("/dashboard", dashboardRouter);
-app.use("/dispatch", dispatchRoutes);
-app.use("/rapid-response", rapidResponseDispatchRoute);
-app.use("/field/rapid-response", rapidResponseDispatchRoute);
-app.use("/field/rapid-response/tasks", rapidResponseTaskRoute);
-app.use("/field/rapid-response", rapidResponseEventRoute);
-app.use("/field/rapid-response", rapidResponseOperatorRoute);
+// ── Admin key management (protected by X-Admin-Secret, no API key needed) ────
+app.use("/admin", adminRouter);
 
-// ── 10-Division Engine routes ─────────────────────────────────────────────────
-app.use("/division/1", div1Router);   // Product Intake & Pricing
-app.use("/division/2", div2Router);   // Contract Alignment
-app.use("/division/3", div3Router);   // Requests & Work Orders
-app.use("/division/4", div4Router);   // Inventory & Assets
-app.use("/division/5", div5Router);   // Logistics & Fulfillment
-app.use("/division/6", div6Router);   // Compliance & Documentation
-app.use("/division/7", div7Router);   // Vendor & Partner Management
-app.use("/division/8", div8Router);   // Agency / Customer Management
-app.use("/division/9", div9Router);   // Financials
-app.use("/division/10", div10Router); // Intelligence & System View
-app.use("/", dashboardsRouter);       // Vendor Cockpit + Operator Control Room
-
-// ── Root API ─────────────────────────────────────────────────────────────────
+// ── Public API docs ───────────────────────────────────────────────────────────
 app.get("/api", (_req, res) => {
   res.json({
-    message: "Welcome to Loose Arrows Divisions Engine",
-    engine: "10-Division Operational Engine",
+    message:  "Loose Arrows Divisions Engine — API",
+    auth:     "All /division/* endpoints require X-API-Key header.",
+    tiers:    { OBSERVER: "read-only", OPERATOR: "full pipeline", ARCHITECT: "full + bot" },
+    health:   "GET /division/10/system/health — no key required",
+    admin:    "POST /admin/keys — issue keys (requires X-Admin-Secret header)",
+    engine:   "10-Division Operational Engine v2.0",
     divisions: {
       1: "/division/1  — Product Intake & Pricing",
       2: "/division/2  — Contract Alignment",
@@ -83,8 +71,73 @@ app.get("/api", (_req, res) => {
   });
 });
 
+// ── Public dashboard HTML pages (content gated by API key at the JS level) ───
+app.use("/", dashboardsRouter);
+
+// ── API Key gate — applied to ALL division and legacy API routes ──────────────
+app.use([
+  "/division/1", "/division/2", "/division/3", "/division/4", "/division/5",
+  "/division/6", "/division/7", "/division/8", "/division/9", "/division/10",
+  "/division1", "/division2", "/dashboard", "/dispatch", "/rapid-response", "/field",
+], requireApiKey);
+
+// ── Legacy API routes (key-gated) ────────────────────────────────────────────
+app.use('/division1', division1UploadRouter);
+app.use('/division1', division1Routes);
+app.use("/division2", division2Router);
+app.use("/dashboard", dashboardRouter);
+app.use("/dispatch", dispatchRoutes);
+app.use("/rapid-response", rapidResponseDispatchRoute);
+app.use("/field/rapid-response", rapidResponseDispatchRoute);
+app.use("/field/rapid-response/tasks", rapidResponseTaskRoute);
+app.use("/field/rapid-response", rapidResponseEventRoute);
+app.use("/field/rapid-response", rapidResponseOperatorRoute);
+
+// ── 10-Division Engine routes (key-gated) ────────────────────────────────────
+app.use("/division/1",  div1Router);
+app.use("/division/2",  div2Router);
+app.use("/division/3",  div3Router);
+app.use("/division/4",  div4Router);
+app.use("/division/5",  div5Router);
+app.use("/division/6",  div6Router);
+app.use("/division/7",  div7Router);
+app.use("/division/8",  div8Router);
+app.use("/division/9",  div9Router);
+app.use("/division/10", div10Router);
+
+// ── Startup: seed initial Architect key if none exist ────────────────────────
+async function seedInitialKey() {
+  const prisma = new PrismaClient();
+  try {
+    const count = await prisma.apiKey.count({ where: { tier: "ARCHITECT" } });
+    if (count === 0) {
+      const key = `la-arc-${randomBytes(18).toString("hex")}`;
+      await prisma.apiKey.create({
+        data: {
+          key,
+          tier:      "ARCHITECT",
+          ownerName: "Admin (Auto-seeded)",
+          notes:     "First Architect key — generated on initial boot",
+        },
+      });
+      console.log("\n" + "═".repeat(62));
+      console.log("  ★  INITIAL ARCHITECT KEY GENERATED  ★");
+      console.log("  Copy this key now — list endpoint masks the middle.");
+      console.log(`  Key: ${key}`);
+      console.log("  Header: X-API-Key: " + key);
+      console.log("═".repeat(62) + "\n");
+    }
+  } catch (e) {
+    console.error("[seed] Could not seed initial key:", e);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 if (require.main === module) {
-  app.listen(Number(port), '0.0.0.0', () => {
-    console.log(`Server running on port ${port}`);
+  seedInitialKey().then(() => {
+    app.listen(Number(port), '0.0.0.0', () => {
+      console.log(`Server running on port ${port}`);
+    });
   });
 }

@@ -46,3 +46,4 @@ build = ["bash", "-c", "npx prisma generate && npx tsc"]
 
 [userenv.shared]
 SHOPIFY_STORE_DOMAIN = "loosearrowslogistics.myshopify.com"
+ADMIN_SECRET = "la-admin-4f5949046807a6d061ffa396b5d94dba86c6369883644106"

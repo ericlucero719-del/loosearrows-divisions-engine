@@ -251,3 +251,16 @@ model Tracking {
   location       String?
   updatedAt      DateTime @updatedAt
 }
+
+// ── API Key Access Control ─────────────────────────────────────────────────────
+model ApiKey {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  tier        String    // OBSERVER | OPERATOR | ARCHITECT
+  ownerName   String
+  ownerEmail  String?
+  active      Boolean   @default(true)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+}
