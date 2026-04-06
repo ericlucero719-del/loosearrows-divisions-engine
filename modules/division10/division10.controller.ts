@@ -153,6 +153,45 @@ export const division10Controller = {
     return res.json(result);
   },
 
+  // ── Architect Command Layer ──────────────────────────────────────────────
+
+  botGetEscalation(req: Request, res: Response) {
+    const result = botService.buildEscalationPacket(req.params.id);
+    if ("error" in result) return res.status(404).json(result);
+    return res.json(result);
+  },
+
+  botArchitectCommand(req: Request, res: Response) {
+    const { command, notes } = req.body ?? {};
+    const VALID: string[] = ["Proceed", "Hold", "Decline", "Revise", "More info"];
+    if (!command) {
+      return res.status(400).json({
+        error: "command is required",
+        accepted: VALID,
+        note: "Bot will not interpret ambiguous language as approval.",
+      });
+    }
+    if (!VALID.includes(command)) {
+      return res.status(400).json({
+        error: `'${command}' is not a valid Architect command.`,
+        accepted: VALID,
+        note: "Bot will not interpret ambiguous language as approval.",
+      });
+    }
+    const result = botService.issueArchitectCommand(req.params.id, command, notes);
+    if ("error" in result) return res.status(404).json(result);
+    return res.json(result);
+  },
+
+  botGetCommandLog(req: Request, res: Response) {
+    const { oppId } = req.query as { oppId?: string };
+    return res.json(botService.getCommandLog(oppId));
+  },
+
+  botGetArchitectAuthority(_req: Request, res: Response) {
+    return res.json(botService.getArchitectAuthority());
+  },
+
   botGetCycles(req: Request, res: Response) {
     const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
     return res.json(botService.getCycles(limit));

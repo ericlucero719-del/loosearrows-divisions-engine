@@ -13,7 +13,22 @@ export type OpportunityStatus =
   | "DRAFT_PREP"
   | "READY_FOR_ARCHITECT"
   | "ESCALATED"
+  | "HOLD"       // Architect issued Hold — all actions paused
+  | "REVISING"   // Architect issued Revise — re-analysis in progress
+  | "DECLINED"   // Architect issued Decline — archived, no further action
   | "CLOSED";
+
+// Architect approval commands (spec-defined — no other values accepted)
+export type ArchitectCommand = "Proceed" | "Hold" | "Decline" | "Revise" | "More info";
+
+// Uncertainty categories that trigger immediate escalation
+export type UncertaintyCategory =
+  | "compliance"
+  | "supplier-fit"
+  | "pricing-variance"
+  | "delivery-feasibility"
+  | "missing-data"
+  | "ambiguous-requirements";
 
 // Spec-aligned relic types
 export type BotRelicType =
@@ -109,6 +124,57 @@ export interface BotDraftQuote {
   requiredDocuments: string[];
   status:            "DRAFT" | "READY_FOR_ARCHITECT_REVIEW";
   preparedAt:        string;
+}
+
+// ── Escalation packet (spec-defined format) ───────────────────────────────────
+
+export interface EscalationPacket {
+  escalationId:          string;
+  oppId:                 string;
+  issuedAt:              string;
+  subject:               string;           // "[RFQ/Contract/Supplier] — [Action Needed]"
+  summary:               string;           // 2–3 sentence overview
+  fitScore:              number;           // 0.0–1.0
+  fitBand:               FitBand;
+  supplierRecommendation:{ name: string; score: number; tier: SupplierTier } | null;
+  risks:                 string[];         // bullet list — includes "Risk: Uncertain" if flagged
+  uncertaintyFlags:      UncertaintyCategory[];
+  deadline:              string;           // ISO timestamp or "No deadline set"
+  hoursRemaining:        number | null;
+  recommendedAction:     string;           // 1–2 sentences — facts only, no persuasion
+  status:                string;           // draft/prepared/awaiting approval
+  relicId:               string;           // relic logged with this escalation
+  architectAuthority:    string[];         // reminder of what only the Architect can do
+  commandsAccepted:      ArchitectCommand[];
+  awaitingCommand:       boolean;
+}
+
+// ── Architect command log ─────────────────────────────────────────────────────
+
+export interface ArchitectCommandLog {
+  commandId:   string;
+  oppId:       string;
+  command:     ArchitectCommand;
+  notes?:      string;
+  issuedBy:    string;          // always "Eric Lucero (Architect)"
+  issuedAt:    string;
+  prevStatus:  OpportunityStatus;
+  newStatus:   OpportunityStatus;
+  botResponse: string;
+  relicId:     string;
+}
+
+// ── Architect authority manifest ──────────────────────────────────────────────
+
+export interface ArchitectAuthority {
+  architect:          string;
+  division:           10;
+  exclusiveActions:   string[];
+  botCannotDo:        string[];
+  commandProtocol:    { command: ArchitectCommand; effect: string; botAction: string }[];
+  interactionRules:   string[];
+  toneAndConduct:     string[];
+  generatedAt:        string;
 }
 
 // ── Recommendation engine output ──────────────────────────────────────────────

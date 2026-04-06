@@ -75,6 +75,20 @@ router.post("/bot/alerts/:id/acknowledge", operatorWorkflow("DIVISION-10", "BOT_
 router.get( "/bot/reports/daily",  operatorWorkflow("DIVISION-10", "BOT_DAILY_SUMMARY"),  division10Controller.botGetDailySummary);
 router.get( "/bot/reports/weekly", operatorWorkflow("DIVISION-10", "BOT_WEEKLY_REPORT"),  division10Controller.botGetWeeklyReport);
 
+// ── Architect Command Layer ───────────────────────────────────────────────────
+//   GET  /division/10/bot/architect/authority              Authority manifest + command protocol
+//   GET  /division/10/bot/architect/commands               Full command log  ?oppId=
+//
+//   GET  /division/10/bot/opportunities/:id/escalation     Structured escalation packet (spec format)
+//   POST /division/10/bot/opportunities/:id/architect-command
+//          Body: { "command": "Proceed"|"Hold"|"Decline"|"Revise"|"More info", "notes": "..." }
+
+router.get( "/bot/architect/authority", operatorWorkflow("DIVISION-10", "BOT_ARCHITECT_AUTHORITY"), division10Controller.botGetArchitectAuthority);
+router.get( "/bot/architect/commands",  operatorWorkflow("DIVISION-10", "BOT_COMMAND_LOG"),         division10Controller.botGetCommandLog);
+
+router.get( "/bot/opportunities/:id/escalation",        operatorWorkflow("DIVISION-10", "BOT_ESCALATION"),   division10Controller.botGetEscalation);
+router.post("/bot/opportunities/:id/architect-command", operatorWorkflow("DIVISION-10", "BOT_ARCH_COMMAND"), division10Controller.botArchitectCommand);
+
 // ── Cyberpunk dashboard UI ────────────────────────────────────────────────────
 router.get("/dashboard", (_req, res) => {
   res.sendFile(path.join(__dirname, "dashboard.html"));

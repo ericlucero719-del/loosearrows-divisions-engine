@@ -22,6 +22,8 @@ import {
   BotAnalysisReport, BotDraftQuote, BotQuoteLineItem, SupplierRec,
   SupplierScoreBreakdown, BotRecommendation, BotCLIN,
   OpportunityStatus, BotRelicType, AlertType, AlertSeverity, FitBand, SupplierTier,
+  ArchitectCommand, ArchitectCommandLog, ArchitectAuthority,
+  EscalationPacket, UncertaintyCategory,
   DailyIntelligenceSummary, WeeklyDivision10Report,
 } from "./division10.bot.types";
 
@@ -82,6 +84,7 @@ const botState: {
   relics:        BotRelic[];
   alerts:        BotAlert[];
   cycles:        BotCycleSummary[];
+  commandLog:    ArchitectCommandLog[];
   loopStep:      string;
   status:        "ACTIVE" | "IDLE" | "SCANNING";
 } = {
@@ -89,6 +92,7 @@ const botState: {
   relics:        [],
   alerts:        [],
   cycles:        [],
+  commandLog:    [],
   loopStep:      "AWAIT_ARCHITECT_APPROVAL",
   status:        "IDLE",
 };
@@ -893,6 +897,287 @@ function buildWeeklyReport(): WeeklyDivision10Report {
   return report;
 }
 
+// ── ARCHITECT COMMAND LAYER ───────────────────────────────────────────────────
+// Authority: Eric Lucero (Architect) — only entity permitted to commit the
+// company to any contractual action.  Bot enforces these boundaries in code.
+
+const ARCHITECT_AUTHORITY_MANIFEST: Omit<ArchitectAuthority, "generatedAt"> = {
+  architect:        "Eric Lucero",
+  division:         10,
+  exclusiveActions: [
+    "Approve submissions to agencies or contracting officers",
+    "Override risk flags",
+    "Change margin bands outside governance",
+    "Modify governance policy",
+    "Add or remove Division 10 operators",
+    "Activate new divisions",
+    "Authorize any external communication",
+  ],
+  botCannotDo: [
+    "Submit quotes, bids, offers, or responses",
+    "Contact agencies, COs, suppliers, or external entities",
+    "Sign, agree, or commit the company to anything",
+    "Override governance, margin bands, or authority levels",
+    "Interpret ambiguous language as approval",
+    "Proceed without explicit Architect command",
+  ],
+  commandProtocol: [
+    { command: "Proceed",   effect: "Bot moves to next draft stage only.",                 botAction: "Advance status to DRAFT_PREP or prepare final draft package — NO submission." },
+    { command: "Hold",      effect: "Bot pauses all actions on this item.",                botAction: "Set status to HOLD. No analysis, drafting, or alerting until further command." },
+    { command: "Decline",   effect: "Bot archives the opportunity.",                       botAction: "Set status to DECLINED. Log relic. Take no further action." },
+    { command: "Revise",    effect: "Bot re-analyzes and updates the draft.",              botAction: "Set status to REVISING. Re-run steps 4–8. Generate updated escalation packet." },
+    { command: "More info", effect: "Bot provides deeper analysis.",                       botAction: "Run deeper CLIN extraction, supplier deep-dive, compliance check. Emit risk relics. Re-escalate." },
+  ],
+  interactionRules: [
+    "Bot must escalate any actionable item requiring approval.",
+    "Bot must present information clearly, concisely, and without emotion.",
+    "Bot must never assume approval.",
+    "Bot must wait for explicit Architect confirmation before proceeding.",
+    "Bot must provide recommended actions, not decisions.",
+    "Bot must summarize risks in every escalation.",
+    "Bot must timestamp all escalations and log them as relics.",
+  ],
+  toneAndConduct: [
+    "Precise",
+    "Concise",
+    "Respectful",
+    "Operational",
+    "Free of emotion or speculation",
+    "No persuasive language — facts, risks, and recommendations only",
+  ],
+};
+
+// ── Uncertainty detection ─────────────────────────────────────────────────────
+
+function detectUncertainty(opp: BotOpportunity): UncertaintyCategory[] {
+  const flags: UncertaintyCategory[] = [];
+
+  if (!opp.setAside || opp.complianceRisks?.length)
+    flags.push("compliance");
+
+  const topSupplier = opp.supplierRecommendations[0];
+  if (!topSupplier || topSupplier.tier === "not-recommended")
+    flags.push("supplier-fit");
+
+  const prices = opp.clins.map(c => c.unitPrice ?? 0).filter(p => p > 0);
+  if (prices.length >= 2) {
+    const avg    = prices.reduce((a, b) => a + b, 0) / prices.length;
+    const maxDev = Math.max(...prices.map(p => Math.abs(p - avg) / avg));
+    if (maxDev > 0.30) flags.push("pricing-variance");
+  }
+
+  const missingDesc = opp.clins.filter(c => !c.description || c.description.trim() === c.clin);
+  if (missingDesc.length) flags.push("missing-data");
+
+  if (opp.riskFlags?.some(f =>
+    f.toLowerCase().includes("ambiguous") ||
+    f.toLowerCase().includes("unclear") ||
+    f.toLowerCase().includes("unspecified")
+  )) flags.push("ambiguous-requirements");
+
+  if (opp.deadline) {
+    const hrs = hoursUntil(opp.deadline);
+    if (hrs > 0 && hrs < 48) flags.push("delivery-feasibility");
+  }
+
+  return flags;
+}
+
+// ── Escalation packet builder ─────────────────────────────────────────────────
+
+function buildEscalationPacket(oppId: string): EscalationPacket | { error: string } {
+  const opp = botState.opportunities[oppId];
+  if (!opp) return { error: "Opportunity not found" };
+
+  const fitScore    = opp.fitScore  ?? 0;
+  const fitBand     = opp.fitBand   ?? "weak";
+  const topSupplier = opp.supplierRecommendations[0] ?? null;
+  const rec         = opp.recommendation;
+  const draft       = opp.draftQuote;
+  const uncertainty = detectUncertainty(opp);
+  const isUncertain = uncertainty.length > 0;
+
+  const hrs = opp.deadline ? hoursUntil(opp.deadline) : null;
+  const deadlineStr = opp.deadline
+    ? `${opp.deadline} (${hrs !== null && hrs > 0 ? hrs.toFixed(0) + "h remaining" : "PAST"})`
+    : "No deadline set";
+
+  // Risk bullet list
+  const risks: string[] = [...(opp.complianceRisks ?? []), ...(opp.riskFlags ?? [])];
+  if (isUncertain) {
+    uncertainty.forEach(u => risks.push(`Risk: Uncertain — ${u.replace(/-/g, " ")}`));
+  }
+  if (!topSupplier) {
+    risks.push("No vendors registered — supplier match incomplete.");
+  }
+
+  // Subject line
+  const actionTag  = rec?.decision === "PURSUE" ? "Authorization Required"
+                   : rec?.decision === "EVALUATE" ? "Architect Evaluation Required"
+                   : "Review Required";
+  const subject    = `RFQ — ${opp.solicitationNumber} — ${actionTag}`;
+
+  // 2–3 sentence summary (facts only, no persuasion)
+  const summary    = [
+    `Solicitation ${opp.solicitationNumber} (${opp.title}) from ${opp.agency} has been processed through the 10-step intelligence loop.`,
+    `Fit score: ${fitScore.toFixed(2)} (${fitBand}). Estimated value: $${(opp.estimatedValue ?? draft?.totalEstimate ?? 0).toFixed(2)}.`,
+    isUncertain
+      ? `Uncertainty flags detected in: ${uncertainty.join(", ")}. Escalation includes Risk: Uncertain designations.`
+      : `No uncertainty flags. ${draft ? `Draft prepared at ${draft.marginBand} margin.` : "Draft not prepared (fit below threshold)."}`,
+  ].join(" ");
+
+  // Recommended action (factual, no persuasion per spec)
+  const recommendedAction = rec
+    ? `Bot recommends ${rec.decision}. ${rec.riskMitigationSteps[0] ?? "Review analysis and issue command to proceed."}`
+    : "Analysis incomplete. Issue 'More info' command or trigger analysis before deciding.";
+
+  // Relic for this escalation
+  const relic = emitRelic("alert", opp.agency,
+    `ESCALATION — ${subject} | Fit ${fitScore.toFixed(2)} (${fitBand})${isUncertain ? " | UNCERTAIN" : ""}`,
+    opp.oppId,
+    { escalationSubject: subject, fitScore, fitBand, uncertainty, awaitingCommand: true });
+
+  const packet: EscalationPacket = {
+    escalationId:          randomUUID(),
+    oppId,
+    issuedAt:              new Date().toISOString(),
+    subject,
+    summary,
+    fitScore,
+    fitBand,
+    supplierRecommendation: topSupplier
+      ? { name: topSupplier.vendorName, score: topSupplier.score, tier: topSupplier.tier }
+      : null,
+    risks,
+    uncertaintyFlags:      uncertainty,
+    deadline:              deadlineStr,
+    hoursRemaining:        hrs !== null ? Math.round(hrs) : null,
+    recommendedAction,
+    status:                draft ? "prepared — awaiting Architect command" : "analysis-only — draft not prepared",
+    relicId:               relic.relicId,
+    architectAuthority:    ARCHITECT_AUTHORITY_MANIFEST.exclusiveActions,
+    commandsAccepted:      ["Proceed", "Hold", "Decline", "Revise", "More info"],
+    awaitingCommand:       true,
+  };
+
+  return packet;
+}
+
+// ── Architect command processor ───────────────────────────────────────────────
+
+const VALID_COMMANDS = new Set<ArchitectCommand>(["Proceed", "Hold", "Decline", "Revise", "More info"]);
+
+function issueArchitectCommand(
+  oppId:   string,
+  command: ArchitectCommand,
+  notes?:  string,
+): ArchitectCommandLog | { error: string } {
+  const opp = botState.opportunities[oppId];
+  if (!opp) return { error: "Opportunity not found" };
+
+  if (!VALID_COMMANDS.has(command)) {
+    return { error: `Invalid command. Accepted: ${[...VALID_COMMANDS].join(", ")}. Ambiguous language is not accepted as approval.` };
+  }
+
+  // HOLD / DECLINED statuses block further commands (except explicit override with notes)
+  if (opp.status === "DECLINED") {
+    return { error: "Opportunity is DECLINED and archived. No further commands accepted." };
+  }
+
+  const prevStatus = opp.status;
+  let   newStatus: OpportunityStatus = prevStatus;
+  let   botResponse: string;
+
+  switch (command) {
+    case "Proceed":
+      newStatus    = "DRAFT_PREP";
+      botResponse  = `Command received: PROCEED. Status advanced to DRAFT_PREP. Bot is preparing final draft package. NO submission has been made. Awaiting further Architect authorization before any external action.`;
+      // Ensure draft is built
+      if (!opp.draftQuote) stepDraft(opp);
+      opp.status    = newStatus;
+      opp.updatedAt = new Date().toISOString();
+      raiseAlert("escalation", opp.agency,
+        `PROCEED command acknowledged — ${opp.solicitationNumber}. Final draft package ready. Awaiting submission authorization.`,
+        "Architect must explicitly authorize submission. Bot has NOT submitted anything.",
+        opp.oppId);
+      break;
+
+    case "Hold":
+      newStatus    = "HOLD";
+      botResponse  = `Command received: HOLD. All analysis, drafting, and alerting for ${opp.solicitationNumber} is now PAUSED. No action will be taken until a subsequent command is issued by the Architect.`;
+      opp.status    = newStatus;
+      opp.updatedAt = new Date().toISOString();
+      // Acknowledge open alerts for this opp
+      botState.alerts
+        .filter(a => a.oppId === oppId && !a.acknowledged)
+        .forEach(a => { a.acknowledged = true; });
+      break;
+
+    case "Decline":
+      newStatus    = "DECLINED";
+      botResponse  = `Command received: DECLINE. Opportunity ${opp.solicitationNumber} has been archived. No further analysis, drafting, or escalation will occur. Relic logged.`;
+      opp.status    = newStatus;
+      opp.updatedAt = new Date().toISOString();
+      break;
+
+    case "Revise":
+      newStatus    = "REVISING";
+      botResponse  = `Command received: REVISE. Re-running analysis steps 4–8 for ${opp.solicitationNumber}. Updated draft and escalation packet will be generated.`;
+      opp.status    = "ANALYSIS";
+      opp.updatedAt = new Date().toISOString();
+      // Re-run analysis → match → draft → recommend
+      stepAnalyze(opp);
+      stepMatch(opp);
+      if ((opp.fitScore ?? 0) >= 0.50) stepDraft(opp);
+      stepRecommend(opp);
+      opp.status    = newStatus;
+      opp.updatedAt = new Date().toISOString();
+      // Re-escalate with updated packet
+      stepEscalate(opp);
+      break;
+
+    case "More info":
+      newStatus    = opp.status; // status unchanged
+      botResponse  = `Command received: MORE INFO. Running deeper extraction, compliance check, and supplier deep-dive for ${opp.solicitationNumber}. Risk relics will be generated. Updated escalation issued.`;
+      // Deep-dive: re-classify, re-extract, re-analyze, re-match
+      stepClassify(opp);
+      stepExtract(opp);
+      stepAnalyze(opp);
+      stepMatch(opp);
+      // Emit risk relics for each uncertainty category
+      const uncertainty = detectUncertainty(opp);
+      uncertainty.forEach(u => emitRelic("risk", opp.agency,
+        `Risk: Uncertain [${u}] — ${opp.solicitationNumber}. Deeper review required before Architect decision.`,
+        opp.oppId,
+        { uncertaintyCategory: u }));
+      stepRecommend(opp);
+      // Re-issue escalation
+      stepEscalate(opp);
+      break;
+  }
+
+  const relic = emitRelic("update", BOT_IDENTITY.reportsTo,
+    `Architect command [${command}] issued for ${opp.solicitationNumber}. ${prevStatus} → ${newStatus}. ${notes ?? ""}`.trim(),
+    opp.oppId,
+    { command, prevStatus, newStatus, notes, issuedBy: "Eric Lucero (Architect)" });
+
+  const log: ArchitectCommandLog = {
+    commandId:   randomUUID(),
+    oppId,
+    command,
+    notes,
+    issuedBy:    "Eric Lucero (Architect)",
+    issuedAt:    new Date().toISOString(),
+    prevStatus,
+    newStatus,
+    botResponse,
+    relicId:     relic.relicId,
+  };
+
+  botState.commandLog.push(log);
+  return log;
+}
+
 // ── Analyze a single opportunity (all steps 2–10) ────────────────────────────
 
 function analyzeOpportunity(oppId: string): BotAnalysisReport | { error: string } {
@@ -1069,4 +1354,19 @@ export const botService = {
 
   getDailySummary: buildDailySummary,
   getWeeklyReport: buildWeeklyReport,
+
+  // ── Architect Command Layer ──────────────────────────────────────────────
+
+  buildEscalationPacket,
+
+  issueArchitectCommand,
+
+  getCommandLog(oppId?: string): ArchitectCommandLog[] {
+    const log = [...botState.commandLog].reverse();
+    return oppId ? log.filter(l => l.oppId === oppId) : log;
+  },
+
+  getArchitectAuthority(): ArchitectAuthority {
+    return { ...ARCHITECT_AUTHORITY_MANIFEST, generatedAt: new Date().toISOString() };
+  },
 };
