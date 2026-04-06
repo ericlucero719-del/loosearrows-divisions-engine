@@ -223,6 +223,12 @@ export interface BotOpportunity {
   source:                  "SAM.GOV" | "REGISTRY" | "MANUAL" | "DIBBS" | "GSA_EBUY";
   discoveredAt:            string;
   updatedAt:               string;
+  pipelineRef?: {
+    contractId: string;
+    bidId:      string;
+    bidRef:     string;
+    createdAt:  string;
+  };
 }
 
 // ── Alert ─────────────────────────────────────────────────────────────────────

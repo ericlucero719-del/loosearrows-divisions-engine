@@ -161,7 +161,7 @@ export const division10Controller = {
     return res.json(result);
   },
 
-  botArchitectCommand(req: Request, res: Response) {
+  async botArchitectCommand(req: Request, res: Response) {
     const { command, notes } = req.body ?? {};
     const VALID: string[] = ["Proceed", "Hold", "Decline", "Revise", "More info"];
     if (!command) {
@@ -178,7 +178,7 @@ export const division10Controller = {
         note: "Bot will not interpret ambiguous language as approval.",
       });
     }
-    const result = botService.issueArchitectCommand(req.params.id, command, notes);
+    const result = await botService.issueArchitectCommand(req.params.id, command, notes);
     if ("error" in result) return res.status(404).json(result);
     return res.json(result);
   },
