@@ -595,6 +595,8 @@ function stepDraft(opp: BotOpportunity): BotDraftQuote {
 function stepAlert(): number {
   let raised = 0;
   Object.values(botState.opportunities).forEach(opp => {
+    // Skip paused, archived, or closed opportunities — no deadline alerts
+    if (["HOLD", "DECLINED", "CLOSED"].includes(opp.status)) return;
     if (!opp.deadline) return;
     const hrs    = hoursUntil(opp.deadline);
     const entity = opp.agency;
@@ -721,7 +723,7 @@ function runCycle(cycleType: BotCycleSummary["cycleType"] = "manual"): BotCycleS
   // Step 1
   const { discovered } = stepDiscover();
 
-  // Steps 2–10 for each newly-discovered opportunity
+  // Steps 2–10 for newly-discovered opportunities only — never touch HOLD, DECLINED, CLOSED
   const toProcess = Object.values(botState.opportunities)
     .filter(o => ["DISCOVERY","CLASSIFIED","EXTRACTED"].includes(o.status));
 
@@ -1120,40 +1122,37 @@ function issueArchitectCommand(
       opp.updatedAt = new Date().toISOString();
       break;
 
-    case "Revise":
-      newStatus    = "REVISING";
+    case "Revise": {
       botResponse  = `Command received: REVISE. Re-running analysis steps 4–8 for ${opp.solicitationNumber}. Updated draft and escalation packet will be generated.`;
       opp.status    = "ANALYSIS";
       opp.updatedAt = new Date().toISOString();
-      // Re-run analysis → match → draft → recommend
       stepAnalyze(opp);
       stepMatch(opp);
       if ((opp.fitScore ?? 0) >= 0.50) stepDraft(opp);
       stepRecommend(opp);
-      opp.status    = newStatus;
-      opp.updatedAt = new Date().toISOString();
-      // Re-escalate with updated packet
       stepEscalate(opp);
+      // Capture final status after all steps (stepEscalate may set ESCALATED)
+      newStatus     = opp.status;
       break;
+    }
 
-    case "More info":
-      newStatus    = opp.status; // status unchanged
+    case "More info": {
       botResponse  = `Command received: MORE INFO. Running deeper extraction, compliance check, and supplier deep-dive for ${opp.solicitationNumber}. Risk relics will be generated. Updated escalation issued.`;
-      // Deep-dive: re-classify, re-extract, re-analyze, re-match
       stepClassify(opp);
       stepExtract(opp);
       stepAnalyze(opp);
       stepMatch(opp);
-      // Emit risk relics for each uncertainty category
-      const uncertainty = detectUncertainty(opp);
-      uncertainty.forEach(u => emitRelic("risk", opp.agency,
+      const moreInfoUncertainty = detectUncertainty(opp);
+      moreInfoUncertainty.forEach(u => emitRelic("risk", opp.agency,
         `Risk: Uncertain [${u}] — ${opp.solicitationNumber}. Deeper review required before Architect decision.`,
         opp.oppId,
         { uncertaintyCategory: u }));
       stepRecommend(opp);
-      // Re-issue escalation
       stepEscalate(opp);
+      // Capture final status after all steps
+      newStatus     = opp.status;
       break;
+    }
   }
 
   const relic = emitRelic("update", BOT_IDENTITY.reportsTo,
