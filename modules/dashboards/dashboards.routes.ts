@@ -26,6 +26,11 @@ router.get("/demo", (_req, res) => {
   res.sendFile(path.join(__dirname, "demo.html"));
 });
 
+// ── Pricing & Plans ────────────────────────────────────────────────────────────
+router.get("/pricing", (_req, res) => {
+  res.sendFile(path.join(__dirname, "pricing.html"));
+});
+
 // ── Legal & Compliance ─────────────────────────────────────────────────────────
 router.get("/legal", (_req, res) => {
   res.sendFile(path.join(__dirname, "legal.html"));

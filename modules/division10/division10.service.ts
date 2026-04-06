@@ -3,6 +3,7 @@
 
 import { registry, currentOperator } from "../../src/core/engine";
 import { RapidResponseOperatorService } from "../../src/services/RapidResponseOperatorService";
+import { PrismaClient } from "@prisma/client";
 import {
   SystemSummary, SystemHealth, DivisionStatus,
   FinancialIntelligence, InventoryIntelligence,
@@ -14,6 +15,8 @@ import {
   HealthStatus, ExecutiveAssessment, AssessmentSummary,
   FullIntelligenceReport,
 } from "./division10.types";
+
+const prisma = new PrismaClient();
 
 const MARGIN_BANDS = { low: 0.08, target: 0.18, premium: 0.27 };
 
@@ -64,14 +67,29 @@ export class Division10Service {
     };
   }
 
-  getSystemHealth(): SystemHealth {
+  async getSystemHealth(): Promise<SystemHealth> {
+    const [vendorCount, contractCount, bidCount, workRequestCount] = await Promise.all([
+      prisma.govVendor.count(),
+      prisma.govContract.count(),
+      prisma.govBid.count(),
+      prisma.govWorkRequest.count(),
+    ]);
+
+    const dbCounts: Record<number, number> = {
+      2: contractCount,
+      3: bidCount + workRequestCount,
+      7: vendorCount,
+    };
+
     const divisions: DivisionStatus[] = Object.entries(DIVISION_REGISTRY_KEYS).map(([id, key]) => {
-      const records = registry[key] as Record<string, any>;
-      const count = Object.keys(records).length;
+      const numId = Number(id);
+      const count = dbCounts[numId] !== undefined
+        ? dbCounts[numId]
+        : Object.keys(registry[key] as Record<string, any>).length;
       const lastAction = [...registry.actions].reverse().find(a => a.division === `DIVISION-${id}`);
       return {
-        id:          Number(id),
-        name:        DIVISION_NAMES[Number(id)],
+        id:          numId,
+        name:        DIVISION_NAMES[numId],
         recordCount: count,
         lastAction:  lastAction?.timestamp,
         status:      count === 0 ? "EMPTY" : "ACTIVE",
@@ -265,10 +283,10 @@ export class Division10Service {
     };
   }
 
-  getFullReport(): FullIntelligenceReport {
+  async getFullReport(): Promise<FullIntelligenceReport> {
     return {
       summary:    this.getSystemSummary(),
-      health:     this.getSystemHealth(),
+      health:     await this.getSystemHealth(),
       financials: this.getFinancials(),
       inventory:  this.getInventory(),
       operators:  this.getOperators(),

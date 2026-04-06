@@ -14,8 +14,8 @@ export const division10Controller = {
     return res.json(division10Service.getActions(limit));
   },
 
-  getSystemHealth(_req: Request, res: Response) {
-    return res.json(division10Service.getSystemHealth());
+  async getSystemHealth(_req: Request, res: Response) {
+    return res.json(await division10Service.getSystemHealth());
   },
 
   getRelics(_req: Request, res: Response) {
@@ -59,8 +59,8 @@ export const division10Controller = {
     return res.json(division10Service.getAlerts());
   },
 
-  getFullReport(_req: Request, res: Response) {
-    return res.json(division10Service.getFullReport());
+  async getFullReport(_req: Request, res: Response) {
+    return res.json(await division10Service.getFullReport());
   },
 
   getMargins(_req: Request, res: Response) {
