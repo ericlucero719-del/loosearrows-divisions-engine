@@ -28,6 +28,7 @@ export const registry: {
   agencies: Record<string, any>;
   quotes: Record<string, any>;
   invoices: Record<string, any>;
+  bids: Record<string, any>;
 } = {
   actions: [],
   relics:  [],
@@ -41,6 +42,7 @@ export const registry: {
   agencies: {},
   quotes: {},
   invoices: {},
+  bids: {},
 };
 
 // ---------------------------------------------------------------------------
