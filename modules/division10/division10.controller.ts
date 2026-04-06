@@ -134,9 +134,17 @@ export const division10Controller = {
   },
 
   botGetAlerts(req: Request, res: Response) {
-    const { level, unacknowledged } = req.query as { level?: any; unacknowledged?: string };
+    const { severity, unacknowledged } = req.query as { severity?: any; unacknowledged?: string };
     const ack = unacknowledged === "true" ? false : undefined;
-    return res.json(botService.getAlerts(level, ack));
+    return res.json(botService.getAlerts(severity, ack));
+  },
+
+  botGetDailySummary(_req: Request, res: Response) {
+    return res.json(botService.getDailySummary());
+  },
+
+  botGetWeeklyReport(_req: Request, res: Response) {
+    return res.json(botService.getWeeklyReport());
   },
 
   botAcknowledgeAlert(req: Request, res: Response) {

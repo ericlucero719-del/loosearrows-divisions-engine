@@ -72,6 +72,9 @@ router.get( "/bot/relics", operatorWorkflow("DIVISION-10", "BOT_RELICS"), divisi
 router.get( "/bot/alerts", operatorWorkflow("DIVISION-10", "BOT_ALERTS"), division10Controller.botGetAlerts);
 router.post("/bot/alerts/:id/acknowledge", operatorWorkflow("DIVISION-10", "BOT_ACK_ALERT"), division10Controller.botAcknowledgeAlert);
 
+router.get( "/bot/reports/daily",  operatorWorkflow("DIVISION-10", "BOT_DAILY_SUMMARY"),  division10Controller.botGetDailySummary);
+router.get( "/bot/reports/weekly", operatorWorkflow("DIVISION-10", "BOT_WEEKLY_REPORT"),  division10Controller.botGetWeeklyReport);
+
 // ── Cyberpunk dashboard UI ────────────────────────────────────────────────────
 router.get("/dashboard", (_req, res) => {
   res.sendFile(path.join(__dirname, "dashboard.html"));
