@@ -6,9 +6,8 @@ Node.js/TypeScript logistics backend for Loose Arrows Supply Logistics. Features
 ## Tech Stack
 - **Language**: TypeScript 5.9
 - **Framework**: Express.js v5
-- **Registry**: In-memory (all data clears on restart — must recreate after each boot)
-- **Dev Server**: ts-node-dev with hot reload on port 3000
-- **Master**: port 4000 (`master.ts`)
+- **Registry**: PostgreSQL via Prisma (vendors, contracts, bids, work requests persist across restarts)
+- **Dev Server**: ts-node-dev with hot reload on port 5000
 
 ## Project Structure
 ```

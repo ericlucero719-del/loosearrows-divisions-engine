@@ -1,90 +1,123 @@
 // modules/division3/division3.service.ts
-// Division 3 — Requests, Work Orders & Bid Pipeline
+// Division 3 — Requests, Work Orders & Bid Pipeline (PostgreSQL-backed)
 
 import { randomUUID } from "crypto";
-import { registry } from "../../src/core/engine";
+import { PrismaClient } from "@prisma/client";
 import { WorkRequest, RequestType, RequestStatus, Bid, BidStatus, BidLineItem } from "./division3.types";
 
-let bidSeq = 0;
-function nextBidRef() { return `BID-${String(++bidSeq).padStart(3, "0")}`; }
+const prisma = new PrismaClient();
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+
+async function nextBidRef(): Promise<string> {
+  const count = await prisma.govBid.count();
+  return `BID-${String(count + 1).padStart(3, "0")}`;
+}
+
+function toWorkRequest(row: any): WorkRequest {
+  return {
+    id:          row.id,
+    type:        row.type as RequestType,
+    requestorId: row.requestorId,
+    contractId:  row.contractId ?? undefined,
+    productIds:  JSON.parse(row.productIdsJson || "[]"),
+    status:      row.status as RequestStatus,
+    notes:       row.notes ?? undefined,
+    createdAt:   row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+    updatedAt:   row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
+  };
+}
+
+function toBid(row: any): Bid {
+  return {
+    bidId:       row.bidId,
+    bidRef:      row.bidRef ?? undefined,
+    contractId:  row.contractId,
+    requestId:   row.requestId  ?? undefined,
+    vendorId:    row.vendorId,
+    vendorName:  row.vendorName ?? undefined,
+    status:      row.status as BidStatus,
+    lineItems:   (row.lineItems ?? []).map((li: any): BidLineItem => ({
+      sku:         li.sku,
+      clin:        li.clin        ?? undefined,
+      description: li.description ?? undefined,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
+      extended:    li.extended,
+    })),
+    totalValue:  row.totalValue,
+    quoteId:     row.quoteId  ?? undefined,
+    quoteRef:    row.quoteRef ?? undefined,
+    notes:       row.notes    ?? undefined,
+    submittedAt: row.submittedAt instanceof Date ? row.submittedAt.toISOString() : (row.submittedAt ?? undefined),
+    awardedAt:   row.awardedAt   instanceof Date ? row.awardedAt.toISOString()   : (row.awardedAt   ?? undefined),
+    createdAt:   row.createdAt   instanceof Date ? row.createdAt.toISOString()   : row.createdAt,
+    updatedAt:   row.updatedAt   instanceof Date ? row.updatedAt.toISOString()   : row.updatedAt,
+  };
+}
 
 // ── Work Request service ───────────────────────────────────────────────────────
 export class Division3Service {
-  createRequest(data: {
-    type: RequestType;
-    requestorId: string;
-    notes?: string;
-  }): WorkRequest {
-    const now = new Date().toISOString();
-    const req: WorkRequest = {
-      id: randomUUID(),
-      type: data.type,
-      requestorId: data.requestorId,
-      productIds: [],
-      status: "New",
-      notes: data.notes,
-      createdAt: now,
-      updatedAt: now,
-    };
-    registry.requests[req.id] = req;
-    return req;
+  async createRequest(data: { type: RequestType; requestorId: string; notes?: string }): Promise<WorkRequest> {
+    const row = await prisma.govWorkRequest.create({
+      data: {
+        type:          data.type,
+        requestorId:   data.requestorId,
+        productIdsJson: "[]",
+        status:        "New",
+        notes:         data.notes ?? null,
+      },
+    });
+    return toWorkRequest(row);
   }
 
-  attachProducts(id: string, productIds: string[]): WorkRequest | null {
-    const req = registry.requests[id] as WorkRequest;
-    if (!req) return null;
-    const unique = new Set([...req.productIds, ...productIds]);
-    req.productIds = Array.from(unique);
-    req.updatedAt = new Date().toISOString();
-    return req;
+  async attachProducts(id: string, productIds: string[]): Promise<WorkRequest | null> {
+    const existing = await prisma.govWorkRequest.findUnique({ where: { id } });
+    if (!existing) return null;
+    const current: string[] = JSON.parse(existing.productIdsJson || "[]");
+    const merged = Array.from(new Set([...current, ...productIds]));
+    const row = await prisma.govWorkRequest.update({ where: { id }, data: { productIdsJson: JSON.stringify(merged) } });
+    return toWorkRequest(row);
   }
 
-  linkContract(id: string, contractId: string): WorkRequest | null {
-    const req = registry.requests[id] as WorkRequest;
-    if (!req) return null;
-    req.contractId = contractId;
-    req.updatedAt = new Date().toISOString();
-    return req;
+  async linkContract(id: string, contractId: string): Promise<WorkRequest | null> {
+    const existing = await prisma.govWorkRequest.findUnique({ where: { id } });
+    if (!existing) return null;
+    const row = await prisma.govWorkRequest.update({ where: { id }, data: { contractId } });
+    return toWorkRequest(row);
   }
 
-  updateStatus(id: string, status: RequestStatus): WorkRequest | null {
-    const req = registry.requests[id] as WorkRequest;
-    if (!req) return null;
-    req.status = status;
-    req.updatedAt = new Date().toISOString();
-    return req;
+  async updateStatus(id: string, status: RequestStatus): Promise<WorkRequest | null> {
+    const existing = await prisma.govWorkRequest.findUnique({ where: { id } });
+    if (!existing) return null;
+    const row = await prisma.govWorkRequest.update({ where: { id }, data: { status } });
+    return toWorkRequest(row);
   }
 
-  listRequests(): WorkRequest[] {
-    return Object.values(registry.requests) as WorkRequest[];
+  async listRequests(): Promise<WorkRequest[]> {
+    const rows = await prisma.govWorkRequest.findMany({ orderBy: { createdAt: "asc" } });
+    return rows.map(toWorkRequest);
   }
 
-  getRequest(id: string): WorkRequest | null {
-    const req = registry.requests[id] as WorkRequest;
-    if (!req) return null;
-    return {
-      ...req,
-      _products: req.productIds.map((sku: string) => registry.products[sku] ?? { sku }),
-      _contract: req.contractId ? registry.contracts[req.contractId] : null,
-    } as any;
+  async getRequest(id: string): Promise<WorkRequest | null> {
+    const row = await prisma.govWorkRequest.findUnique({ where: { id } });
+    return row ? toWorkRequest(row) : null;
   }
 
   // ── Bid Pipeline ─────────────────────────────────────────────────────────────
 
-  // Active contracts available to place a bid on (status = active)
-  getBidPipeline(): { contract: any; existingBidCount: number }[] {
-    const contracts = Object.values(registry.contracts) as any[];
-    const bids = Object.values(registry.bids) as Bid[];
-    return contracts
-      .filter(c => c.status === "active")
-      .map(c => ({
-        contract: c,
-        existingBidCount: bids.filter(b => b.contractId === c.contractId).length,
-      }));
+  async getBidPipeline(): Promise<{ contract: any; existingBidCount: number }[]> {
+    const contracts = await prisma.govContract.findMany({
+      where:   { status: "active" },
+      include: { bids: true, products: true },
+    });
+    return contracts.map(c => ({
+      contract:         c,
+      existingBidCount: c.bids.length,
+    }));
   }
 
-  // Create a new bid (starts as DRAFT)
-  createBid(data: {
+  async createBid(data: {
     contractId:   string;
     vendorId:     string;
     vendorName?:  string;
@@ -92,206 +125,194 @@ export class Division3Service {
     lineItems?:   Omit<BidLineItem, "extended">[];
     notes?:       string;
     bidRef?:      string;
-  }): Bid | { error: string } {
-    const contract = registry.contracts[data.contractId] as any;
+  }): Promise<Bid | { error: string }> {
+    const contract = await prisma.govContract.findUnique({
+      where:   { contractId: data.contractId },
+      include: { products: true },
+    });
     if (!contract) return { error: `Contract ${data.contractId} not found` };
 
-    // Build line items — from provided data, or auto-populate from contract catalog
     let raw: Omit<BidLineItem, "extended">[] = data.lineItems ?? [];
-    if (!raw.length && contract.products?.length) {
-      raw = contract.products.map((cp: any) => {
-        const product = registry.products[cp.sku] as any;
-        return {
-          sku:         cp.sku,
-          clin:        cp.clin,
-          description: product?.productName ?? cp.sku,
-          quantity:    1,
-          unitPrice:   cp.contractPrice,
-        };
-      });
+    if (!raw.length && contract.products.length) {
+      raw = contract.products.map((cp: any) => ({
+        sku:         cp.sku,
+        clin:        cp.clin,
+        description: cp.sku,
+        quantity:    1,
+        unitPrice:   cp.contractPrice,
+      }));
     }
 
-    const lineItems: BidLineItem[] = raw.map(li => ({
-      ...li,
-      extended: li.quantity * li.unitPrice,
+    const lineItemsData = raw.map(li => ({
+      sku:         li.sku,
+      clin:        li.clin        ?? null,
+      description: li.description ?? null,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
+      extended:    li.quantity * li.unitPrice,
     }));
+    const totalValue = lineItemsData.reduce((s, li) => s + li.extended, 0);
+    const bidRef = data.bidRef ?? await nextBidRef();
 
-    const totalValue = lineItems.reduce((s, li) => s + li.extended, 0);
-    const now = new Date().toISOString();
-
-    const bid: Bid = {
-      bidId:       randomUUID(),
-      bidRef:      data.bidRef ?? nextBidRef(),
-      contractId:  data.contractId,
-      requestId:   data.requestId,
-      vendorId:    data.vendorId,
-      vendorName:  data.vendorName,
-      status:      "DRAFT",
-      lineItems,
-      totalValue,
-      notes:       data.notes,
-      createdAt:   now,
-      updatedAt:   now,
-    };
-    registry.bids[bid.bidId] = bid;
-    return bid;
+    const row = await prisma.govBid.create({
+      data: {
+        bidRef,
+        contractId:  data.contractId,
+        requestId:   data.requestId  ?? null,
+        vendorId:    data.vendorId,
+        vendorName:  data.vendorName ?? null,
+        status:      "DRAFT",
+        totalValue,
+        notes:       data.notes ?? null,
+        lineItems:   { create: lineItemsData },
+      },
+      include: { lineItems: true },
+    });
+    return toBid(row);
   }
 
-  listBids(status?: BidStatus): Bid[] {
-    const all = Object.values(registry.bids) as Bid[];
-    return status ? all.filter(b => b.status === status) : all;
+  async listBids(status?: BidStatus): Promise<Bid[]> {
+    const rows = await prisma.govBid.findMany({
+      where:   status ? { status } : undefined,
+      include: { lineItems: true },
+      orderBy: { createdAt: "asc" },
+    });
+    return rows.map(toBid);
   }
 
-  getBid(bidId: string): (Bid & { _contract?: any; _quote?: any }) | null {
-    const bid = registry.bids[bidId] as Bid;
-    if (!bid) return null;
-    return {
-      ...bid,
-      _contract: registry.contracts[bid.contractId] ?? null,
-      _quote:    bid.quoteId ? (registry.quotes[bid.quoteId] ?? null) : null,
-    };
+  async getBid(bidId: string): Promise<(Bid & { _contract?: any }) | null> {
+    const row = await prisma.govBid.findUnique({
+      where:   { bidId },
+      include: { lineItems: true, contract: { include: { products: true } } },
+    });
+    if (!row) return null;
+    return { ...toBid(row), _contract: row.contract ?? null };
   }
 
-  // Replace all line items on a DRAFT bid
-  setLineItems(bidId: string, items: Omit<BidLineItem, "extended">[]): Bid | { error: string } {
-    const bid = registry.bids[bidId] as Bid;
+  async setLineItems(bidId: string, items: Omit<BidLineItem, "extended">[]): Promise<Bid | { error: string }> {
+    const bid = await prisma.govBid.findUnique({ where: { bidId } });
     if (!bid) return { error: "Bid not found" };
     if (bid.status !== "DRAFT") return { error: `Cannot edit line items on a ${bid.status} bid` };
 
-    bid.lineItems = items.map(li => ({ ...li, extended: li.quantity * li.unitPrice }));
-    bid.totalValue = bid.lineItems.reduce((s, li) => s + li.extended, 0);
-    bid.updatedAt  = new Date().toISOString();
-    return bid;
+    const lineItemsData = items.map(li => ({
+      sku:         li.sku,
+      clin:        li.clin        ?? null,
+      description: li.description ?? null,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
+      extended:    li.quantity * li.unitPrice,
+    }));
+    const totalValue = lineItemsData.reduce((s, li) => s + li.extended, 0);
+
+    await prisma.govBidLineItem.deleteMany({ where: { bidId } });
+    const row = await prisma.govBid.update({
+      where:   { bidId },
+      data:    { totalValue, lineItems: { create: lineItemsData } },
+      include: { lineItems: true },
+    });
+    return toBid(row);
   }
 
-  // Generate a Division 9 Quote from the bid and link it back
-  generateQuote(bidId: string): { bid: Bid; quote: any } | { error: string } {
-    const bid = registry.bids[bidId] as Bid;
-    if (!bid) return { error: "Bid not found" };
-    if (!bid.lineItems.length) return { error: "Bid has no line items — add items before generating a quote" };
+  async generateQuote(bidId: string): Promise<{ bid: Bid; quote: any } | { error: string }> {
+    const row = await prisma.govBid.findUnique({ where: { bidId }, include: { lineItems: true } });
+    if (!row) return { error: "Bid not found" };
+    if (!row.lineItems.length) return { error: "Bid has no line items — add items before generating a quote" };
 
-    if (bid.quoteId && registry.quotes[bid.quoteId]) {
-      return { bid, quote: registry.quotes[bid.quoteId] };
+    if (row.quoteId) {
+      const bid = toBid(row);
+      const quote = {
+        id:          row.quoteId,
+        quoteRef:    row.quoteRef,
+        bidId:       row.bidId,
+        contractId:  row.contractId,
+        lineItems:   row.lineItems,
+        totalAmount: row.totalValue,
+        status:      "Draft",
+      };
+      return { bid, quote };
     }
 
-    const now = new Date().toISOString();
-    const quoteRef = bid.bidRef ? bid.bidRef.replace("BID-", "QUOTE-") : `QUOTE-${randomUUID().slice(0, 8)}`;
-    const quote = {
-      id:          randomUUID(),
-      quoteRef,
-      bidId:       bid.bidId,
-      contractId:  bid.contractId,
-      lineItems:   bid.lineItems.map(li => ({
-        sku:         li.sku,
-        description: li.description,
-        quantity:    li.quantity,
-        unitPrice:   li.unitPrice,
-        extended:    li.extended,
-      })),
-      totalAmount: bid.totalValue,
-      status:      "Draft",
-      createdAt:   now,
-      updatedAt:   now,
-    };
+    const quoteId  = randomUUID();
+    const quoteRef = row.bidRef ? row.bidRef.replace("BID-", "QUOTE-") : `QUOTE-${randomUUID().slice(0, 8)}`;
 
-    registry.quotes[quote.id] = quote;
-    bid.quoteId  = quote.id;
-    bid.quoteRef = quote.quoteRef;
-    bid.updatedAt = now;
+    const updated = await prisma.govBid.update({
+      where:   { bidId },
+      data:    { quoteId, quoteRef },
+      include: { lineItems: true },
+    });
+    const bid = toBid(updated);
+    const quote = {
+      id:          quoteId,
+      quoteRef,
+      bidId:       row.bidId,
+      contractId:  row.contractId,
+      lineItems:   row.lineItems,
+      totalAmount: row.totalValue,
+      status:      "Draft",
+    };
     return { bid, quote };
   }
 
-  // Submit the bid — DRAFT → SUBMITTED, quote Draft → Sent
-  submitBid(bidId: string): Bid | { error: string } {
-    const bid = registry.bids[bidId] as Bid;
-    if (!bid) return { error: "Bid not found" };
-    if (bid.status !== "DRAFT") return { error: `Bid is already ${bid.status} — only DRAFT bids can be submitted` };
-    if (!bid.lineItems.length) return { error: "Cannot submit a bid with no line items" };
+  async submitBid(bidId: string): Promise<Bid | { error: string }> {
+    const row = await prisma.govBid.findUnique({ where: { bidId }, include: { lineItems: true } });
+    if (!row) return { error: "Bid not found" };
+    if (row.status !== "DRAFT") return { error: `Bid is already ${row.status} — only DRAFT bids can be submitted` };
+    if (!row.lineItems.length) return { error: "Cannot submit a bid with no line items" };
 
-    const now = new Date().toISOString();
-    bid.status      = "SUBMITTED";
-    bid.submittedAt = now;
-    bid.updatedAt   = now;
-
-    // Auto-generate quote if one doesn't exist yet
-    if (!bid.quoteId) this.generateQuote(bidId);
-
-    // Advance linked quote to Sent
-    if (bid.quoteId) {
-      const q = registry.quotes[bid.quoteId] as any;
-      if (q && q.status === "Draft") {
-        q.status    = "Sent";
-        q.updatedAt = now;
-      }
+    let quoteId  = row.quoteId;
+    let quoteRef = row.quoteRef;
+    if (!quoteId) {
+      quoteId  = randomUUID();
+      quoteRef = row.bidRef ? row.bidRef.replace("BID-", "QUOTE-") : `QUOTE-${randomUUID().slice(0, 8)}`;
     }
 
-    return bid;
+    const updated = await prisma.govBid.update({
+      where:   { bidId },
+      data:    { status: "SUBMITTED", submittedAt: new Date(), quoteId, quoteRef },
+      include: { lineItems: true },
+    });
+    return toBid(updated);
   }
 
-  // Update unit prices on any non-finalized bid (pre-award price correction)
-  updatePricing(bidId: string, prices: { sku: string; unitPrice: number; quantity?: number }[]): Bid | { error: string } {
-    const bid = registry.bids[bidId] as Bid;
-    if (!bid) return { error: "Bid not found" };
-    if (bid.status === "AWARDED" || bid.status === "LOST") {
-      return { error: `Cannot update pricing on a ${bid.status} bid` };
+  async updatePricing(bidId: string, prices: { sku: string; unitPrice: number; quantity?: number }[]): Promise<Bid | { error: string }> {
+    const row = await prisma.govBid.findUnique({ where: { bidId }, include: { lineItems: true } });
+    if (!row) return { error: "Bid not found" };
+    if (row.status === "AWARDED" || row.status === "LOST") {
+      return { error: `Cannot update pricing on a ${row.status} bid` };
     }
 
     const priceMap = new Map(prices.map(p => [p.sku, p]));
-    bid.lineItems = bid.lineItems.map(li => {
+    for (const li of row.lineItems) {
       const update = priceMap.get(li.sku);
-      if (!update) return li;
+      if (!update) continue;
       const qty       = update.quantity ?? li.quantity;
       const unitPrice = update.unitPrice;
-      return { ...li, quantity: qty, unitPrice, extended: qty * unitPrice };
-    });
-    bid.totalValue = bid.lineItems.reduce((s, li) => s + li.extended, 0);
-    bid.updatedAt  = new Date().toISOString();
-
-    // Sync linked quote if it exists
-    if (bid.quoteId) {
-      const q = registry.quotes[bid.quoteId] as any;
-      if (q) {
-        q.lineItems = bid.lineItems.map(li => ({
-          sku: li.sku, description: li.description,
-          quantity: li.quantity, unitPrice: li.unitPrice, extended: li.extended,
-        }));
-        q.totalAmount = bid.totalValue;
-        q.updatedAt   = bid.updatedAt;
-      }
+      await prisma.govBidLineItem.update({
+        where: { id: li.id },
+        data:  { quantity: qty, unitPrice, extended: qty * unitPrice },
+      });
     }
 
-    // Also sync Division 1 product prices
-    bid.lineItems.forEach(li => {
-      const product = registry.products[li.sku] as any;
-      if (product) {
-        product.price      = li.unitPrice;
-        product.lastSynced = bid.updatedAt;
-      }
+    const refreshed = await prisma.govBid.findUnique({ where: { bidId }, include: { lineItems: true } });
+    const totalValue = (refreshed!.lineItems).reduce((s: number, li: any) => s + li.extended, 0);
+    const final = await prisma.govBid.update({
+      where:   { bidId },
+      data:    { totalValue },
+      include: { lineItems: true },
     });
-
-    return bid;
+    return toBid(final);
   }
 
-  // Update bid status (UNDER_REVIEW, AWARDED, LOST, WITHDRAWN)
-  updateBidStatus(bidId: string, status: BidStatus): Bid | { error: string } {
-    const bid = registry.bids[bidId] as Bid;
-    if (!bid) return { error: "Bid not found" };
+  async updateBidStatus(bidId: string, status: BidStatus): Promise<Bid | { error: string }> {
+    const existing = await prisma.govBid.findUnique({ where: { bidId } });
+    if (!existing) return { error: "Bid not found" };
 
-    const now = new Date().toISOString();
-    bid.status    = status;
-    bid.updatedAt = now;
-    if (status === "AWARDED") bid.awardedAt = now;
-
-    // Reflect outcome on linked quote
-    if (bid.quoteId) {
-      const q = registry.quotes[bid.quoteId] as any;
-      if (q) {
-        q.status    = status === "AWARDED" ? "Accepted" : status === "LOST" ? "Rejected" : q.status;
-        q.updatedAt = now;
-      }
-    }
-
-    return bid;
+    const row = await prisma.govBid.update({
+      where:   { bidId },
+      data:    { status, awardedAt: status === "AWARDED" ? new Date() : undefined },
+      include: { lineItems: true },
+    });
+    return toBid(row);
   }
 }
 

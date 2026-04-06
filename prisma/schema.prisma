@@ -149,6 +149,96 @@ model PurchaseOrderLog {
   createdAt    DateTime @default(now())
 }
 
+// ── Division 7: Vendor Registry (persistent) ──────────────────────────────────
+model GovVendor {
+  id                  String   @id @default(cuid())
+  name                String
+  categoriesJson      String   @default("[]")
+  capabilitiesJson    String   @default("[]")
+  performanceNotes    String?
+  contactEmail        String?
+  status              String   @default("active")
+  linkedContractsJson String   @default("[]")
+  linkedRequestsJson  String   @default("[]")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// ── Division 2 module: Contract Registry (persistent) ─────────────────────────
+model GovContract {
+  contractId            String               @id @default(cuid())
+  contractRef           String?
+  contractName          String
+  agency                String
+  naics                 String?
+  psc                   String?
+  setAside              String?
+  periodOfPerformance   String?
+  status                String               @default("draft")
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  products              GovContractProduct[]
+  bids                  GovBid[]
+}
+
+model GovContractProduct {
+  id            String      @id @default(cuid())
+  contract      GovContract @relation(fields: [contractId], references: [contractId])
+  contractId    String
+  sku           String
+  clin          String?
+  contractPrice Float
+  notes         String?
+
+  @@unique([contractId, sku])
+}
+
+// ── Division 3: Bid Pipeline (persistent) ─────────────────────────────────────
+model GovBid {
+  bidId       String           @id @default(cuid())
+  bidRef      String?
+  contract    GovContract      @relation(fields: [contractId], references: [contractId])
+  contractId  String
+  requestId   String?
+  vendorId    String
+  vendorName  String?
+  status      String           @default("DRAFT")
+  totalValue  Float            @default(0)
+  quoteId     String?
+  quoteRef    String?
+  notes       String?
+  submittedAt DateTime?
+  awardedAt   DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  lineItems   GovBidLineItem[]
+}
+
+model GovBidLineItem {
+  id          String  @id @default(cuid())
+  bid         GovBid  @relation(fields: [bidId], references: [bidId])
+  bidId       String
+  sku         String
+  clin        String?
+  description String?
+  quantity    Float
+  unitPrice   Float
+  extended    Float
+}
+
+// ── Division 3: Work Requests (persistent) ────────────────────────────────────
+model GovWorkRequest {
+  id           String   @id @default(cuid())
+  type         String
+  requestorId  String
+  contractId   String?
+  productIdsJson String  @default("[]")
+  status       String   @default("New")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Tracking {
   id             String   @id @default(cuid())
   order          Order    @relation(fields: [orderId], references: [id])
