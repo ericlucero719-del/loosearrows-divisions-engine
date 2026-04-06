@@ -23,6 +23,8 @@ const prisma = new PrismaClient();
 const PUBLIC_EXACT: Set<string> = new Set([
   "/",
   "/demo",
+  "/guide",
+  "/legal",
   "/api",
   "/vendor-cockpit",
   "/operator-control-room",

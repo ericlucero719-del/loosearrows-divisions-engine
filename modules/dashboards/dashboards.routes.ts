@@ -26,6 +26,16 @@ router.get("/demo", (_req, res) => {
   res.sendFile(path.join(__dirname, "demo.html"));
 });
 
+// ── Legal & Compliance ─────────────────────────────────────────────────────────
+router.get("/legal", (_req, res) => {
+  res.sendFile(path.join(__dirname, "legal.html"));
+});
+
+// ── User Guide / Self-Help ─────────────────────────────────────────────────────
+router.get("/guide", (_req, res) => {
+  res.sendFile(path.join(__dirname, "guide.html"));
+});
+
 // ── Quick navigation index ─────────────────────────────────────────────────────
 router.get("/dashboards", (_req, res) => {
   res.json({

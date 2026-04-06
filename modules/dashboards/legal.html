@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LOOSE ARROWS — Legal & Compliance</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+:root {
+  --cyan:#00fff7; --magenta:#ff00c8; --yellow:#ffe600; --green:#00ff88;
+  --red:#ff2244; --orange:#ff9900; --purple:#cc44ff;
+  --dim:#06061a; --panel:#0d0d2b; --panel2:#10102e; --border:#1a1a4a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--dim);color:#c8d8e8;font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,247,.012) 2px,rgba(0,255,247,.012) 4px);pointer-events:none;z-index:9999;}
+.topbar{background:var(--panel);border-bottom:2px solid var(--cyan);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 0 30px rgba(0,255,247,.15);}
+.brand{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.9rem;color:var(--cyan);text-shadow:0 0 20px var(--cyan);letter-spacing:4px;}
+.brand span{color:var(--magenta);}
+.topbar-nav{display:flex;gap:1.5rem;align-items:center;}
+.topbar-nav a{color:#7090b0;text-decoration:none;font-size:.75rem;letter-spacing:2px;transition:color .2s;}
+.topbar-nav a:hover{color:var(--cyan);}
+.topbar-nav .active{color:var(--yellow);}
+.hero{background:linear-gradient(135deg,var(--panel) 0%,#0a0a1e 100%);border-bottom:1px solid var(--border);padding:3rem 2rem 2rem;text-align:center;}
+.hero-tag{font-size:.7rem;letter-spacing:4px;color:var(--yellow);margin-bottom:1rem;opacity:.8;}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:2rem;color:var(--cyan);text-shadow:0 0 30px rgba(0,255,247,.4);margin-bottom:.5rem;}
+.hero p{color:#7090b0;font-size:.8rem;letter-spacing:1px;}
+.effective{display:inline-block;margin-top:1rem;background:rgba(255,230,0,.08);border:1px solid rgba(255,230,0,.3);border-radius:4px;padding:.3rem 1rem;font-size:.7rem;color:var(--yellow);letter-spacing:2px;}
+.container{max-width:900px;margin:0 auto;padding:2rem;}
+.toc{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--cyan);border-radius:4px;padding:1.5rem;margin-bottom:2.5rem;}
+.toc-title{font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--cyan);letter-spacing:3px;margin-bottom:1rem;}
+.toc ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.3rem;}
+.toc a{color:#7090b0;text-decoration:none;font-size:.75rem;transition:color .2s;}
+.toc a:hover{color:var(--cyan);}
+.section{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:2rem;margin-bottom:1.5rem;position:relative;}
+.section::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.section.cyan::before{background:var(--cyan);}
+.section.yellow::before{background:var(--yellow);}
+.section.magenta::before{background:var(--magenta);}
+.section.green::before{background:var(--green);}
+.section.orange::before{background:var(--orange);}
+.section.red::before{background:var(--red);}
+.section.purple::before{background:var(--purple);}
+.section-tag{font-size:.65rem;letter-spacing:3px;opacity:.6;margin-bottom:.5rem;}
+.section h2{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--cyan);letter-spacing:2px;margin-bottom:1.2rem;}
+.section.yellow h2{color:var(--yellow);}
+.section.magenta h2{color:var(--magenta);}
+.section.green h2{color:var(--green);}
+.section.orange h2{color:var(--orange);}
+.section.red h2{color:var(--red);}
+.section.purple h2{color:var(--purple);}
+.section h3{font-family:'Orbitron',sans-serif;font-size:.8rem;color:#a0c0d8;letter-spacing:1px;margin:1.2rem 0 .6rem;}
+p{font-size:.82rem;color:#9ab0c8;margin-bottom:.9rem;}
+ul,ol{padding-left:1.4rem;margin-bottom:.9rem;}
+li{font-size:.82rem;color:#9ab0c8;margin-bottom:.3rem;}
+.warning-box{background:rgba(255,34,68,.08);border:1px solid rgba(255,34,68,.35);border-radius:4px;padding:1rem 1.2rem;margin:1rem 0;}
+.warning-box p{color:#ff8899;margin:0;}
+.warning-box strong{color:var(--red);}
+.info-box{background:rgba(0,255,247,.05);border:1px solid rgba(0,255,247,.2);border-radius:4px;padding:1rem 1.2rem;margin:1rem 0;}
+.info-box p{color:#7abccc;margin:0;font-size:.8rem;}
+.highlight{color:var(--cyan);}
+.highlight-y{color:var(--yellow);}
+.footer{text-align:center;padding:2rem;border-top:1px solid var(--border);font-size:.7rem;color:#3a4a5a;margin-top:2rem;}
+.footer a{color:#5a7a9a;text-decoration:none;}
+.footer a:hover{color:var(--cyan);}
+@media(max-width:640px){.toc ul{grid-template-columns:1fr;}.hero h1{font-size:1.4rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">LOOSE<span>ARROWS</span> // SUPPLY LOGISTICS</div>
+  <nav class="topbar-nav">
+    <a href="/demo">OVERVIEW</a>
+    <a href="/guide">USER GUIDE</a>
+    <a href="/legal" class="active">LEGAL</a>
+    <a href="/api">API DOCS</a>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">// COMPLIANCE &amp; LEGAL FRAMEWORK</div>
+  <h1>TERMS, PRIVACY &amp; DISCLAIMERS</h1>
+  <p>Loose Arrows Supply &amp; Logistics — Divisions Engine Platform</p>
+  <span class="effective">EFFECTIVE DATE: APRIL 2026 &nbsp;|&nbsp; REVISION 1.0</span>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <div class="toc-title">// DOCUMENT INDEX</div>
+    <ul>
+      <li><a href="#disclaimer">01 — Platform Disclaimer</a></li>
+      <li><a href="#gov-procurement">02 — Government Procurement Notice</a></li>
+      <li><a href="#terms">03 — Terms of Use</a></li>
+      <li><a href="#access">04 — Access &amp; API Keys</a></li>
+      <li><a href="#privacy">05 — Privacy Policy</a></li>
+      <li><a href="#data">06 — Data Handling</a></li>
+      <li><a href="#liability">07 — Limitation of Liability</a></li>
+      <li><a href="#ip">08 — Intellectual Property</a></li>
+      <li><a href="#governing">09 — Governing Law</a></li>
+      <li><a href="#contact">10 — Contact &amp; Reporting</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 01 -->
+  <div class="section cyan" id="disclaimer">
+    <div class="section-tag">// 01</div>
+    <h2>PLATFORM DISCLAIMER</h2>
+
+    <div class="warning-box">
+      <p><strong>IMPORTANT:</strong> This platform is an operational logistics and procurement management tool. It does not constitute legal advice, regulatory guidance, procurement counsel, or any form of professional services engagement. All outputs, documents, quotes, bids, and data generated by this system are for informational and workflow management purposes only.</p>
+    </div>
+
+    <h3>No Warranty of Accuracy</h3>
+    <p>Loose Arrows Supply &amp; Logistics ("Company," "we," "our") makes no representation or warranty, express or implied, that the information, pricing data, contract documents, capability statements, or bid submissions generated by this platform are accurate, complete, current, or fit for any particular purpose. Users are solely responsible for verifying all outputs before use.</p>
+
+    <h3>No Professional Relationship</h3>
+    <p>Use of this platform does not create an attorney-client relationship, procurement agent relationship, or any other professional advisory relationship between the user and Loose Arrows Supply &amp; Logistics or any affiliated entity.</p>
+
+    <h3>System Availability</h3>
+    <p>We do not guarantee uninterrupted, error-free, or secure operation of the platform. Scheduled maintenance, unplanned outages, or security events may result in temporary unavailability. We are not liable for any loss resulting from system downtime.</p>
+  </div>
+
+  <!-- SECTION 02 -->
+  <div class="section yellow" id="gov-procurement">
+    <div class="section-tag">// 02</div>
+    <h2>GOVERNMENT PROCUREMENT NOTICE</h2>
+
+    <div class="warning-box">
+      <p><strong>CRITICAL:</strong> This platform does not guarantee compliance with the Federal Acquisition Regulation (FAR), Defense Federal Acquisition Regulation Supplement (DFARS), agency-specific supplements, or any other applicable federal, state, or local procurement law or regulation. Users bear full and sole responsibility for ensuring their submissions comply with all applicable laws and regulations.</p>
+    </div>
+
+    <h3>Bid &amp; Quote Submissions</h3>
+    <p>Any bid, quote, capability statement, or price list generated through this platform is a draft document only. Before submission to any government agency, the user must independently review and verify: (a) pricing accuracy, (b) product specifications and compliance, (c) NAICS/PSC code applicability, (d) set-aside eligibility, (e) SAM.gov registration status, (f) applicable FAR/DFARS clauses, and (g) any solicitation-specific requirements.</p>
+
+    <h3>No Guarantee of Award</h3>
+    <p>Use of this platform provides no guarantee, representation, or warranty that any bid or quote will result in a contract award. Contract award decisions are made exclusively by the relevant government contracting officer.</p>
+
+    <h3>Pricing Responsibility</h3>
+    <p>All pricing entered into or generated by this system is the user's sole responsibility. The platform does not independently verify market rates, cost reasonableness, or compliance with Truth in Negotiations Act (TINA) or Truthful Cost or Pricing Data (41 U.S.C. § 3501) requirements.</p>
+
+    <h3>Export Control</h3>
+    <p>Users are solely responsible for compliance with all applicable export control laws and regulations, including EAR, ITAR, and OFAC requirements as they relate to products and services managed through this platform.</p>
+  </div>
+
+  <!-- SECTION 03 -->
+  <div class="section magenta" id="terms">
+    <div class="section-tag">// 03</div>
+    <h2>TERMS OF USE</h2>
+
+    <h3>Acceptance</h3>
+    <p>By accessing or using this platform (including any API endpoint), you agree to be bound by these Terms of Use. If you do not agree, you must immediately discontinue use and surrender your API key to the system administrator.</p>
+
+    <h3>Authorized Use Only</h3>
+    <p>This platform is a private, access-controlled system. Use is limited to individuals and entities that have been explicitly granted API key access by Loose Arrows Supply &amp; Logistics. Unauthorized access or attempted access is strictly prohibited and may violate the Computer Fraud and Abuse Act (18 U.S.C. § 1030) and other applicable laws.</p>
+
+    <h3>Prohibited Conduct</h3>
+    <p>You may not:</p>
+    <ul>
+      <li>Attempt to circumvent access controls, authentication, or rate limiting</li>
+      <li>Scrape, harvest, or extract data in bulk except as expressly permitted for your access tier</li>
+      <li>Reverse-engineer, decompile, or disassemble any portion of the platform</li>
+      <li>Use the platform to submit fraudulent bids, falsified vendor information, or misleading government procurement documents</li>
+      <li>Share your API key with any party not explicitly authorized by the system administrator</li>
+      <li>Use the platform in any manner that violates the False Claims Act (31 U.S.C. §§ 3729–3733) or any other federal procurement statute</li>
+      <li>Introduce malware, automated attack tools, or otherwise attempt to compromise platform integrity</li>
+      <li>Use the platform for any purpose other than legitimate logistics and procurement management</li>
+    </ul>
+
+    <h3>Modifications</h3>
+    <p>We reserve the right to modify these Terms at any time. Continued use of the platform after modification constitutes acceptance of the revised Terms.</p>
+  </div>
+
+  <!-- SECTION 04 -->
+  <div class="section green" id="access">
+    <div class="section-tag">// 04</div>
+    <h2>ACCESS &amp; API KEY POLICY</h2>
+
+    <h3>Key Issuance</h3>
+    <p>API keys are issued solely at the discretion of Loose Arrows Supply &amp; Logistics. Access is not guaranteed and may be denied or revoked at any time without notice or explanation.</p>
+
+    <h3>Key Responsibility</h3>
+    <p>You are solely responsible for maintaining the confidentiality of your API key. Any activity conducted using your key is your responsibility, whether authorized by you or not. Immediately report suspected compromise to the system administrator.</p>
+
+    <h3>Access Tiers</h3>
+    <ul>
+      <li><span class="highlight-y">OBSERVER</span> — Read-only access. May view contracts, vendors, bids, and pipeline data. May not create, modify, or delete any data.</li>
+      <li><span class="highlight">OPERATOR</span> — Full access to Division 1–9 functions. May create and manage contracts, vendors, bids, and quotes. May not access Division 10 autonomous intelligence commands.</li>
+      <li><span class="highlight" style="color:var(--magenta)">ARCHITECT</span> — Full system access including autonomous contract intelligence and system-level commands. Reserved for authorized administrators only.</li>
+    </ul>
+
+    <h3>Revocation</h3>
+    <p>We may revoke any API key immediately and without notice for suspected abuse, violation of these Terms, security concerns, or any other reason at our sole discretion. Revocation terminates access immediately.</p>
+
+    <h3>Tier Enforcement</h3>
+    <p>Access tier restrictions are enforced at the server level. Attempts to exceed your authorized access level will be rejected and logged. Repeated unauthorized access attempts may result in permanent key revocation and escalation.</p>
+  </div>
+
+  <!-- SECTION 05 -->
+  <div class="section orange" id="privacy">
+    <div class="section-tag">// 05</div>
+    <h2>PRIVACY POLICY</h2>
+
+    <div class="info-box">
+      <p>We take privacy seriously. This policy explains what we collect, why, and how we protect it. We do not sell your data. Ever.</p>
+    </div>
+
+    <h3>Information We Collect</h3>
+    <p>When you are issued an API key, we collect:</p>
+    <ul>
+      <li>Your name (as provided to the system administrator)</li>
+      <li>Your email address (optional, provided to the system administrator)</li>
+      <li>Your access tier and key status</li>
+      <li>Timestamps of key creation and last use</li>
+    </ul>
+
+    <p>When you use the platform, we automatically log:</p>
+    <ul>
+      <li>API endpoint access timestamps (last-used tracking per key)</li>
+      <li>Server-side operational logs (standard practice for system stability and security)</li>
+    </ul>
+
+    <h3>What We Do NOT Collect</h3>
+    <ul>
+      <li>We do not collect, store, or log the full content of your API requests or responses beyond what is necessary for system operation</li>
+      <li>We do not use tracking cookies, third-party analytics, or behavioral advertising on this platform</li>
+      <li>We do not sell, rent, lease, or share your personal information with third parties for marketing purposes</li>
+    </ul>
+
+    <h3>How We Use Your Information</h3>
+    <ul>
+      <li>To authenticate and authorize your API access</li>
+      <li>To detect and prevent abuse, fraud, or security threats</li>
+      <li>To operate and maintain the platform</li>
+      <li>To contact you regarding your access (if email provided)</li>
+    </ul>
+
+    <h3>Data Retention</h3>
+    <p>API key records are retained until deleted by the system administrator. Server logs are retained for operational and security purposes for up to 90 days unless longer retention is required by law.</p>
+
+    <h3>Your Rights</h3>
+    <p>You may request deletion of your access record by contacting the system administrator. Deletion of your record will immediately revoke platform access.</p>
+
+    <h3>California Residents (CCPA)</h3>
+    <p>California residents have the right to know what personal information is collected, request deletion, and opt-out of sale (we do not sell data). To exercise these rights, contact us at the address in Section 10.</p>
+  </div>
+
+  <!-- SECTION 06 -->
+  <div class="section purple" id="data">
+    <div class="section-tag">// 06</div>
+    <h2>DATA HANDLING &amp; SECURITY</h2>
+
+    <h3>Your Business Data</h3>
+    <p>Contracts, vendors, bids, pricing, quotes, and other business data you enter into this platform ("User Data") remain your property. We do not claim ownership of User Data. We process User Data solely to provide the platform's functionality.</p>
+
+    <h3>Security Measures</h3>
+    <ul>
+      <li>All API keys are stored using industry-standard database security practices</li>
+      <li>Access to admin functions requires a separate administrative secret credential</li>
+      <li>All data is stored in an encrypted-at-rest PostgreSQL database</li>
+      <li>API communication is conducted over TLS/HTTPS in production environments</li>
+    </ul>
+
+    <h3>Data Backup &amp; Recovery</h3>
+    <p>While we implement reasonable data protection measures, you are responsible for maintaining your own backups of critical business data entered into this platform. We make no guarantee of data recovery in the event of a catastrophic system failure.</p>
+
+    <h3>Vendor &amp; Third-Party Integrations</h3>
+    <p>If you configure third-party integrations (such as Shopify catalog sync), you are responsible for compliance with the applicable third-party platform's terms of service and privacy policies. We do not control third-party data handling practices.</p>
+
+    <h3>Breach Notification</h3>
+    <p>In the event of a data breach that materially affects your personal information, we will notify affected users as required by applicable law.</p>
+  </div>
+
+  <!-- SECTION 07 -->
+  <div class="section red" id="liability">
+    <div class="section-tag">// 07</div>
+    <h2>LIMITATION OF LIABILITY</h2>
+
+    <div class="warning-box">
+      <p><strong>READ CAREFULLY:</strong> This section limits our legal liability to you. By using this platform, you agree to these limitations.</p>
+    </div>
+
+    <h3>Disclaimer of Warranties</h3>
+    <p>THIS PLATFORM IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR THAT THE PLATFORM WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE.</p>
+
+    <h3>Limitation of Damages</h3>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LOOSE ARROWS SUPPLY &amp; LOGISTICS AND ITS OFFICERS, EMPLOYEES, CONTRACTORS, AND AFFILIATES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, REVENUE, DATA, BUSINESS OPPORTUNITY, GOVERNMENT CONTRACTS, OR GOODWILL, ARISING FROM OR RELATED TO YOUR USE OF THIS PLATFORM, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
+
+    <h3>Cap on Liability</h3>
+    <p>Our total aggregate liability to you for any claim arising from or related to your use of this platform shall not exceed the amount you paid for access to the platform in the three (3) months preceding the claim, or one hundred dollars ($100.00), whichever is less.</p>
+
+    <h3>Indemnification</h3>
+    <p>You agree to defend, indemnify, and hold harmless Loose Arrows Supply &amp; Logistics and its officers, employees, and agents from any claim, liability, damage, loss, or expense (including attorney's fees) arising out of or related to: (a) your use of the platform; (b) your violation of these Terms; (c) your violation of any law or the rights of a third party; or (d) any bid, quote, or document you submit to a government agency using this platform.</p>
+  </div>
+
+  <!-- SECTION 08 -->
+  <div class="section cyan" id="ip">
+    <div class="section-tag">// 08</div>
+    <h2>INTELLECTUAL PROPERTY</h2>
+
+    <h3>Platform Ownership</h3>
+    <p>The Divisions Engine platform, including its architecture, code, user interface, automation logic, DIV10-BOT-001 autonomous intelligence system, dashboards, and documentation, is the proprietary intellectual property of Loose Arrows Supply &amp; Logistics. All rights reserved.</p>
+
+    <h3>Your Data</h3>
+    <p>You retain full ownership of the business data you enter into the platform. By using the platform, you grant us a limited, non-exclusive license to process your data solely to provide the platform's services.</p>
+
+    <h3>Restrictions</h3>
+    <p>You may not reproduce, distribute, modify, create derivative works of, publicly display, or commercially exploit any portion of the platform without our express written consent.</p>
+
+    <h3>Feedback</h3>
+    <p>Any feedback, suggestions, or ideas you provide about the platform may be used by us freely without any obligation to you.</p>
+  </div>
+
+  <!-- SECTION 09 -->
+  <div class="section yellow" id="governing">
+    <div class="section-tag">// 09</div>
+    <h2>GOVERNING LAW &amp; DISPUTES</h2>
+
+    <h3>Governing Law</h3>
+    <p>These Terms are governed by and construed in accordance with the laws of the United States and the State of New Mexico, without regard to conflict-of-law principles.</p>
+
+    <h3>Dispute Resolution</h3>
+    <p>Any dispute arising from or related to these Terms or your use of the platform shall first be submitted to good-faith mediation. If mediation is unsuccessful within 60 days, disputes shall be resolved by binding arbitration under the rules of the American Arbitration Association, conducted in New Mexico. Judgment on the arbitration award may be entered in any court of competent jurisdiction.</p>
+
+    <h3>Class Action Waiver</h3>
+    <p>You waive any right to participate in a class action lawsuit or class-wide arbitration against Loose Arrows Supply &amp; Logistics in connection with your use of this platform.</p>
+
+    <h3>Severability</h3>
+    <p>If any provision of these Terms is found to be unenforceable, the remaining provisions will continue in full force and effect.</p>
+  </div>
+
+  <!-- SECTION 10 -->
+  <div class="section green" id="contact">
+    <div class="section-tag">// 10</div>
+    <h2>CONTACT &amp; REPORTING</h2>
+
+    <h3>Legal Inquiries</h3>
+    <p>For questions about these Terms, Privacy Policy, or any legal matter related to this platform, contact:</p>
+    <div class="info-box">
+      <p>
+        <strong>Loose Arrows Supply &amp; Logistics</strong><br/>
+        Government Operations Division<br/>
+        Email: <span class="highlight">legal@loosearrows.com</span><br/>
+        Subject Line: [LEGAL] Platform Inquiry
+      </p>
+    </div>
+
+    <h3>Security &amp; Abuse Reporting</h3>
+    <p>To report a security vulnerability, suspected unauthorized access, or platform abuse:</p>
+    <div class="info-box">
+      <p>
+        Email: <span class="highlight">security@loosearrows.com</span><br/>
+        Subject Line: [SECURITY] Report — [Brief Description]<br/>
+        We investigate all reports promptly. Responsible disclosure is appreciated and will not result in legal action against good-faith reporters.
+      </p>
+    </div>
+
+    <h3>Privacy Requests</h3>
+    <p>To request data deletion or exercise California CCPA rights:</p>
+    <div class="info-box">
+      <p>
+        Email: <span class="highlight">privacy@loosearrows.com</span><br/>
+        Subject Line: [PRIVACY] Request — [Your Name]<br/>
+        Please allow up to 30 days for processing.
+      </p>
+    </div>
+
+    <h3>API Key Administrator</h3>
+    <p>For access requests, key issues, or tier changes, contact your designated system administrator directly. Do not send API keys or Admin Secrets via email.</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>© 2026 Loose Arrows Supply &amp; Logistics — All Rights Reserved</p>
+  <p style="margin-top:.5rem;">
+    <a href="/demo">Overview</a> &nbsp;·&nbsp;
+    <a href="/guide">User Guide</a> &nbsp;·&nbsp;
+    <a href="/legal">Legal</a> &nbsp;·&nbsp;
+    <a href="/api">API</a>
+  </p>
+  <p style="margin-top:.5rem;font-size:.65rem;color:#2a3a4a;">These terms were last reviewed April 2026. This document does not constitute legal advice. Consult a licensed attorney for legal guidance specific to your situation.</p>
+</div>
+
+</body>
+</html>
