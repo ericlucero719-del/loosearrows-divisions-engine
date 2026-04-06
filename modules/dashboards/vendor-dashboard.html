@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LOOSE ARROWS // VENDOR COCKPIT</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+  --cyan:    #00fff7;
+  --magenta: #ff00c8;
+  --yellow:  #ffe600;
+  --green:   #00ff88;
+  --red:     #ff2244;
+  --orange:  #ff9900;
+  --purple:  #cc44ff;
+  --dim:     #07071a;
+  --panel:   #0d0d2b;
+  --panel2:  #10102e;
+  --border:  #1a1a4a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--dim);
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,247,.015) 2px,rgba(0,255,247,.015) 4px);
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── TOPBAR ────────────────────────────────────────────── */
+.topbar {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.topbar-brand {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: .85rem;
+  color: var(--cyan);
+  text-shadow: 0 0 15px var(--cyan);
+  letter-spacing: 3px;
+  white-space: nowrap;
+}
+.topbar-brand span { color: var(--magenta); }
+
+.vendor-identity {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+.v-field { display: flex; flex-direction: column; gap: 1px; }
+.v-label { font-size: .52rem; color: rgba(0,255,247,.35); letter-spacing: 2px; }
+.v-value { font-size: .72rem; color: var(--cyan); }
+.v-value.hl { color: var(--yellow); font-family: 'Orbitron',sans-serif; }
+
+.topbar-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.icon-btn {
+  background: rgba(0,255,247,.05);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.icon-btn:hover { background: rgba(0,255,247,.12); border-color: var(--cyan); }
+.icon-btn.active { background: rgba(0,255,247,.15); border-color: var(--cyan); color: var(--cyan); }
+
+.notif-badge {
+  background: var(--red);
+  color: #fff;
+  font-size: .5rem;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+  width: 200px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.sidebar-section {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .5rem;
+  letter-spacing: 3px;
+  color: rgba(0,255,247,.25);
+  padding: .5rem 1rem .25rem;
+  margin-top: .5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .55rem 1rem;
+  font-size: .75rem;
+  color: rgba(0,255,247,.5);
+  cursor: pointer;
+  transition: all .15s;
+  border-left: 2px solid transparent;
+  position: relative;
+}
+.nav-item:hover { background: rgba(0,255,247,.04); color: var(--cyan); }
+.nav-item.active {
+  background: rgba(0,255,247,.08);
+  color: var(--cyan);
+  border-left-color: var(--cyan);
+}
+.nav-icon { font-size: .85rem; min-width: 18px; text-align: center; }
+.nav-badge {
+  margin-left: auto;
+  background: rgba(255,34,68,.2);
+  color: var(--red);
+  border: 1px solid rgba(255,34,68,.4);
+  font-size: .5rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding: .75rem;
+  font-size: .65rem;
+  color: rgba(0,255,247,.25);
+  text-align: center;
+}
+.pulse-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  margin-right: 5px;
+  box-shadow: 0 0 6px var(--green);
+  animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── MAIN ────────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  background: var(--dim);
+}
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── VIEW HEADER ─────────────────────────────────────────── */
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.view-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .85rem;
+  letter-spacing: 3px;
+  color: var(--cyan);
+}
+.view-sub {
+  font-size: .65rem;
+  color: rgba(0,255,247,.4);
+  margin-top: 3px;
+}
+
+/* ── CARDS ────────────────────────────────────────────────── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.opp-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.opp-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,transparent,var(--cyan),transparent);
+}
+.opp-card:hover { border-color: rgba(0,255,247,.35); }
+
+.card-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .72rem;
+  color: var(--cyan);
+  margin-bottom: .35rem;
+  line-height: 1.3;
+}
+.card-agency {
+  font-size: .68rem;
+  color: rgba(255,0,200,.7);
+  margin-bottom: .65rem;
+}
+.card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .3rem;
+  margin-bottom: .75rem;
+}
+.card-meta-item { display: flex; flex-direction: column; gap: 2px; }
+.card-meta-label { font-size: .52rem; color: rgba(0,255,247,.35); letter-spacing: 1px; }
+.card-meta-value { font-size: .75rem; color: var(--cyan); }
+.card-meta-value.green  { color: var(--green); }
+.card-meta-value.yellow { color: var(--yellow); }
+.card-meta-value.red    { color: var(--red); }
+
+.naics-bar {
+  height: 4px;
+  background: rgba(0,255,247,.1);
+  border-radius: 2px;
+  margin-bottom: .75rem;
+  overflow: hidden;
+}
+.naics-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+
+.btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-primary {
+  background: rgba(0,255,247,.08);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  width: 100%;
+}
+.btn-primary:hover { background: var(--cyan); color: var(--dim); box-shadow: 0 0 12px var(--cyan); }
+.btn-secondary {
+  background: rgba(204,68,255,.08);
+  border: 1px solid var(--purple);
+  color: var(--purple);
+  width: 100%;
+}
+.btn-secondary:hover { background: var(--purple); color: var(--dim); }
+.btn-sm { padding: 4px 10px; font-size: .62rem; width: auto; }
+.btn-green {
+  background: rgba(0,255,136,.08);
+  border: 1px solid var(--green);
+  color: var(--green);
+}
+.btn-green:hover { background: var(--green); color: var(--dim); }
+
+/* ── WORKFLOW CARDS ──────────────────────────────────────── */
+.workflow-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: .75rem;
+  position: relative;
+}
+.workflow-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,transparent,var(--purple),transparent);
+}
+
+.wf-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: .65rem;
+}
+.wf-title { font-family: 'Orbitron', sans-serif; font-size: .72rem; color: var(--cyan); }
+.wf-agency { font-size: .65rem; color: rgba(255,0,200,.65); margin-top: 2px; }
+
+.wf-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .5rem;
+  margin-bottom: .75rem;
+}
+.wf-stat { display: flex; flex-direction: column; gap: 2px; }
+.wf-stat-label { font-size: .52rem; color: rgba(0,255,247,.3); letter-spacing: 1px; }
+.wf-stat-value { font-size: .72rem; }
+
+.progress-bar {
+  height: 5px;
+  background: rgba(0,255,247,.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: .75rem;
+}
+.progress-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+
+.wf-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.op-chip {
+  font-size: .62rem;
+  color: rgba(0,255,247,.5);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+/* ── WORKFLOW DETAIL (ENGINE ROOM) ───────────────────────── */
+.wr-header {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+.wr-header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,transparent,var(--purple),transparent);
+}
+.wr-title { font-family: 'Orbitron', sans-serif; font-size: .9rem; color: var(--cyan); margin-bottom: .5rem; }
+.wr-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: .75rem; }
+.wr-metric { text-align: center; background: rgba(0,255,247,.03); border: 1px solid rgba(0,255,247,.08); border-radius: 3px; padding: .5rem; }
+.wr-metric .val { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--cyan); }
+.wr-metric .lbl { font-size: .55rem; color: rgba(0,255,247,.4); margin-top: 3px; }
+
+.bot-suggestion {
+  background: rgba(204,68,255,.06);
+  border: 1px solid rgba(204,68,255,.2);
+  border-radius: 4px;
+  padding: .75rem;
+  margin-top: .75rem;
+  font-size: .75rem;
+  color: rgba(255,255,255,.7);
+  display: flex;
+  gap: .65rem;
+  align-items: flex-start;
+}
+.bot-icon { color: var(--purple); font-size: 1rem; flex-shrink: 0; }
+
+/* ── TABS ────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+.tab {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 2px;
+  padding: .6rem 1.1rem;
+  cursor: pointer;
+  color: rgba(0,255,247,.35);
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--cyan); }
+.tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── TABLES ──────────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+.data-table th {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .55rem;
+  color: rgba(0,255,247,.4);
+  letter-spacing: 2px;
+  border-bottom: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+  background: rgba(0,255,247,.02);
+}
+.data-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  color: rgba(0,255,247,.8);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(0,255,247,.03); }
+
+/* ── BADGE ───────────────────────────────────────────────── */
+.badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .5rem;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+.badge-green  { background:rgba(0,255,136,.12);color:var(--green); border:1px solid rgba(0,255,136,.3); }
+.badge-yellow { background:rgba(255,230,0,.1); color:var(--yellow);border:1px solid rgba(255,230,0,.3); }
+.badge-red    { background:rgba(255,34,68,.12); color:var(--red);  border:1px solid rgba(255,34,68,.3); }
+.badge-cyan   { background:rgba(0,255,247,.1); color:var(--cyan); border:1px solid rgba(0,255,247,.25); }
+.badge-purple { background:rgba(204,68,255,.1);color:var(--purple);border:1px solid rgba(204,68,255,.3); }
+
+/* ── COMPLIANCE FLAGS ─────────────────────────────────────── */
+.flag-row {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .65rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin-bottom: .5rem;
+  background: var(--panel2);
+}
+.flag-level {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .52rem;
+  min-width: 50px;
+  text-align: center;
+  padding: 3px 5px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.flag-body { flex: 1; }
+.flag-title { font-size: .75rem; color: var(--cyan); margin-bottom: 3px; }
+.flag-detail { font-size: .68rem; color: rgba(0,255,247,.5); }
+.flag-actions { display: flex; gap: .4rem; margin-top: .4rem; }
+
+/* ── CHAT ────────────────────────────────────────────────── */
+.chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 200px); }
+.chat-messages { flex: 1; overflow-y: auto; padding: .5rem; }
+.chat-msg {
+  display: flex;
+  gap: .65rem;
+  margin-bottom: .75rem;
+  align-items: flex-start;
+}
+.chat-msg.operator .bubble { background: rgba(0,255,247,.07); border-color: rgba(0,255,247,.2); }
+.chat-msg.bot .bubble { background: rgba(204,68,255,.07); border-color: rgba(204,68,255,.2); }
+.chat-msg.system .bubble { background: rgba(255,230,0,.05); border-color: rgba(255,230,0,.15); }
+.avatar {
+  width: 28px; height: 28px;
+  background: rgba(0,255,247,.08);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem;
+  flex-shrink: 0;
+  color: var(--cyan);
+}
+.bubble {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .5rem .75rem;
+  flex: 1;
+  font-size: .73rem;
+}
+.bubble .b-from { font-size: .55rem; color: rgba(0,255,247,.4); margin-bottom: 3px; }
+.bubble .b-text { color: rgba(0,255,247,.8); line-height: 1.45; }
+.chat-input-row {
+  display: flex;
+  gap: .5rem;
+  padding: .75rem;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 0 0 4px 4px;
+}
+.chat-input {
+  flex: 1;
+  background: rgba(0,255,247,.04);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .75rem;
+  padding: 6px 10px;
+  border-radius: 3px;
+  outline: none;
+}
+.chat-input:focus { border-color: var(--cyan); }
+.chat-input::placeholder { color: rgba(0,255,247,.25); }
+
+/* ── UPLOAD ZONE ─────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed rgba(0,255,247,.2);
+  border-radius: 6px;
+  padding: 2rem;
+  text-align: center;
+  color: rgba(0,255,247,.4);
+  font-size: .75rem;
+  cursor: pointer;
+  transition: all .2s;
+  margin-bottom: 1rem;
+}
+.upload-zone:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,255,247,.02); }
+
+/* ── EVENT TIMELINE ──────────────────────────────────────── */
+.timeline-row {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: .73rem;
+}
+.timeline-row:last-child { border-bottom: none; }
+.timeline-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.timeline-content { flex: 1; }
+.timeline-actor { font-size: .6rem; color: rgba(0,255,247,.4); margin-bottom: 2px; }
+.timeline-text { color: rgba(0,255,247,.8); }
+.timeline-ts { color: rgba(255,255,255,.2); font-size: .6rem; flex-shrink: 0; }
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: rgba(0,255,247,.25);
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+.empty-title { font-family: 'Orbitron', sans-serif; font-size: .75rem; margin-bottom: .4rem; color: rgba(0,255,247,.35); }
+.empty-text { font-size: .7rem; line-height: 1.5; }
+
+.panel-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.panel-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 2px;
+  color: rgba(0,255,247,.35);
+  margin-bottom: .65rem;
+}
+.loading { color: rgba(0,255,247,.3); font-size: .75rem; padding: 1.5rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">LOOSE<span>ARROWS</span>™ // VENDOR COCKPIT</div>
+
+  <div class="vendor-identity">
+    <div class="v-field">
+      <span class="v-label">VENDOR</span>
+      <span class="v-value hl" id="vendor-name">—</span>
+    </div>
+    <div class="v-field">
+      <span class="v-label">UEI</span>
+      <span class="v-value">—</span>
+    </div>
+    <div class="v-field">
+      <span class="v-label">CAGE</span>
+      <span class="v-value">—</span>
+    </div>
+    <div class="v-field">
+      <span class="v-label">OPERATOR</span>
+      <span class="v-value" id="assigned-op" style="color:var(--green)">—</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="showView('notifications')">
+      🔔 ALERTS <span class="notif-badge" id="notif-count">0</span>
+    </button>
+    <button class="icon-btn active" id="bot-toggle" onclick="toggleBot()">
+      ⬡ BOT ASSISTANT
+    </button>
+    <button class="icon-btn" onclick="showView('settings')">⚙ SETTINGS</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">MAIN</div>
+
+    <div class="nav-item active" data-view="opportunities" onclick="nav(this,'opportunities')">
+      <span class="nav-icon">🎯</span> Opportunity Feed
+    </div>
+    <div class="nav-item" data-view="workflows" onclick="nav(this,'workflows')">
+      <span class="nav-icon">⚡</span> Active Workflows
+    </div>
+
+    <div class="sidebar-section">OPERATIONS</div>
+
+    <div class="nav-item" data-view="documents" onclick="nav(this,'documents')">
+      <span class="nav-icon">📄</span> Documents
+    </div>
+    <div class="nav-item" data-view="compliance" onclick="nav(this,'compliance')">
+      <span class="nav-icon">🛡</span> Compliance
+      <span class="nav-badge" id="compliance-count">—</span>
+    </div>
+    <div class="nav-item" data-view="delivery" onclick="nav(this,'delivery')">
+      <span class="nav-icon">🚚</span> Delivery Grid
+    </div>
+    <div class="nav-item" data-view="catalog" onclick="nav(this,'catalog')">
+      <span class="nav-icon">📦</span> Catalog
+    </div>
+
+    <div class="sidebar-section">CONNECT</div>
+
+    <div class="nav-item" data-view="chat" onclick="nav(this,'chat')">
+      <span class="nav-icon">💬</span> Operator Chat
+    </div>
+
+    <div class="sidebar-bottom">
+      <div><span class="pulse-dot"></span>CONNECTED</div>
+      <div style="margin-top:4px" id="sidebar-clock">--:--:--</div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── OPPORTUNITY FEED ─────────────────────────────── -->
+    <div id="view-opportunities" class="view active">
+      <div class="view-header">
+        <div>
+          <div class="view-title">OPPORTUNITY FEED</div>
+          <div class="view-sub">Live RFQs matched to your vendor profile — click Start Workflow to begin</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="loadOpportunities()">↺ REFRESH</button>
+      </div>
+
+      <div id="opp-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.65rem;margin-bottom:1.25rem"></div>
+
+      <div id="opp-cards" class="card-grid">
+        <div class="loading">LOADING OPPORTUNITIES...</div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVE WORKFLOWS ─────────────────────────────── -->
+    <div id="view-workflows" class="view">
+      <div class="view-header">
+        <div>
+          <div class="view-title">ACTIVE WORKFLOWS</div>
+          <div class="view-sub">Your current RFQ and contract workflows</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="loadWorkflows()">↺ REFRESH</button>
+      </div>
+      <div id="workflow-list"><div class="loading">LOADING...</div></div>
+    </div>
+
+    <!-- ── WORKFLOW ENGINE ROOM ─────────────────────────── -->
+    <div id="view-workflow-detail" class="view">
+      <div class="view-header">
+        <div>
+          <div class="view-title" id="wr-view-title">WORKFLOW ENGINE ROOM</div>
+          <div class="view-sub">Full workflow execution environment</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="nav(document.querySelector('[data-view=workflows]'),'workflows')">← BACK TO WORKFLOWS</button>
+      </div>
+
+      <!-- Workflow summary header -->
+      <div class="wr-header">
+        <div class="wr-title" id="wr-rfq-title">—</div>
+        <div id="wr-grid" class="wr-grid"></div>
+        <div id="wr-bot-suggestion" class="bot-suggestion" style="display:none">
+          <div class="bot-icon">⬡</div>
+          <div id="wr-bot-text" class="b-text"></div>
+        </div>
+      </div>
+
+      <!-- Engine tabs -->
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'tab-tasks')">TASKS</div>
+        <div class="tab" onclick="switchTab(this,'tab-documents')">DOCUMENTS</div>
+        <div class="tab" onclick="switchTab(this,'tab-compliance')">COMPLIANCE</div>
+        <div class="tab" onclick="switchTab(this,'tab-delivery')">DELIVERY</div>
+        <div class="tab" onclick="switchTab(this,'tab-quote')">QUOTE</div>
+        <div class="tab" onclick="switchTab(this,'tab-eventlog')">EVENT LOG</div>
+      </div>
+
+      <!-- Tasks -->
+      <div id="tab-tasks" class="tab-panel active">
+        <div id="wr-tasks-content"></div>
+      </div>
+
+      <!-- Documents -->
+      <div id="tab-documents" class="tab-panel">
+        <div class="upload-zone">
+          <div style="font-size:1.5rem;margin-bottom:.5rem">⊕</div>
+          <div>DRAG &amp; DROP FILES HERE</div>
+          <div style="margin-top:.3rem;font-size:.65rem">or click to browse — PDF, DOCX, XLSX accepted</div>
+        </div>
+        <div id="wr-docs-content"></div>
+      </div>
+
+      <!-- Compliance -->
+      <div id="tab-compliance" class="tab-panel">
+        <div id="wr-compliance-content"></div>
+      </div>
+
+      <!-- Delivery -->
+      <div id="tab-delivery" class="tab-panel">
+        <div id="wr-delivery-content"></div>
+      </div>
+
+      <!-- Quote -->
+      <div id="tab-quote" class="tab-panel">
+        <div id="wr-quote-content"></div>
+      </div>
+
+      <!-- Event Log -->
+      <div id="tab-eventlog" class="tab-panel">
+        <div id="wr-events-content"></div>
+      </div>
+    </div>
+
+    <!-- ── DOCUMENTS ─────────────────────────────────────── -->
+    <div id="view-documents" class="view">
+      <div class="view-header">
+        <div class="view-title">DOCUMENTS</div>
+      </div>
+      <div class="upload-zone">
+        <div style="font-size:1.5rem;margin-bottom:.5rem">⊕</div>
+        <div>DRAG &amp; DROP FILES HERE</div>
+        <div style="margin-top:.3rem;font-size:.65rem">PDF, DOCX, XLSX, PNG — Max 25MB</div>
+      </div>
+      <div id="doc-list">
+        <div class="empty-state">
+          <div class="empty-icon">📄</div>
+          <div class="empty-title">NO DOCUMENTS UPLOADED</div>
+          <div class="empty-text">Upload forms, certifications, and RFQ attachments here.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COMPLIANCE ─────────────────────────────────────── -->
+    <div id="view-compliance" class="view">
+      <div class="view-header">
+        <div>
+          <div class="view-title">COMPLIANCE CENTER</div>
+          <div class="view-sub">Auto-detected flags and missing items</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="loadCompliance()">↺ REFRESH</button>
+      </div>
+      <div id="compliance-flags"><div class="loading">LOADING...</div></div>
+    </div>
+
+    <!-- ── DELIVERY GRID ───────────────────────────────────── -->
+    <div id="view-delivery" class="view">
+      <div class="view-header">
+        <div class="view-title">DELIVERY GRID</div>
+      </div>
+      <div id="delivery-content"><div class="loading">LOADING...</div></div>
+    </div>
+
+    <!-- ── CATALOG ────────────────────────────────────────── -->
+    <div id="view-catalog" class="view">
+      <div class="view-header">
+        <div>
+          <div class="view-title">PRODUCT CATALOG</div>
+          <div class="view-sub">Your registered SKUs and current stock levels</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="loadCatalog()">↺ REFRESH</button>
+      </div>
+      <div id="catalog-content"><div class="loading">LOADING...</div></div>
+    </div>
+
+    <!-- ── OPERATOR CHAT ──────────────────────────────────── -->
+    <div id="view-chat" class="view">
+      <div class="view-header">
+        <div class="view-title">OPERATOR CHAT</div>
+      </div>
+      <div class="chat-wrap">
+        <div class="chat-messages" id="chat-messages">
+          <div class="loading">LOADING ACTIVITY...</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" type="text" placeholder="Message operator or bot..." id="chat-input-field" onkeydown="if(e.key==='Enter')sendMsg()" />
+          <button class="btn btn-primary btn-sm" onclick="sendMsg()">SEND</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ───────────────────────────────────────── -->
+    <div id="view-settings" class="view">
+      <div class="view-header">
+        <div class="view-title">SETTINGS</div>
+      </div>
+      <div class="panel-box">
+        <div class="panel-label">VENDOR PROFILE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div><div class="v-label" style="margin-bottom:4px">COMPANY NAME</div><div style="background:rgba(0,255,247,.04);border:1px solid var(--border);padding:6px 10px;border-radius:3px;font-size:.78rem;color:rgba(0,255,247,.7)">—</div></div>
+          <div><div class="v-label" style="margin-bottom:4px">UEI</div><div style="background:rgba(0,255,247,.04);border:1px solid var(--border);padding:6px 10px;border-radius:3px;font-size:.78rem;color:rgba(0,255,247,.7)">—</div></div>
+          <div><div class="v-label" style="margin-bottom:4px">CAGE</div><div style="background:rgba(0,255,247,.04);border:1px solid var(--border);padding:6px 10px;border-radius:3px;font-size:.78rem;color:rgba(0,255,247,.7)">—</div></div>
+          <div><div class="v-label" style="margin-bottom:4px">NAICS CODES</div><div style="background:rgba(0,255,247,.04);border:1px solid var(--border);padding:6px 10px;border-radius:3px;font-size:.78rem;color:rgba(0,255,247,.7)">—</div></div>
+        </div>
+      </div>
+      <div class="panel-box">
+        <div class="panel-label">SYSTEM</div>
+        <div style="font-size:.75rem;color:rgba(0,255,247,.5);line-height:2">
+          API: <span style="color:var(--green)">CONNECTED</span><br>
+          Engine: <span style="color:var(--cyan)">10-Division Engine v1.0</span><br>
+          Dashboard: <span style="color:var(--cyan)">Vendor Cockpit v1.0</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div><!-- layout -->
+
+<script>
+const API = '/division/10';
+
+/* ── Helpers ─────────────────────────────────────────────── */
+function fmt(n)    { return typeof n==='number' ? n.toLocaleString() : (n??'—'); }
+function fmtUSD(n) { return typeof n==='number' ? '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'; }
+function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString() : '—'; }
+function fmtTime(iso) { return iso ? new Date(iso).toLocaleTimeString() : '—'; }
+function pct(n)    { return typeof n==='number' ? (n*100).toFixed(0)+'%' : '—'; }
+
+async function apiFetch(path) {
+  try { const r=await fetch(API+path); return r.json(); }
+  catch(e) { return null; }
+}
+
+/* ── Navigation ──────────────────────────────────────────── */
+let currentView = 'opportunities';
+
+function nav(el, viewId) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  showView(viewId);
+}
+
+function showView(viewId) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el = document.getElementById('view-'+viewId);
+  if (el) { el.classList.add('active'); currentView = viewId; }
+  loadViewData(viewId);
+}
+
+function loadViewData(viewId) {
+  const loaders = {
+    opportunities:    loadOpportunities,
+    workflows:        loadWorkflows,
+    compliance:       loadCompliance,
+    delivery:         loadDelivery,
+    catalog:          loadCatalog,
+    chat:             loadChat,
+  };
+  if (loaders[viewId]) loaders[viewId]();
+}
+
+/* ── Tab switching ───────────────────────────────────────── */
+function switchTab(el, panelId) {
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const parent = el.closest('.view');
+  parent.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById(panelId);
+  if (panel) panel.classList.add('active');
+}
+
+/* ── Bot panel toggle ────────────────────────────────────── */
+function toggleBot() {
+  const btn = document.getElementById('bot-toggle');
+  btn.classList.toggle('active');
+}
+
+/* ── Opportunity Feed ────────────────────────────────────── */
+async function loadOpportunities() {
+  const pipeline = await apiFetch('/intelligence/pipeline');
+  if (!pipeline) return;
+
+  const rfqs = pipeline.pipelineRFQs ?? [];
+  const statusColor = { DRAFT:'rgba(255,255,255,.3)',SUBMITTED:'#00fff7',UNDER_REVIEW:'#ffe600',AWARDED:'#00ff88',LOST:'#ff2244' };
+
+  // Summary metrics
+  document.getElementById('opp-summary').innerHTML = [
+    { v: rfqs.length,              l: 'TOTAL RFQs',    c: '#00fff7' },
+    { v: rfqs.filter(r=>r.status==='SUBMITTED'||r.status==='UNDER_REVIEW').length, l: 'ACTIVE', c: '#00ff88' },
+    { v: fmtUSD(pipeline.totalPipelineValue), l: 'PIPELINE VALUE', c: '#cc44ff' },
+    { v: pct(pipeline.winRate), l: 'WIN RATE', c: '#ffe600' },
+  ].map(m=>`<div style="background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.65rem;text-align:center">
+    <div style="font-family:'Orbitron',sans-serif;font-size:1.2rem;color:${m.c};text-shadow:0 0 10px ${m.c}">${m.v}</div>
+    <div style="font-size:.55rem;color:rgba(0,255,247,.4);margin-top:3px">${m.l}</div>
+  </div>`).join('');
+
+  if (!rfqs.length) {
+    document.getElementById('opp-cards').innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">NO OPPORTUNITIES IN PIPELINE</div>
+      <div class="empty-text">RFQs will appear here when added via Division 9 (Financials) or the API.</div>
+    </div>`;
+    return;
+  }
+
+  const naicsMatch = [72, 85, 91, 68, 78, 95];
+  document.getElementById('opp-cards').innerHTML = rfqs.map((r,i) => {
+    const match = naicsMatch[i % naicsMatch.length];
+    const matchColor = match>=85?'#00ff88':match>=70?'#ffe600':'#ff9900';
+    const sc = statusColor[r.status] ?? 'rgba(255,255,255,.3)';
+    return `<div class="opp-card">
+      <div class="card-title">${r.description || r.rfqId}</div>
+      <div class="card-agency">${r.agency}</div>
+      <div class="naics-bar"><div class="naics-fill" style="width:${match}%;background:${matchColor}"></div></div>
+      <div class="card-meta">
+        <div class="card-meta-item">
+          <span class="card-meta-label">NAICS MATCH</span>
+          <span class="card-meta-value" style="color:${matchColor}">${match}%</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="card-meta-label">VALUE</span>
+          <span class="card-meta-value green">${fmtUSD(r.estimatedValue)}</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="card-meta-label">STATUS</span>
+          <span class="card-meta-value" style="color:${sc}">${r.status}</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="card-meta-label">DUE DATE</span>
+          <span class="card-meta-value yellow">${fmtDate(r.dueDate)}</span>
+        </div>
+      </div>
+      ${r.winProbability!=null?`<div style="font-size:.65rem;color:rgba(204,68,255,.7);margin-bottom:.65rem">WIN PROBABILITY: <strong style="color:#cc44ff">${pct(r.winProbability)}</strong></div>`:''}
+      <button class="btn btn-primary" onclick="openWorkflow(${JSON.stringify(r).replace(/"/g,'&quot;')})">⚡ START WORKFLOW</button>
+    </div>`;
+  }).join('');
+
+  // Notification count
+  document.getElementById('notif-count').textContent = rfqs.filter(r=>r.status==='UNDER_REVIEW').length;
+}
+
+/* ── Active Workflows ─────────────────────────────────────── */
+async function loadWorkflows() {
+  const pipeline = await apiFetch('/intelligence/pipeline');
+  if (!pipeline) return;
+
+  const contracts = pipeline.activeContracts ?? [];
+  const rfqs      = pipeline.pipelineRFQs?.filter(r=>r.status!=='DRAFT') ?? [];
+
+  const all = [
+    ...contracts.map(c=>({id:c.contractRef,title:`CONTRACT: ${c.contractRef}`,agency:c.agency,status:c.status,value:c.value,type:'CONTRACT',progress:90})),
+    ...rfqs.map(r=>({id:r.rfqId,title:r.description||r.rfqId,agency:r.agency,status:r.status,value:r.estimatedValue,type:'RFQ',progress:r.status==='SUBMITTED'?55:r.status==='UNDER_REVIEW'?72:r.status==='AWARDED'?100:30})),
+  ];
+
+  const riskFor = (s) => s==='AWARDED'||s==='ACTIVE'?'LOW':s==='UNDER_REVIEW'||s==='EXPIRING'?'MEDIUM':'HIGH';
+  const sc = { ACTIVE:'#00ff88',AWARDED:'#00ff88',SUBMITTED:'#00fff7',UNDER_REVIEW:'#ffe600',EXPIRING:'#ff9900',PENDING:'#ffe600',LOST:'#ff2244',DRAFT:'rgba(255,255,255,.3)',CLOSED:'rgba(255,255,255,.3)' };
+  const rc = { LOW:'#00ff88', MEDIUM:'#ff9900', HIGH:'#ff2244' };
+
+  document.getElementById('workflow-list').innerHTML = !all.length
+    ? `<div class="empty-state"><div class="empty-icon">⚡</div><div class="empty-title">NO ACTIVE WORKFLOWS</div><div class="empty-text">Start a workflow from the Opportunity Feed or add contracts via Division 2.</div></div>`
+    : all.map(w=>{
+        const risk = riskFor(w.status);
+        return `<div class="workflow-card">
+          <div class="wf-top">
+            <div>
+              <div class="wf-title">${w.title}</div>
+              <div class="wf-agency">${w.agency}</div>
+            </div>
+            <span class="badge ${w.status==='ACTIVE'||w.status==='AWARDED'?'badge-green':w.status==='UNDER_REVIEW'||w.status==='EXPIRING'?'badge-yellow':'badge-cyan'}">${w.status}</span>
+          </div>
+          <div class="wf-meta">
+            <div class="wf-stat"><span class="wf-stat-label">TYPE</span><span class="wf-stat-value" style="color:var(--purple)">${w.type}</span></div>
+            <div class="wf-stat"><span class="wf-stat-label">VALUE</span><span class="wf-stat-value" style="color:var(--green)">${fmtUSD(w.value)}</span></div>
+            <div class="wf-stat"><span class="wf-stat-label">RISK</span><span class="wf-stat-value" style="color:${rc[risk]}">${risk}</span></div>
+            <div class="wf-stat"><span class="wf-stat-label">READINESS</span><span class="wf-stat-value" style="color:var(--yellow)">${w.progress}%</span></div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${w.progress}%;background:${w.progress>=80?'var(--green)':w.progress>=50?'var(--yellow)':'var(--orange)'}"></div>
+          </div>
+          <div class="wf-footer">
+            <span class="op-chip">⬡ BOT ASSIGNED</span>
+            <button class="btn btn-secondary btn-sm" onclick="openWorkflowDetail(${JSON.stringify(w).replace(/"/g,'&quot;')})">OPEN WORKFLOW →</button>
+          </div>
+        </div>`;
+      }).join('');
+}
+
+/* ── Open Workflow (from opportunity) ─────────────────────── */
+function openWorkflow(rfq) {
+  openWorkflowDetail({ id:rfq.rfqId, title:rfq.description||rfq.rfqId, agency:rfq.agency, status:rfq.status, value:rfq.estimatedValue, type:'RFQ', progress:30 });
+}
+
+/* ── Open Workflow Detail ─────────────────────────────────── */
+async function openWorkflowDetail(wf) {
+  nav(document.querySelector('[data-view=workflows]'), 'workflow-detail');
+  document.querySelector('[data-view=workflows]').classList.remove('active');
+
+  document.getElementById('wr-view-title').textContent = 'ENGINE ROOM — ' + (wf.id ?? '');
+  document.getElementById('wr-rfq-title').textContent  = wf.title;
+
+  const riskColor = { LOW:'#00ff88', MEDIUM:'#ff9900', HIGH:'#ff2244' };
+  const risk = wf.status==='ACTIVE'||wf.status==='AWARDED'?'LOW':wf.status==='UNDER_REVIEW'?'MEDIUM':'HIGH';
+
+  document.getElementById('wr-grid').innerHTML = [
+    { v: wf.agency,          l: 'AGENCY' },
+    { v: fmtUSD(wf.value),   l: 'VALUE' },
+    { v: wf.status,          l: 'STATUS' },
+    { v: wf.progress+'%',    l: 'READINESS' },
+    { v: risk,               l: 'RISK LEVEL', c: riskColor[risk] },
+    { v: wf.type,            l: 'TYPE' },
+  ].map(m=>`<div class="wr-metric"><div class="val" style="${m.c?'color:'+m.c:''}">${m.v??'—'}</div><div class="lbl">${m.l}</div></div>`).join('');
+
+  // Bot suggestion
+  const botEl = document.getElementById('wr-bot-suggestion');
+  const botText = document.getElementById('wr-bot-text');
+  const suggestions = [
+    'Upload your capability statement and past performance documents before submitting.',
+    'Ensure SAM.gov registration is current — expiry within 30 days will flag compliance.',
+    'Add pricing for all CLIN items before generating the draft quote.',
+    'Delivery schedule must be confirmed by an operator before final submission.',
+  ];
+  botText.textContent = suggestions[Math.floor(Math.random()*suggestions.length)];
+  botEl.style.display = 'flex';
+
+  // Load tab contents
+  loadWrTasks(wf);
+  loadWrCompliance();
+  loadWrEvents(wf);
+  loadWrDelivery(wf);
+  loadWrQuote(wf);
+  loadWrDocs();
+}
+
+function loadWrTasks(wf) {
+  const tasks = [
+    { title:'Register or verify SAM.gov',   assigned:'BOT',      due:'Today',    status:'PENDING' },
+    { title:'Upload capability statement',   assigned:'VENDOR',   due:'Tomorrow', status:'PENDING' },
+    { title:'Complete NAICS code review',    assigned:'OPERATOR', due:'+3 days',  status:'PENDING' },
+    { title:'Generate draft quote',          assigned:'BOT',      due:'+5 days',  status:'LOCKED'  },
+    { title:'Operator review & sign-off',    assigned:'OPERATOR', due:'+6 days',  status:'LOCKED'  },
+    { title:'Submit final package',          assigned:'VENDOR',   due:fmtDate(wf.dueDate), status:'LOCKED'  },
+  ];
+  const sc = { PENDING:'#ffe600', COMPLETE:'#00ff88', LOCKED:'rgba(255,255,255,.2)' };
+  document.getElementById('wr-tasks-content').innerHTML =
+    `<table class="data-table">
+      <thead><tr><th>TASK</th><th>ASSIGNED TO</th><th>DUE</th><th>STATUS</th></tr></thead>
+      <tbody>${tasks.map(t=>`<tr>
+        <td>${t.title}</td>
+        <td style="color:${t.assigned==='BOT'?'var(--purple)':t.assigned==='OPERATOR'?'var(--cyan)':'var(--yellow)'}">${t.assigned}</td>
+        <td style="color:rgba(255,255,255,.45)">${t.due}</td>
+        <td><span class="badge" style="color:${sc[t.status]};border:1px solid ${sc[t.status]}50">${t.status}</span></td>
+      </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function loadWrCompliance() {
+  const flags = [
+    { level:'HIGH',   title:'SAM.gov registration not verified', detail:'System cannot confirm active SAM.gov registration for this vendor profile.', color:'#ff2244' },
+    { level:'MEDIUM', title:'Capability statement missing',      detail:'Upload a current capability statement to satisfy agency submission requirements.', color:'#ff9900' },
+    { level:'LOW',    title:'NAICS match below 80%',             detail:'Consider expanding registered NAICS codes for better opportunity matching.', color:'#00ff88' },
+  ];
+  document.getElementById('wr-compliance-content').innerHTML = flags.map(f=>`
+    <div class="flag-row">
+      <div class="flag-level" style="background:${f.color}18;color:${f.color};border:1px solid ${f.color}40">${f.level}</div>
+      <div class="flag-body">
+        <div class="flag-title">${f.title}</div>
+        <div class="flag-detail">${f.detail}</div>
+        <div class="flag-actions">
+          <button class="btn btn-sm" style="border:1px solid ${f.color}50;color:${f.color};background:${f.color}10;font-size:.6rem;padding:3px 10px">RESOLVE</button>
+          <button class="btn btn-sm btn-secondary" style="font-size:.6rem;padding:3px 10px">BOT EXPLAIN</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function loadWrDelivery(wf) {
+  document.getElementById('wr-delivery-content').innerHTML =
+    `<div class="empty-state">
+      <div class="empty-icon">🚚</div>
+      <div class="empty-title">DELIVERY NOT SCHEDULED</div>
+      <div class="empty-text">Delivery schedule will be confirmed once the workflow reaches submission stage.</div>
+    </div>`;
+}
+
+function loadWrQuote(wf) {
+  document.getElementById('wr-quote-content').innerHTML =
+    `<div class="panel-box">
+      <div class="panel-label">QUOTE LINE ITEMS</div>
+      <div class="empty-state" style="padding:1rem">
+        <div style="font-size:1.5rem;margin-bottom:.4rem">📋</div>
+        <div class="empty-title">NO LINE ITEMS ADDED</div>
+        <div class="empty-text">Add products from the Catalog to build your quote.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem">
+      <button class="btn btn-secondary" style="flex:1">⬡ GENERATE DRAFT QUOTE</button>
+      <button class="btn btn-primary" style="flex:1">⊕ UPLOAD FINAL QUOTE</button>
+    </div>`;
+}
+
+function loadWrDocs() {
+  document.getElementById('wr-docs-content').innerHTML =
+    `<div class="empty-state">
+      <div class="empty-icon">📁</div>
+      <div class="empty-title">NO DOCUMENTS ATTACHED</div>
+      <div class="empty-text">Upload capability statement, certifications, and supporting documents above.</div>
+    </div>`;
+}
+
+async function loadWrEvents(wf) {
+  const actions = await apiFetch('/system/actions?limit=10');
+  const events = (actions??[]).slice(0,8);
+  const typeColor = { CREATE_RELIC:'#ffe600', VIEW_PIPELINE:'#00fff7', VIEW_ASSESSMENT:'#cc44ff', VIEW_SUPPLY:'#ff9900' };
+
+  document.getElementById('wr-events-content').innerHTML = !events.length
+    ? '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">NO EVENTS YET</div></div>'
+    : `<div style="padding:.25rem 0">${events.map(e=>`
+        <div class="timeline-row">
+          <div class="timeline-dot" style="background:${typeColor[e.actionType]??'var(--cyan)'}"></div>
+          <div class="timeline-content">
+            <div class="timeline-actor">[${e.division}]</div>
+            <div class="timeline-text">${e.actionType.replace(/_/g,' ')}</div>
+          </div>
+          <div class="timeline-ts">${fmtTime(e.timestamp)}</div>
+        </div>`).join('')}
+      </div>`;
+}
+
+/* ── Compliance ───────────────────────────────────────────── */
+async function loadCompliance() {
+  const data = await apiFetch('/intelligence/alerts');
+  if (!data) return;
+
+  const alerts = data.alerts ?? (Array.isArray(data)?data:[]);
+  const lc = { CRITICAL:'#ff2244', WARN:'#ff9900', INFO:'#00ff88' };
+
+  document.getElementById('compliance-count').textContent =
+    data.severityLevels?.high?.length ?? alerts.filter(a=>a.level==='CRITICAL').length;
+
+  document.getElementById('compliance-flags').innerHTML = !alerts.length
+    ? '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">NO COMPLIANCE FLAGS</div><div class="empty-text">All systems nominal.</div></div>'
+    : alerts.map(a=>`
+        <div class="flag-row">
+          <div class="flag-level" style="background:${lc[a.level]}18;color:${lc[a.level]};border:1px solid ${lc[a.level]}40">${a.severity?.toUpperCase()??a.level}</div>
+          <div class="flag-body">
+            <div class="flag-title">${a.message}</div>
+            <div class="flag-detail">Division ${a.division} — detected at ${fmtTime(a.generatedAt??'')}</div>
+            <div class="flag-actions">
+              <button class="btn btn-sm btn-green" style="font-size:.6rem;padding:3px 10px">RESOLVE</button>
+              <button class="btn btn-sm btn-secondary" style="font-size:.6rem;padding:3px 10px">BOT EXPLAIN</button>
+            </div>
+          </div>
+        </div>`).join('');
+}
+
+/* ── Delivery ─────────────────────────────────────────────── */
+async function loadDelivery() {
+  document.getElementById('delivery-content').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">🚚</div>
+      <div class="empty-title">DELIVERY GRID EMPTY</div>
+      <div class="empty-text">Scheduled deliveries will appear here once contracts are active.<br>Add shipments via Division 5 (Logistics).</div>
+    </div>`;
+}
+
+/* ── Catalog ──────────────────────────────────────────────── */
+async function loadCatalog() {
+  const d = await apiFetch('/intelligence/supply');
+  const items = d?.items ?? [];
+  const sc = { OK:'#00ff88',LOW:'#ffe600',CRITICAL:'#ff9900',OUT:'#ff2244' };
+
+  document.getElementById('catalog-content').innerHTML = !items.length
+    ? `<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">CATALOG EMPTY</div><div class="empty-text">Add products via Division 1 (Product Intake &amp; Pricing) or Division 4 (Inventory).</div></div>`
+    : `<table class="data-table">
+        <thead><tr><th>PRODUCT</th><th>SKU</th><th>CATEGORY</th><th>QTY</th><th>STATUS</th></tr></thead>
+        <tbody>${items.map(i=>`<tr>
+          <td>${i.productName}</td>
+          <td style="color:var(--magenta);font-family:'Orbitron',sans-serif;font-size:.62rem">${i.sku}</td>
+          <td style="color:rgba(0,255,247,.5)">${i.category??'—'}</td>
+          <td style="font-family:'Orbitron',sans-serif;color:${sc[i.status]}">${fmt(i.qty)}</td>
+          <td><span class="badge ${i.status==='OK'?'badge-green':i.status==='OUT'?'badge-red':'badge-yellow'}">${i.status}</span></td>
+        </tr>`).join('')}
+        </tbody>
+      </table>`;
+}
+
+/* ── Chat / Activity Feed ─────────────────────────────────── */
+async function loadChat() {
+  const [actions, relics, operators] = await Promise.all([
+    apiFetch('/system/actions?limit=15'),
+    apiFetch('/relics'),
+    apiFetch('/intelligence/operators'),
+  ]);
+
+  const topOp = operators?.operators?.[0];
+  if (topOp) {
+    document.getElementById('assigned-op').textContent = topOp.name;
+    document.getElementById('hdr-operator').textContent = topOp.name + ' — ' + topOp.role;
+  }
+
+  const msgs = [];
+
+  // Bot intro
+  msgs.push({ type:'bot', from:'⬡ BOT ASSISTANT', text:'Division 10 Intelligence Core online. How can I assist with your workflow today?' });
+
+  // Relics as operator messages
+  (relics??[]).forEach(r=>{
+    msgs.push({ type:'operator', from:'OPERATOR / '+r.operatorId?.split('-').pop(), text:`[${r.type.toUpperCase()}] ${r.meaning} — ${r.entity}` });
+  });
+
+  // Recent system actions as system messages
+  (actions??[]).slice(0,5).forEach(a=>{
+    msgs.push({ type:'system', from:`SYSTEM [${a.division}]`, text:a.actionType.replace(/_/g,' ')+' — '+fmtTime(a.timestamp) });
+  });
+
+  if (!msgs.length) {
+    document.getElementById('chat-messages').innerHTML = '<div class="loading">NO ACTIVITY YET</div>';
+    return;
+  }
+
+  document.getElementById('chat-messages').innerHTML = msgs.map(m=>{
+    const avatarText = m.type==='bot'?'⬡':m.type==='operator'?'OP':'⊙';
+    return `<div class="chat-msg ${m.type}">
+      <div class="avatar">${avatarText}</div>
+      <div class="bubble">
+        <div class="b-from">${m.from}</div>
+        <div class="b-text">${m.text}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function sendMsg() {
+  const input = document.getElementById('chat-input-field');
+  const text = input?.value?.trim();
+  if (!text) return;
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML += `<div class="chat-msg vendor">
+    <div class="avatar" style="color:var(--yellow)">V</div>
+    <div class="bubble"><div class="b-from">YOU</div><div class="b-text">${text}</div></div>
+  </div>`;
+  input.value = '';
+  setTimeout(()=>{
+    msgs.innerHTML += `<div class="chat-msg bot">
+      <div class="avatar">⬡</div>
+      <div class="bubble" style="border-color:rgba(204,68,255,.2)"><div class="b-from">⬡ BOT ASSISTANT</div>
+      <div class="b-text" style="color:rgba(204,68,255,.8)">Message received. Routing to assigned operator for review.</div></div>
+    </div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 800);
+}
+
+/* ── Clock ───────────────────────────────────────────────── */
+setInterval(()=>{
+  document.getElementById('sidebar-clock').textContent = new Date().toLocaleTimeString();
+}, 1000);
+
+/* ── Boot ────────────────────────────────────────────────── */
+loadOpportunities();
+loadCompliance();
+</script>
+</body>
+</html>

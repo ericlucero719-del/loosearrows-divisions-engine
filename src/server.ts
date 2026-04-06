@@ -28,6 +28,7 @@ import div7Router from "../modules/division7/division7.routes";
 import div8Router from "../modules/division8/division8.routes";
 import div9Router from "../modules/division9/division9.routes";
 import div10Router from "../modules/division10/division10.routes";
+import dashboardsRouter from "../modules/dashboards/dashboards.routes";
 
 export const app = express();
 const port = process.env.PORT || 3000;
@@ -60,6 +61,7 @@ app.use("/division/7", div7Router);   // Vendor & Partner Management
 app.use("/division/8", div8Router);   // Agency / Customer Management
 app.use("/division/9", div9Router);   // Financials
 app.use("/division/10", div10Router); // Intelligence & System View
+app.use("/", dashboardsRouter);       // Vendor Cockpit + Operator Control Room
 
 // ── Root API ─────────────────────────────────────────────────────────────────
 app.get("/api", (_req, res) => {

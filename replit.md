@@ -1,7 +1,15 @@
 # Loose Arrows Divisions Engine
 
 ## Overview
-A Node.js/TypeScript REST API for logistics and supply chain management across multiple business divisions for Loose Arrows Supply Logistics.
+A Node.js/TypeScript REST API and multi-dashboard UI platform for Loose Arrows Supply Logistics. Features a 10-division operational engine, a cyberpunk Division 10 cockpit, a Vendor Cockpit, and an Operator Control Room.
+
+## Dashboards
+| Dashboard | URL | Description |
+|-----------|-----|-------------|
+| **Division 10 Cockpit** | `/division/10/dashboard` | System intelligence, relics, supply, margins, assessment |
+| **Vendor Cockpit** | `/vendor/dashboard` | Opportunity feed, active workflows, compliance, catalog, chat |
+| **Operator Control Room** | `/operator/dashboard` | Workflows, tasks, vendors, delivery, performance |
+| Dashboard Index | `/dashboards` | JSON index of all three dashboards |
 
 ## Tech Stack
 - **Language**: TypeScript
