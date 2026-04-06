@@ -18,6 +18,14 @@ router.get("/operator/dashboard", (_req, res) => {
   res.sendFile(path.join(__dirname, "operator-dashboard.html"));
 });
 
+// ── Client Demo Landing Page ───────────────────────────────────────────────────
+router.get("/", (_req, res) => {
+  res.sendFile(path.join(__dirname, "demo.html"));
+});
+router.get("/demo", (_req, res) => {
+  res.sendFile(path.join(__dirname, "demo.html"));
+});
+
 // ── Quick navigation index ─────────────────────────────────────────────────────
 router.get("/dashboards", (_req, res) => {
   res.json({

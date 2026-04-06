@@ -31,7 +31,7 @@ import div10Router from "../modules/division10/division10.routes";
 import dashboardsRouter from "../modules/dashboards/dashboards.routes";
 
 export const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 app.use(express.json());
 
