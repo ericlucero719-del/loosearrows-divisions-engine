@@ -38,6 +38,7 @@ model StoreSettings {
   shippingRulesJson     String?
   automationRulesJson   String?
   themePresetsJson      String?
+  integrationsJson      String?
   updatedAt              DateTime @updatedAt
 }
 

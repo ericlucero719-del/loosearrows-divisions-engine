@@ -56,6 +56,9 @@ export async function updateStoreSettings(storeId: string, settings: Record<stri
     shippingRulesJson: JSON.stringify(settings.shippingRules ?? existingSettings?.shippingRulesJson ?? null),
     automationRulesJson: JSON.stringify(settings.automationRules ?? existingSettings?.automationRulesJson ?? null),
     themePresetsJson: JSON.stringify(settings.themePresets ?? existingSettings?.themePresetsJson ?? null),
+    integrationsJson: settings.integrations !== undefined
+      ? JSON.stringify(settings.integrations)
+      : (existingSettings?.integrationsJson ?? null),
   };
 
   const updated = await prisma.storeSettings.upsert({

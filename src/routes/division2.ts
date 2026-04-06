@@ -210,19 +210,46 @@ router.get("/logs", requireStoreAuth, (req, res) => {
 router.post("/load-catalog", requireStoreAuth, async (req: AuthenticatedRequest, res) => {
   const store = req.store;
 
-  const integration = store?.integrations?.shopify;
-  if (!integration) {
-    return res.status(400).json({ message: "Store not connected to Shopify" });
+  // Resolve Shopify credentials: body override → DB settings → env var
+  const { storeDomain: bodyDomain, accessToken: bodyToken } = req.body ?? {};
+
+  let resolvedDomain: string | undefined = bodyDomain;
+  let resolvedToken: string | undefined = bodyToken;
+
+  if (!resolvedDomain || !resolvedToken) {
+    const { prisma: db } = await import("../prisma");
+    const storeSettings = await db.storeSettings.findUnique({ where: { storeId: store.id } });
+    if (storeSettings?.integrationsJson) {
+      try {
+        const integrations = JSON.parse(storeSettings.integrationsJson);
+        resolvedDomain = resolvedDomain ?? integrations?.shopify?.storeDomain;
+        resolvedToken  = resolvedToken  ?? integrations?.shopify?.accessToken;
+      } catch { /* ignore parse errors */ }
+    }
   }
 
-  const { storeDomain, accessToken } = integration;
+  // Final fallback: env var token
+  resolvedToken = resolvedToken ?? process.env.SHOPIFY_ACCESS_TOKEN;
 
-  const result = await fetchShopifyProducts({ storeDomain, accessToken });
+  if (!resolvedDomain) {
+    return res.status(400).json({
+      message: "Shopify store domain not configured. Pass storeDomain in the request body or configure it via POST /division2/store/settings.",
+    });
+  }
+  if (!resolvedToken) {
+    return res.status(400).json({
+      message: "No Shopify access token available. Set SHOPIFY_ACCESS_TOKEN environment secret or configure via POST /division2/store/settings.",
+    });
+  }
+
+  const result = await fetchShopifyProducts({ storeDomain: resolvedDomain, accessToken: resolvedToken });
 
   if (!result.ok) {
-    return res.status(500).json({
-      message: "Failed to fetch products from Shopify",
+    return res.status(502).json({
+      message: "Shopify API rejected the request. The access token may be invalid or the store may be on a paused plan.",
       error: result.error,
+      storeDomain: resolvedDomain,
+      hint: "Generate a new Custom App token in your Shopify Admin → Apps → Develop apps, then update your SHOPIFY_ACCESS_TOKEN secret.",
     });
   }
 
@@ -231,6 +258,7 @@ router.post("/load-catalog", requireStoreAuth, async (req: AuthenticatedRequest,
 
   return res.json({
     message: "Catalog loaded",
+    storeDomain: resolvedDomain,
     count: normalized.length,
     catalog: saved,
   });
