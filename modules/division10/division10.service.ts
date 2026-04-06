@@ -68,17 +68,26 @@ export class Division10Service {
   }
 
   async getSystemHealth(): Promise<SystemHealth> {
-    const [vendorCount, contractCount, bidCount, workRequestCount] = await Promise.all([
-      prisma.govVendor.count(),
-      prisma.govContract.count(),
-      prisma.govBid.count(),
-      prisma.govWorkRequest.count(),
+    const safeCount = async (fn: () => Promise<number>): Promise<number> => {
+      try { return await fn(); } catch { return 0; }
+    };
+    const [vendorCount, contractCount, bidCount, workRequestCount, poCount, shipmentCount, invoiceCount] = await Promise.all([
+      safeCount(() => prisma.govVendor.count()),
+      safeCount(() => prisma.govContract.count()),
+      safeCount(() => prisma.govBid.count()),
+      safeCount(() => prisma.govWorkRequest.count()),
+      safeCount(() => (prisma as any).govPO.count()),
+      safeCount(() => (prisma as any).govShipment.count()),
+      safeCount(() => (prisma as any).govInvoice.count()),
     ]);
 
     const dbCounts: Record<number, number> = {
       2: contractCount,
       3: bidCount + workRequestCount,
+      4: poCount,
+      5: shipmentCount,
       7: vendorCount,
+      9: invoiceCount,
     };
 
     const divisions: DivisionStatus[] = Object.entries(DIVISION_REGISTRY_KEYS).map(([id, key]) => {

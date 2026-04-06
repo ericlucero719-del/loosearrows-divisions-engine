@@ -1,62 +1,86 @@
 // modules/division9/division9.controller.ts
+// Division 9 — Financials & Invoicing
 
 import { Request, Response } from "express";
 import { division9Service } from "./division9.service";
 
 export const division9Controller = {
-  createQuote(req: Request, res: Response) {
-    const { lineItems, contractId, requestId, quoteRef } = req.body;
-    const hasItems = Array.isArray(lineItems) && lineItems.length > 0;
-    if (!hasItems && !contractId) {
-      return res.status(400).json({ error: "lineItems or contractId is required" });
+
+  async listInvoices(req: Request, res: Response) {
+    try {
+      const { status } = req.query as Record<string, string | undefined>;
+      return res.json(await division9Service.listInvoices(status));
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
     }
-    const result = division9Service.createQuote({ quoteRef, requestId, contractId, lineItems });
-    if ("error" in result) return res.status(400).json(result);
-    return res.status(201).json(result);
   },
 
-  listQuotes(_req: Request, res: Response) {
-    return res.json(division9Service.listQuotes());
+  async getInvoice(req: Request, res: Response) {
+    try {
+      const inv = await division9Service.getInvoice(req.params.invoiceId);
+      if (!inv) return res.status(404).json({ error: "Invoice not found" });
+      return res.json(inv);
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
   },
 
-  getQuote(req: Request, res: Response) {
-    const quote = division9Service.getQuote(req.params.id);
-    if (!quote) return res.status(404).json({ error: "Quote not found" });
-    return res.json(quote);
+  async createInvoice(req: Request, res: Response) {
+    try {
+      const inv = await division9Service.createInvoice(req.body);
+      return res.status(201).json(inv);
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
   },
 
-  updateQuoteStatus(req: Request, res: Response) {
-    const { status } = req.body;
-    if (!status) return res.status(400).json({ error: "status is required" });
-    const quote = division9Service.updateQuoteStatus(req.params.id, status);
-    if (!quote) return res.status(404).json({ error: "Quote not found" });
-    return res.json(quote);
+  async createInvoiceFromBid(req: Request, res: Response) {
+    try {
+      const { dueDate } = req.body;
+      const inv = await division9Service.createInvoiceFromBid(req.params.bidId, dueDate);
+      return res.status(201).json(inv);
+    } catch (e: any) {
+      return res.status(400).json({ error: e.message });
+    }
   },
 
-  createInvoice(req: Request, res: Response) {
-    const { billingAddress, invoiceRef } = req.body;
-    const quoteId: string = req.body.quoteId ?? req.body.quoteRef;
-    if (!quoteId) return res.status(400).json({ error: "quoteId (or quoteRef) is required" });
-    const invoice = division9Service.createInvoice(quoteId, { billingAddress, invoiceRef });
-    if (!invoice) return res.status(404).json({ error: "Quote not found" });
-    return res.status(201).json(invoice);
+  async createInvoiceFromPO(req: Request, res: Response) {
+    try {
+      const { dueDate } = req.body;
+      const inv = await division9Service.createInvoiceFromPO(req.params.poId, dueDate);
+      return res.status(201).json(inv);
+    } catch (e: any) {
+      return res.status(400).json({ error: e.message });
+    }
   },
 
-  listInvoices(_req: Request, res: Response) {
-    return res.json(division9Service.listInvoices());
+  async updateStatus(req: Request, res: Response) {
+    try {
+      const { status, notes } = req.body;
+      if (!status) return res.status(400).json({ error: "status is required" });
+      const inv = await division9Service.updateStatus(req.params.invoiceId, status.toUpperCase(), notes);
+      return res.json(inv);
+    } catch (e: any) {
+      return res.status(400).json({ error: e.message });
+    }
   },
 
-  getInvoice(req: Request, res: Response) {
-    const invoice = division9Service.getInvoice(req.params.id);
-    if (!invoice) return res.status(404).json({ error: "Invoice not found" });
-    return res.json(invoice);
+  async recordPayment(req: Request, res: Response) {
+    try {
+      const { amount } = req.body;
+      if (!amount || isNaN(Number(amount))) return res.status(400).json({ error: "amount (numeric) is required" });
+      const inv = await division9Service.recordPayment(req.params.invoiceId, Number(amount));
+      return res.json(inv);
+    } catch (e: any) {
+      return res.status(400).json({ error: e.message });
+    }
   },
 
-  recordPayment(req: Request, res: Response) {
-    const { amount } = req.body;
-    if (!amount) return res.status(400).json({ error: "amount is required" });
-    const invoice = division9Service.recordPayment(req.params.id, amount);
-    if (!invoice) return res.status(404).json({ error: "Invoice not found" });
-    return res.json(invoice);
+  async financialSummary(_req: Request, res: Response) {
+    try {
+      return res.json(await division9Service.financialSummary());
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
   },
 };

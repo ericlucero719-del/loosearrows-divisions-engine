@@ -1,131 +1,188 @@
 // modules/division9/division9.service.ts
-// Division 9 — Financials (Quotes, Invoices, Payments)
+// Division 9 — Financials & Invoicing (PostgreSQL-backed)
 
-import { randomUUID } from "crypto";
-import { registry } from "../../src/core/engine";
-import { Quote, Invoice, QuoteLineItem, QuoteStatus, InvoiceStatus } from "./division9.types";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+async function nextInvoiceRef(): Promise<string> {
+  const count = await prisma.govInvoice.count();
+  return `INV-${String(count + 1).padStart(3, "0")}`;
+}
+
+function toInvoice(row: any) {
+  return {
+    invoiceId:   row.invoiceId,
+    invoiceRef:  row.invoiceRef,
+    bidId:       row.bidId       ?? undefined,
+    poId:        row.poId        ?? undefined,
+    vendorId:    row.vendorId    ?? undefined,
+    vendorName:  row.vendorName  ?? undefined,
+    agencyName:  row.agencyName  ?? undefined,
+    status:      row.status,
+    totalAmount: row.totalAmount,
+    paidAmount:  row.paidAmount,
+    dueDate:     row.dueDate     ?? undefined,
+    paidAt:      row.paidAt      ?? undefined,
+    notes:       row.notes       ?? undefined,
+    lineItems:   (row.lineItems ?? []).map((li: any) => ({
+      id:          li.id,
+      sku:         li.sku         ?? undefined,
+      clin:        li.clin        ?? undefined,
+      description: li.description ?? undefined,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
+      extended:    li.extended,
+    })),
+    createdAt:   row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+    updatedAt:   row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
+  };
+}
+
+const include = { lineItems: true };
 
 export class Division9Service {
-  // Resolve quote by UUID id or quoteRef
-  private resolveQuote(idOrRef: string): Quote | null {
-    if (registry.quotes[idOrRef]) return registry.quotes[idOrRef] as Quote;
-    return (Object.values(registry.quotes).find((q: any) => q.quoteRef === idOrRef) as Quote) ?? null;
+
+  async listInvoices(status?: string) {
+    const where = status ? { status } : {};
+    const rows = await prisma.govInvoice.findMany({ where, include, orderBy: { createdAt: "desc" } });
+    return rows.map(toInvoice);
   }
 
-  // Build line items from contract catalog when none are provided
-  private buildLineItemsFromContract(contractId: string): QuoteLineItem[] {
-    const contract = registry.contracts[contractId] as any;
-    if (!contract?.products?.length) return [];
-    return contract.products.map((cp: any) => {
-      const product = registry.products[cp.sku] as any;
-      return {
-        sku: cp.sku,
-        description: `${product?.productName ?? cp.sku}${cp.notes ? " | " + cp.notes : ""}`,
-        quantity: 1,
-        unitPrice: cp.contractPrice,
-        extended: cp.contractPrice,
-      };
+  async getInvoice(invoiceId: string) {
+    const row = await prisma.govInvoice.findUnique({ where: { invoiceId }, include });
+    return row ? toInvoice(row) : null;
+  }
+
+  async createInvoice(data: {
+    bidId?:      string;
+    poId?:       string;
+    vendorId?:   string;
+    vendorName?: string;
+    agencyName?: string;
+    dueDate?:    string;
+    notes?:      string;
+    lineItems?:  Array<{ sku?: string; clin?: string; description?: string; quantity: number; unitPrice: number }>;
+  }) {
+    const invoiceRef = await nextInvoiceRef();
+    const items = (data.lineItems ?? []).map(li => ({ ...li, extended: li.quantity * li.unitPrice }));
+    const totalAmount = items.reduce((s, i) => s + i.extended, 0);
+
+    const row = await prisma.govInvoice.create({
+      data: {
+        invoiceRef,
+        bidId:      data.bidId,
+        poId:       data.poId,
+        vendorId:   data.vendorId,
+        vendorName: data.vendorName,
+        agencyName: data.agencyName,
+        dueDate:    data.dueDate,
+        notes:      data.notes,
+        totalAmount,
+        lineItems:  { create: items },
+      },
+      include,
+    });
+    return toInvoice(row);
+  }
+
+  async createInvoiceFromBid(bidId: string, dueDate?: string) {
+    const bid = await prisma.govBid.findUnique({
+      where:   { bidId },
+      include: { lineItems: true, contract: true },
+    });
+    if (!bid) throw new Error(`Bid ${bidId} not found`);
+    if (bid.status !== "AWARDED") throw new Error(`Bid ${bidId} is not AWARDED (status: ${bid.status})`);
+
+    const items = bid.lineItems.map(li => ({
+      sku:         li.sku,
+      clin:        li.clin        ?? undefined,
+      description: li.description ?? undefined,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
+    }));
+
+    return this.createInvoice({
+      bidId:      bid.bidId,
+      vendorId:   bid.vendorId,
+      vendorName: bid.vendorName ?? undefined,
+      agencyName: bid.contract.agency,
+      dueDate,
+      notes:      `Auto-generated from ${bid.bidRef ?? bid.bidId}`,
+      lineItems:  items,
     });
   }
 
-  createQuote(data: {
-    quoteRef?: string;
-    requestId?: string;
-    contractId?: string;
-    lineItems?: QuoteLineItem[];
-  }): Quote | { error: string } {
-    const now = new Date().toISOString();
+  async createInvoiceFromPO(poId: string, dueDate?: string) {
+    const po = await prisma.govPO.findUnique({ where: { poId }, include: { lineItems: true } });
+    if (!po) throw new Error(`PO ${poId} not found`);
 
-    // Auto-build line items from contract catalog if not supplied
-    let rawItems = data.lineItems ?? [];
-    if (!rawItems.length && data.contractId) {
-      rawItems = this.buildLineItemsFromContract(data.contractId);
-    }
-    if (!rawItems.length) {
-      return { error: "No line items provided and no contract catalog found to build from" };
-    }
-
-    const lineItems = rawItems.map((li) => ({
-      ...li,
-      extended: li.quantity * li.unitPrice,
+    const items = po.lineItems.map(li => ({
+      sku:         li.sku,
+      clin:        li.clin        ?? undefined,
+      description: li.description ?? undefined,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
     }));
-    const totalAmount = lineItems.reduce((sum, li) => sum + li.extended, 0);
 
-    const quote: Quote = {
-      id: randomUUID(),
-      quoteRef: data.quoteRef,
-      requestId: data.requestId,
-      contractId: data.contractId,
-      lineItems,
-      totalAmount,
-      status: "Draft",
-      createdAt: now,
-      updatedAt: now,
-    };
-    registry.quotes[quote.id] = quote;
-    return quote;
+    return this.createInvoice({
+      poId:       po.poId,
+      vendorId:   po.vendorId   ?? undefined,
+      vendorName: po.vendorName ?? undefined,
+      agencyName: po.agencyName ?? undefined,
+      dueDate,
+      notes:      `Auto-generated from ${po.poRef}`,
+      lineItems:  items,
+    });
   }
 
-  updateQuoteStatus(id: string, status: QuoteStatus): Quote | null {
-    const quote = registry.quotes[id] as Quote;
-    if (!quote) return null;
-    quote.status = status;
-    quote.updatedAt = new Date().toISOString();
-    return quote;
+  async updateStatus(invoiceId: string, status: string, notes?: string) {
+    const allowed = ["DRAFT", "SENT", "PAID", "OVERDUE", "DISPUTED", "CANCELLED"];
+    if (!allowed.includes(status)) throw new Error(`Invalid status: ${status}. Allowed: ${allowed.join(", ")}`);
+    const row = await prisma.govInvoice.update({
+      where: { invoiceId },
+      data:  { status, ...(notes ? { notes } : {}) },
+      include,
+    });
+    return toInvoice(row);
   }
 
-  listQuotes(): Quote[] {
-    return Object.values(registry.quotes) as Quote[];
+  async recordPayment(invoiceId: string, amount: number) {
+    const inv = await prisma.govInvoice.findUnique({ where: { invoiceId } });
+    if (!inv) throw new Error(`Invoice ${invoiceId} not found`);
+
+    const newPaid = inv.paidAmount + amount;
+    const newStatus = newPaid >= inv.totalAmount ? "PAID"
+                    : newPaid > 0               ? "PARTIAL"
+                    : inv.status;
+    const paidAt = newStatus === "PAID" ? new Date().toISOString() : inv.paidAt;
+
+    const row = await prisma.govInvoice.update({
+      where: { invoiceId },
+      data:  { paidAmount: newPaid, status: newStatus, ...(paidAt ? { paidAt } : {}) },
+      include,
+    });
+    return toInvoice(row);
   }
 
-  getQuote(id: string): Quote | null {
-    return (registry.quotes[id] as Quote) ?? null;
-  }
+  async financialSummary() {
+    const invoices = await prisma.govInvoice.findMany();
+    const totalBilled  = invoices.reduce((s, i) => s + i.totalAmount, 0);
+    const totalCollected = invoices.reduce((s, i) => s + i.paidAmount, 0);
+    const outstanding  = totalBilled - totalCollected;
 
-  createInvoice(quoteIdOrRef: string, options?: { billingAddress?: string; invoiceRef?: string }): Invoice | null {
-    const quote = this.resolveQuote(quoteIdOrRef);
-    if (!quote) return null;
-
-    const now = new Date().toISOString();
-    const invoice: Invoice = {
-      id: randomUUID(),
-      invoiceRef: options?.invoiceRef,
-      quoteId: quote.id,
-      quoteRef: quote.quoteRef,
-      requestId: quote.requestId,
-      contractId: quote.contractId,
-      billingAddress: options?.billingAddress,
-      totalAmount: quote.totalAmount,
-      paidAmount: 0,
-      status: "Unpaid",
-      createdAt: now,
-      updatedAt: now,
-    };
-    registry.invoices[invoice.id] = invoice;
-    return invoice;
-  }
-
-  recordPayment(invoiceId: string, amount: number): Invoice | null {
-    const invoice = registry.invoices[invoiceId] as Invoice;
-    if (!invoice) return null;
-
-    invoice.paidAmount += amount;
-    invoice.updatedAt = new Date().toISOString();
-
-    if (invoice.paidAmount >= invoice.totalAmount) {
-      invoice.status = "Paid";
-    } else if (invoice.paidAmount > 0) {
-      invoice.status = "Partial";
+    const byStatus: Record<string, number> = {};
+    for (const inv of invoices) {
+      byStatus[inv.status] = (byStatus[inv.status] ?? 0) + 1;
     }
-    return invoice;
-  }
 
-  listInvoices(): Invoice[] {
-    return Object.values(registry.invoices) as Invoice[];
-  }
-
-  getInvoice(id: string): Invoice | null {
-    return (registry.invoices[id] as Invoice) ?? null;
+    return {
+      totalInvoices:    invoices.length,
+      totalBilled:      Math.round(totalBilled   * 100) / 100,
+      totalCollected:   Math.round(totalCollected * 100) / 100,
+      outstanding:      Math.round(outstanding   * 100) / 100,
+      byStatus,
+    };
   }
 }
 

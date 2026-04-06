@@ -1,7 +1,7 @@
 # Loose Arrows Supply & Logistics — Divisions Engine v2.0
 
 ## Overview
-Production-grade Node.js/TypeScript logistics and government procurement backend for Loose Arrows Supply & Logistics. Features a 10-division operational engine, government contract bid pipeline (bid → quote → submit), tiered API key access control, DIV10-BOT-001 autonomous contract intelligence, and customer-facing public pages.
+Production-grade Node.js/TypeScript logistics and government procurement backend for Loose Arrows Supply & Logistics. Features a 10-division operational engine, full post-award pipeline (bid → PO → shipment → invoice → payment), tiered API key access control, DIV10-BOT-001 autonomous contract intelligence, and customer-facing public pages.
 
 ## Tech Stack
 - **Language**: TypeScript 5.9
@@ -30,10 +30,13 @@ modules/
     dashboards.routes.ts      - Routes for all HTML pages
   division2/                  - Contract Alignment (PostgreSQL)
   division3/                  - Requests/Bids/Pipeline (PostgreSQL)
+  division4/                  - Purchase Orders & Inventory (PostgreSQL)
+  division5/                  - Shipments & Fulfillment (PostgreSQL)
   division7/                  - Vendor & Partner Management (PostgreSQL)
+  division9/                  - Invoices & Financials (PostgreSQL)
   division10/                 - Intelligence & System View + Bot
 prisma/
-  schema.prisma               - GovVendor, GovContract, GovContractProduct, GovBid, GovBidLineItem, GovWorkRequest, ApiKey
+  schema.prisma               - GovVendor, GovContract, GovContractProduct, GovBid, GovBidLineItem, GovWorkRequest, GovPO, GovPOLineItem, GovShipment, GovInvoice, GovInvoiceLineItem, ApiKey
 ```
 
 ## API Key Security System
@@ -58,7 +61,7 @@ prisma/
 - **ARCHITECT**: Custom/Enterprise — full system + bot
 - Access request form on `/pricing` sends email to `access@loosearrows.com`
 
-## Bid Pipeline (Division 3)
+## Pre-Award Bid Pipeline (Divisions 2, 3, 7)
 1. `POST /division/2/contracts` — register contract
 2. `POST /division/2/contracts/:id/products` — add CLINs
 3. `POST /division/7/vendors` — register vendor
@@ -67,6 +70,21 @@ prisma/
 6. `POST /division/3/bids/:id/quote` — generate quote ref
 7. `POST /division/3/bids/:id/submit` — DRAFT → SUBMITTED
 8. `GET /division/3/bids/:id/submission` — printable capability statement
+
+## Post-Award Pipeline (Divisions 4, 5, 9)
+9. `PATCH /division/3/bids/:id/status` `{status:"AWARDED"}` — mark bid awarded
+10. `POST /division/4/purchase-orders/from-bid/:bidId` — auto-create PO from bid
+11. `PATCH /division/4/purchase-orders/:poId/status` — advance PO (DRAFT→SENT→ACKNOWLEDGED→FULFILLED)
+12. `POST /division/5/shipments/from-po/:poId` — auto-create shipment from PO
+13. `PATCH /division/5/shipments/:id/tracking` — update carrier + tracking number
+14. `PATCH /division/5/shipments/:id/status` — advance status (PENDING→IN_TRANSIT→DELIVERED)
+15. `POST /division/9/invoices/from-bid/:bidId` — auto-create invoice from bid (with dueDate)
+16. `PATCH /division/9/invoices/:id/status` `{status:"SENT"}` — send invoice to agency
+17. `POST /division/9/invoices/:id/payment` `{amount:...}` — record payment (auto-marks PAID)
+18. `GET /division/9/summary` — financial summary (billed, collected, outstanding)
+- Manual creates: `POST /division/4/purchase-orders`, `POST /division/5/shipments`, `POST /division/9/invoices`
+- Inventory by SKU: `GET /division/4/inventory`
+- Overdue shipments: `GET /division/5/shipments/overdue`
 
 ## Division 10 Bot (DIV10-BOT-001)
 - **Authority**: Level 1 — Draft + Analysis Only

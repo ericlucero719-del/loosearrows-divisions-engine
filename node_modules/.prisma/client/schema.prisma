@@ -252,6 +252,90 @@ model Tracking {
   updatedAt      DateTime @updatedAt
 }
 
+// ── Division 4: Purchase Orders (post-award) ──────────────────────────────────
+model GovPO {
+  poId        String        @id @default(cuid())
+  poRef       String        @unique
+  bidId       String?
+  contractId  String?
+  vendorId    String?
+  vendorName  String?
+  agencyName  String?
+  status      String        @default("DRAFT")
+  totalValue  Float         @default(0)
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  lineItems   GovPOLineItem[]
+  shipments   GovShipment[]
+  invoices    GovInvoice[]
+}
+
+model GovPOLineItem {
+  id          String  @id @default(cuid())
+  po          GovPO   @relation(fields: [poId], references: [poId], onDelete: Cascade)
+  poId        String
+  sku         String
+  clin        String?
+  description String?
+  quantity    Float
+  unitPrice   Float
+  extended    Float
+}
+
+// ── Division 5: Shipments & Fulfillment ───────────────────────────────────────
+model GovShipment {
+  shipmentId       String    @id @default(cuid())
+  shipRef          String    @unique
+  poId             String?
+  po               GovPO?    @relation(fields: [poId], references: [poId])
+  bidId            String?
+  vendorId         String?
+  vendorName       String?
+  carrier          String?
+  trackingNumber   String?
+  deliveryLocation String?
+  expectedDelivery String?
+  deliveredAt      String?
+  status           String    @default("PENDING")
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// ── Division 9: Invoices & Financials ─────────────────────────────────────────
+model GovInvoice {
+  invoiceId   String              @id @default(cuid())
+  invoiceRef  String              @unique
+  bidId       String?
+  poId        String?
+  po          GovPO?              @relation(fields: [poId], references: [poId])
+  vendorId    String?
+  vendorName  String?
+  agencyName  String?
+  status      String              @default("DRAFT")
+  totalAmount Float               @default(0)
+  paidAmount  Float               @default(0)
+  dueDate     String?
+  paidAt      String?
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  lineItems   GovInvoiceLineItem[]
+}
+
+model GovInvoiceLineItem {
+  id          String     @id @default(cuid())
+  invoice     GovInvoice @relation(fields: [invoiceId], references: [invoiceId], onDelete: Cascade)
+  invoiceId   String
+  sku         String?
+  clin        String?
+  description String?
+  quantity    Float
+  unitPrice   Float
+  extended    Float
+}
+
 // ── API Key Access Control ─────────────────────────────────────────────────────
 model ApiKey {
   id          String    @id @default(cuid())

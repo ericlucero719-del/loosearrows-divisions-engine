@@ -1,45 +1,66 @@
 // modules/division4/division4.controller.ts
+// Division 4 — Purchase Orders & Inventory
 
 import { Request, Response } from "express";
 import { division4Service } from "./division4.service";
 
 export const division4Controller = {
-  getInventory(req: Request, res: Response) {
-    const item = division4Service.getInventory(req.params.sku);
-    if (!item) return res.status(404).json({ error: "SKU not found in inventory" });
-    return res.json(item);
-  },
 
-  upsertInventory(req: Request, res: Response) {
-    const { sku } = req.params;
-    const item = division4Service.upsertInventory({ ...req.body, sku });
-    return res.json(item);
-  },
-
-  allocate(req: Request, res: Response) {
-    const { quantity, referenceId, referenceType } = req.body;
-    if (!quantity || !referenceId || !referenceType) {
-      return res.status(400).json({ error: "quantity, referenceId, and referenceType are required" });
+  async listPOs(req: Request, res: Response) {
+    try {
+      const { status } = req.query as Record<string, string | undefined>;
+      const pos = await division4Service.listPOs(status);
+      return res.json(pos);
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
     }
-    const result = division4Service.allocate({
-      sku: req.params.sku,
-      quantity,
-      referenceId,
-      referenceType,
-    });
-    if (!result.success) return res.status(400).json({ error: result.error });
-    return res.json(result.item);
   },
 
-  release(req: Request, res: Response) {
-    const { quantity } = req.body;
-    if (!quantity) return res.status(400).json({ error: "quantity is required" });
-    const result = division4Service.release(req.params.sku, quantity);
-    if (!result.success) return res.status(400).json({ error: result.error });
-    return res.json(result.item);
+  async getPO(req: Request, res: Response) {
+    try {
+      const po = await division4Service.getPO(req.params.poId);
+      if (!po) return res.status(404).json({ error: "Purchase order not found" });
+      return res.json(po);
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
   },
 
-  listInventory(_req: Request, res: Response) {
-    return res.json(division4Service.listInventory());
+  async createPO(req: Request, res: Response) {
+    try {
+      const po = await division4Service.createPO(req.body);
+      return res.status(201).json(po);
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  },
+
+  async createPOFromBid(req: Request, res: Response) {
+    try {
+      const po = await division4Service.createPOFromBid(req.params.bidId);
+      return res.status(201).json(po);
+    } catch (e: any) {
+      return res.status(400).json({ error: e.message });
+    }
+  },
+
+  async updateStatus(req: Request, res: Response) {
+    try {
+      const { status, notes } = req.body;
+      if (!status) return res.status(400).json({ error: "status is required" });
+      const po = await division4Service.updateStatus(req.params.poId, status, notes);
+      return res.json(po);
+    } catch (e: any) {
+      return res.status(400).json({ error: e.message });
+    }
+  },
+
+  async inventorySummary(_req: Request, res: Response) {
+    try {
+      const summary = await division4Service.inventorySummary();
+      return res.json(summary);
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
   },
 };

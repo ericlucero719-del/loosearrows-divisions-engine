@@ -1,61 +1,151 @@
 // modules/division4/division4.service.ts
-// Division 4 — Inventory & Assets
+// Division 4 — Purchase Orders & Inventory (PostgreSQL-backed)
 
-import { registry } from "../../src/core/engine";
-import { InventoryItem, AllocationRequest } from "./division4.types";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+async function nextPORef(): Promise<string> {
+  const count = await prisma.govPO.count();
+  return `PO-${String(count + 1).padStart(3, "0")}`;
+}
+
+function toPO(row: any) {
+  return {
+    poId:       row.poId,
+    poRef:      row.poRef,
+    bidId:      row.bidId      ?? undefined,
+    contractId: row.contractId ?? undefined,
+    vendorId:   row.vendorId   ?? undefined,
+    vendorName: row.vendorName ?? undefined,
+    agencyName: row.agencyName ?? undefined,
+    status:     row.status,
+    totalValue: row.totalValue,
+    notes:      row.notes      ?? undefined,
+    lineItems:  (row.lineItems ?? []).map((li: any) => ({
+      id:          li.id,
+      sku:         li.sku,
+      clin:        li.clin        ?? undefined,
+      description: li.description ?? undefined,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
+      extended:    li.extended,
+    })),
+    shipments:  (row.shipments ?? []).map((s: any) => ({
+      shipmentId: s.shipmentId,
+      shipRef:    s.shipRef,
+      status:     s.status,
+    })),
+    invoices:   (row.invoices ?? []).map((inv: any) => ({
+      invoiceId:  inv.invoiceId,
+      invoiceRef: inv.invoiceRef,
+      status:     inv.status,
+    })),
+    createdAt:  row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+    updatedAt:  row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
+  };
+}
+
+const include = {
+  lineItems: true,
+  shipments: { select: { shipmentId: true, shipRef: true, status: true } },
+  invoices:  { select: { invoiceId: true, invoiceRef: true, status: true } },
+};
 
 export class Division4Service {
-  getInventory(sku: string): InventoryItem | null {
-    return (registry.inventory[sku] as InventoryItem) ?? null;
+
+  async listPOs(status?: string) {
+    const where = status ? { status } : {};
+    const rows = await prisma.govPO.findMany({ where, include, orderBy: { createdAt: "desc" } });
+    return rows.map(toPO);
   }
 
-  upsertInventory(data: Partial<InventoryItem> & { sku: string }): InventoryItem {
-    const existing = (registry.inventory[data.sku] as InventoryItem) ?? {
-      sku: data.sku,
-      onHand: 0,
-      allocated: 0,
-      available: 0,
-      updatedAt: new Date().toISOString(),
-    };
-
-    const updated: InventoryItem = {
-      ...existing,
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    updated.available = updated.onHand - updated.allocated;
-    registry.inventory[updated.sku] = updated;
-    return updated;
+  async getPO(poId: string) {
+    const row = await prisma.govPO.findUnique({ where: { poId }, include });
+    return row ? toPO(row) : null;
   }
 
-  allocate(req: AllocationRequest): { success: boolean; item?: InventoryItem; error?: string } {
-    const item = registry.inventory[req.sku] as InventoryItem;
-    if (!item) return { success: false, error: "SKU not found" };
-    if (item.available < req.quantity) {
-      return { success: false, error: `Insufficient stock: ${item.available} available` };
+  async createPO(data: {
+    vendorId?:  string;
+    vendorName?: string;
+    agencyName?: string;
+    bidId?:      string;
+    contractId?: string;
+    notes?:      string;
+    lineItems?:  Array<{ sku: string; clin?: string; description?: string; quantity: number; unitPrice: number }>;
+  }) {
+    const poRef = await nextPORef();
+    const items = (data.lineItems ?? []).map(li => ({
+      ...li,
+      extended: li.quantity * li.unitPrice,
+    }));
+    const totalValue = items.reduce((s, i) => s + i.extended, 0);
+
+    const row = await prisma.govPO.create({
+      data: {
+        poRef,
+        bidId:      data.bidId,
+        contractId: data.contractId,
+        vendorId:   data.vendorId,
+        vendorName: data.vendorName,
+        agencyName: data.agencyName,
+        notes:      data.notes,
+        totalValue,
+        lineItems: { create: items },
+      },
+      include,
+    });
+    return toPO(row);
+  }
+
+  async createPOFromBid(bidId: string) {
+    const bid = await prisma.govBid.findUnique({
+      where: { bidId },
+      include: { lineItems: true, contract: true },
+    });
+    if (!bid) throw new Error(`Bid ${bidId} not found`);
+    if (bid.status !== "AWARDED") throw new Error(`Bid ${bidId} is not AWARDED (status: ${bid.status})`);
+
+    const items = bid.lineItems.map(li => ({
+      sku:         li.sku,
+      clin:        li.clin        ?? undefined,
+      description: li.description ?? undefined,
+      quantity:    li.quantity,
+      unitPrice:   li.unitPrice,
+      extended:    li.extended,
+    }));
+
+    return this.createPO({
+      vendorId:   bid.vendorId,
+      vendorName: bid.vendorName ?? undefined,
+      agencyName: bid.contract.agency,
+      bidId:      bid.bidId,
+      contractId: bid.contractId,
+      notes:      `Auto-generated from ${bid.bidRef ?? bid.bidId}`,
+      lineItems:  items,
+    });
+  }
+
+  async updateStatus(poId: string, status: string, notes?: string) {
+    const allowed = ["DRAFT", "SENT", "ACKNOWLEDGED", "FULFILLED", "CANCELLED"];
+    if (!allowed.includes(status)) throw new Error(`Invalid status: ${status}. Allowed: ${allowed.join(", ")}`);
+    const row = await prisma.govPO.update({
+      where: { poId },
+      data:  { status, ...(notes ? { notes } : {}) },
+      include,
+    });
+    return toPO(row);
+  }
+
+  async inventorySummary() {
+    const lineItems = await prisma.govPOLineItem.findMany();
+    const bysku: Record<string, { sku: string; totalQuantity: number; totalValue: number }> = {};
+    for (const li of lineItems) {
+      if (!bysku[li.sku]) bysku[li.sku] = { sku: li.sku, totalQuantity: 0, totalValue: 0 };
+      bysku[li.sku].totalQuantity += li.quantity;
+      bysku[li.sku].totalValue   += li.extended;
     }
-
-    item.allocated += req.quantity;
-    item.available = item.onHand - item.allocated;
-    item.updatedAt = new Date().toISOString();
-    return { success: true, item };
-  }
-
-  release(sku: string, quantity: number): { success: boolean; item?: InventoryItem; error?: string } {
-    const item = registry.inventory[sku] as InventoryItem;
-    if (!item) return { success: false, error: "SKU not found" };
-    if (item.allocated < quantity) {
-      return { success: false, error: `Cannot release more than allocated: ${item.allocated}` };
-    }
-
-    item.allocated -= quantity;
-    item.available = item.onHand - item.allocated;
-    item.updatedAt = new Date().toISOString();
-    return { success: true, item };
-  }
-
-  listInventory(): InventoryItem[] {
-    return Object.values(registry.inventory) as InventoryItem[];
+    return Object.values(bysku).sort((a, b) => b.totalValue - a.totalValue);
   }
 }
 

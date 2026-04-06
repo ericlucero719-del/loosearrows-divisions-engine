@@ -1,21 +1,14 @@
 // modules/division9/division9.routes.ts
-// Division 9 — Financials (Quotes, Invoices, Payments)
+// Division 9 — Financials & Invoicing
 //
-// Example requests:
-//   POST /division/9/quotes
-//     Body: { "contractId": "...", "lineItems": [{ "sku": "CF360A", "quantity": 10, "unitPrice": 130.00 }] }
-//     Response: { "id": "...", "totalAmount": 1300.00, "status": "Draft", ... }
-//
-//   PUT /division/9/quotes/:id/status
-//     Body: { "status": "Sent" }
-//
-//   POST /division/9/invoices
-//     Body: { "quoteId": "..." }
-//     Response: { "id": "...", "totalAmount": 1300.00, "status": "Unpaid", ... }
-//
-//   POST /division/9/invoices/:id/payment
-//     Body: { "amount": 650.00 }
-//     Response: { "status": "Partial", "paidAmount": 650.00, ... }
+// POST   /division/9/invoices                         Create invoice manually
+// POST   /division/9/invoices/from-bid/:bidId         Auto-create invoice from awarded bid
+// POST   /division/9/invoices/from-po/:poId           Auto-create invoice from PO
+// GET    /division/9/invoices                         List all (?status=SENT)
+// GET    /division/9/invoices/:invoiceId              Get single
+// PATCH  /division/9/invoices/:invoiceId/status       Update status
+// POST   /division/9/invoices/:invoiceId/payment      Record payment
+// GET    /division/9/summary                          Financial summary
 
 import { Router } from "express";
 import { operatorWorkflow } from "../../src/core/engine";
@@ -24,27 +17,15 @@ import { division9Controller } from "./division9.controller";
 const router = Router();
 
 router.post(
-  "/quotes",
-  operatorWorkflow("DIVISION-9", "CREATE_QUOTE"),
-  division9Controller.createQuote
+  "/invoices/from-bid/:bidId",
+  operatorWorkflow("DIVISION-9", "CREATE_INVOICE_FROM_BID"),
+  division9Controller.createInvoiceFromBid
 );
 
-router.get(
-  "/quotes",
-  operatorWorkflow("DIVISION-9", "LIST_QUOTES"),
-  division9Controller.listQuotes
-);
-
-router.get(
-  "/quotes/:id",
-  operatorWorkflow("DIVISION-9", "GET_QUOTE"),
-  division9Controller.getQuote
-);
-
-router.put(
-  "/quotes/:id/status",
-  operatorWorkflow("DIVISION-9", "UPDATE_QUOTE_STATUS"),
-  division9Controller.updateQuoteStatus
+router.post(
+  "/invoices/from-po/:poId",
+  operatorWorkflow("DIVISION-9", "CREATE_INVOICE_FROM_PO"),
+  division9Controller.createInvoiceFromPO
 );
 
 router.post(
@@ -60,15 +41,27 @@ router.get(
 );
 
 router.get(
-  "/invoices/:id",
+  "/invoices/:invoiceId",
   operatorWorkflow("DIVISION-9", "GET_INVOICE"),
   division9Controller.getInvoice
 );
 
+router.patch(
+  "/invoices/:invoiceId/status",
+  operatorWorkflow("DIVISION-9", "UPDATE_INVOICE_STATUS"),
+  division9Controller.updateStatus
+);
+
 router.post(
-  "/invoices/:id/payment",
+  "/invoices/:invoiceId/payment",
   operatorWorkflow("DIVISION-9", "RECORD_PAYMENT"),
   division9Controller.recordPayment
+);
+
+router.get(
+  "/summary",
+  operatorWorkflow("DIVISION-9", "FINANCIAL_SUMMARY"),
+  division9Controller.financialSummary
 );
 
 export default router;
