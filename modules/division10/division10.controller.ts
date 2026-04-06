@@ -2,6 +2,7 @@
 
 import { Request, Response } from "express";
 import { division10Service } from "./division10.service";
+import { botService } from "./division10.bot.service";
 
 export const division10Controller = {
   getSystemSummary(_req: Request, res: Response) {
@@ -76,5 +77,76 @@ export const division10Controller = {
 
   getAssessment(_req: Request, res: Response) {
     return res.json(division10Service.getAssessment());
+  },
+
+  // ── Operator Bot ──────────────────────────────────────────────────────────
+
+  botGetStatus(_req: Request, res: Response) {
+    return res.json(botService.getStatus());
+  },
+
+  botRunCycle(_req: Request, res: Response) {
+    const summary = botService.runCycle();
+    return res.json(summary);
+  },
+
+  botListOpportunities(req: Request, res: Response) {
+    const { status } = req.query as { status?: any };
+    return res.json(botService.listOpportunities(status));
+  },
+
+  botGetOpportunity(req: Request, res: Response) {
+    const opp = botService.getOpportunity(req.params.id);
+    if (!opp) return res.status(404).json({ error: "Opportunity not found" });
+    return res.json(opp);
+  },
+
+  botIngestOpportunity(req: Request, res: Response) {
+    const { solicitationNumber, title, agency } = req.body ?? {};
+    if (!solicitationNumber || !title || !agency) {
+      return res.status(400).json({ error: "solicitationNumber, title, and agency are required" });
+    }
+    const opp = botService.ingestOpportunity(req.body);
+    return res.status(201).json(opp);
+  },
+
+  botAnalyzeOpportunity(req: Request, res: Response) {
+    const result = botService.analyzeOpportunity(req.params.id);
+    if ("error" in result) return res.status(404).json(result);
+    return res.json(result);
+  },
+
+  botMatchSuppliers(req: Request, res: Response) {
+    const result = botService.matchSuppliers(req.params.id);
+    if (!Array.isArray(result) && "error" in result) return res.status(404).json(result);
+    return res.json(result);
+  },
+
+  botPrepDraft(req: Request, res: Response) {
+    const result = botService.prepDraft(req.params.id);
+    if ("error" in result) return res.status(404).json(result);
+    return res.json(result);
+  },
+
+  botGetRelics(req: Request, res: Response) {
+    const { type, oppId, limit } = req.query as { type?: any; oppId?: string; limit?: string };
+    return res.json(botService.getRelics(type, oppId, limit ? parseInt(limit) : undefined));
+  },
+
+  botGetAlerts(req: Request, res: Response) {
+    const { level, unacknowledged } = req.query as { level?: any; unacknowledged?: string };
+    const ack = unacknowledged === "true" ? false : undefined;
+    return res.json(botService.getAlerts(level, ack));
+  },
+
+  botAcknowledgeAlert(req: Request, res: Response) {
+    const result = botService.acknowledgeAlert(req.params.id);
+    if ("error" in result) return res.status(404).json(result);
+    return res.json(result);
+  },
+
+  botGetCycles(req: Request, res: Response) {
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    return res.json(botService.getCycles(limit));
   },
 };

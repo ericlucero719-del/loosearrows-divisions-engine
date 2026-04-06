@@ -40,6 +40,38 @@ router.get("/intelligence/report",     operatorWorkflow("DIVISION-10", "VIEW_FUL
 router.get( "/relics", operatorWorkflow("DIVISION-10", "VIEW_RELICS"),   division10Controller.getRelics);
 router.post("/relics", operatorWorkflow("DIVISION-10", "CREATE_RELIC"),  division10Controller.createRelic);
 
+// ── Operator Bot ──────────────────────────────────────────────────────────────
+//   GET  /division/10/bot/status                      Bot identity, hard rules, mission state
+//   POST /division/10/bot/run                         Trigger a full intelligence cycle (A→F)
+//   GET  /division/10/bot/cycles                      Past cycle summaries
+//
+//   GET  /division/10/bot/opportunities               List all tracked opportunities  ?status=
+//   POST /division/10/bot/opportunities               Manually ingest an opportunity
+//   GET  /division/10/bot/opportunities/:id           Get single opportunity
+//   POST /division/10/bot/opportunities/:id/analyze   Run Behavior B (analysis)
+//   POST /division/10/bot/opportunities/:id/match     Run Behavior C (supplier match)
+//   POST /division/10/bot/opportunities/:id/draft     Run Behavior D (draft quote prep)
+//
+//   GET  /division/10/bot/relics                      All bot relics  ?type= ?oppId= ?limit=
+//   GET  /division/10/bot/alerts                      All bot alerts  ?level= ?unacknowledged=true
+//   POST /division/10/bot/alerts/:id/acknowledge      Architect acknowledges an alert
+
+router.get( "/bot/status", operatorWorkflow("DIVISION-10", "BOT_STATUS"), division10Controller.botGetStatus);
+router.post("/bot/run",    operatorWorkflow("DIVISION-10", "BOT_RUN_CYCLE"), division10Controller.botRunCycle);
+router.get( "/bot/cycles", operatorWorkflow("DIVISION-10", "BOT_CYCLES"), division10Controller.botGetCycles);
+
+router.get( "/bot/opportunities",     operatorWorkflow("DIVISION-10", "BOT_LIST_OPPS"),   division10Controller.botListOpportunities);
+router.post("/bot/opportunities",     operatorWorkflow("DIVISION-10", "BOT_INGEST_OPP"),  division10Controller.botIngestOpportunity);
+router.get( "/bot/opportunities/:id", operatorWorkflow("DIVISION-10", "BOT_GET_OPP"),     division10Controller.botGetOpportunity);
+
+router.post("/bot/opportunities/:id/analyze", operatorWorkflow("DIVISION-10", "BOT_ANALYZE"), division10Controller.botAnalyzeOpportunity);
+router.post("/bot/opportunities/:id/match",   operatorWorkflow("DIVISION-10", "BOT_MATCH"),   division10Controller.botMatchSuppliers);
+router.post("/bot/opportunities/:id/draft",   operatorWorkflow("DIVISION-10", "BOT_DRAFT"),   division10Controller.botPrepDraft);
+
+router.get( "/bot/relics", operatorWorkflow("DIVISION-10", "BOT_RELICS"), division10Controller.botGetRelics);
+router.get( "/bot/alerts", operatorWorkflow("DIVISION-10", "BOT_ALERTS"), division10Controller.botGetAlerts);
+router.post("/bot/alerts/:id/acknowledge", operatorWorkflow("DIVISION-10", "BOT_ACK_ALERT"), division10Controller.botAcknowledgeAlert);
+
 // ── Cyberpunk dashboard UI ────────────────────────────────────────────────────
 router.get("/dashboard", (_req, res) => {
   res.sendFile(path.join(__dirname, "dashboard.html"));
