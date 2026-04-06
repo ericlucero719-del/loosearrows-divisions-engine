@@ -228,6 +228,50 @@ export class Division3Service {
     return bid;
   }
 
+  // Update unit prices on any non-finalized bid (pre-award price correction)
+  updatePricing(bidId: string, prices: { sku: string; unitPrice: number; quantity?: number }[]): Bid | { error: string } {
+    const bid = registry.bids[bidId] as Bid;
+    if (!bid) return { error: "Bid not found" };
+    if (bid.status === "AWARDED" || bid.status === "LOST") {
+      return { error: `Cannot update pricing on a ${bid.status} bid` };
+    }
+
+    const priceMap = new Map(prices.map(p => [p.sku, p]));
+    bid.lineItems = bid.lineItems.map(li => {
+      const update = priceMap.get(li.sku);
+      if (!update) return li;
+      const qty       = update.quantity ?? li.quantity;
+      const unitPrice = update.unitPrice;
+      return { ...li, quantity: qty, unitPrice, extended: qty * unitPrice };
+    });
+    bid.totalValue = bid.lineItems.reduce((s, li) => s + li.extended, 0);
+    bid.updatedAt  = new Date().toISOString();
+
+    // Sync linked quote if it exists
+    if (bid.quoteId) {
+      const q = registry.quotes[bid.quoteId] as any;
+      if (q) {
+        q.lineItems = bid.lineItems.map(li => ({
+          sku: li.sku, description: li.description,
+          quantity: li.quantity, unitPrice: li.unitPrice, extended: li.extended,
+        }));
+        q.totalAmount = bid.totalValue;
+        q.updatedAt   = bid.updatedAt;
+      }
+    }
+
+    // Also sync Division 1 product prices
+    bid.lineItems.forEach(li => {
+      const product = registry.products[li.sku] as any;
+      if (product) {
+        product.price      = li.unitPrice;
+        product.lastSynced = bid.updatedAt;
+      }
+    });
+
+    return bid;
+  }
+
   // Update bid status (UNDER_REVIEW, AWARDED, LOST, WITHDRAWN)
   updateBidStatus(bidId: string, status: BidStatus): Bid | { error: string } {
     const bid = registry.bids[bidId] as Bid;

@@ -11,20 +11,15 @@
 //
 // ── Bid Pipeline routes ────────────────────────────────────────────────────────
 //   GET    /division/3/bid-pipeline
-//     Returns all active Division 2 contracts open for bidding
-//
 //   POST   /division/3/bids
-//     Body: { "contractId":"...", "vendorId":"vendor-001", "vendorName":"ACME Corp",
-//             "lineItems":[{ "sku":"CF360A","quantity":10,"unitPrice":130,"clin":"CLIN-001" }] }
-//     Omit lineItems to auto-populate from contract catalog
-//
 //   GET    /division/3/bids              ?status=DRAFT|SUBMITTED|UNDER_REVIEW|AWARDED|LOST|WITHDRAWN
-//   GET    /division/3/bids/:id          enriched with _contract and _quote
-//
+//   GET    /division/3/bids/:id
 //   POST   /division/3/bids/:id/line-items   replace line items (DRAFT only)
+//   PATCH  /division/3/bids/:id/pricing      update unit prices (any pre-award status)
 //   POST   /division/3/bids/:id/quote        generate Division 9 quote (idempotent)
 //   POST   /division/3/bids/:id/submit       DRAFT → SUBMITTED, quote → Sent
 //   PATCH  /division/3/bids/:id/status       Body: { "status": "AWARDED" | "LOST" | "WITHDRAWN" }
+//   GET    /division/3/bids/:id/submission   HTML capability statement / price list for printing
 
 import { Router } from "express";
 import { operatorWorkflow } from "../../src/core/engine";
@@ -100,6 +95,12 @@ router.post(
   division3Controller.setLineItems
 );
 
+router.patch(
+  "/bids/:id/pricing",
+  operatorWorkflow("DIVISION-3", "UPDATE_BID_PRICING"),
+  division3Controller.updatePricing
+);
+
 router.post(
   "/bids/:id/quote",
   operatorWorkflow("DIVISION-3", "GENERATE_BID_QUOTE"),
@@ -116,6 +117,12 @@ router.patch(
   "/bids/:id/status",
   operatorWorkflow("DIVISION-3", "UPDATE_BID_STATUS"),
   division3Controller.updateBidStatus
+);
+
+router.get(
+  "/bids/:id/submission",
+  operatorWorkflow("DIVISION-3", "GET_SUBMISSION_DOC"),
+  division3Controller.getSubmissionDoc
 );
 
 export default router;
