@@ -1,17 +1,14 @@
 // modules/division6/division6.routes.ts
 // Division 6 — Compliance & Documentation
 //
-// Example requests:
-//   POST /division/6/requirements
-//     Body: { "entityType": "contract", "entityId": "contract-uuid", "documentType": "SAM_REGISTRATION" }
-//     Response: { "id": "...", "status": "Pending", ... }
-//
-//   POST /division/6/requirements/:id/attach
-//     Body: { "name": "SAM_Certificate.pdf", "url": "https://..." }
-//     Response: updated compliance requirement with attached document
-//
-//   GET /division/6/requirements?entityId=...&entityType=contract
-//     Response: filtered compliance requirements
+// GET    /division/6/doc-types                              list valid document types
+// GET    /division/6/documents                             list all (filter: ?docType=&status=)
+// POST   /division/6/documents                            register a compliance document
+// GET    /division/6/documents/:docId                     get document
+// PATCH  /division/6/documents/:docId                     update document
+// DELETE /division/6/documents/:docId                     delete document
+// GET    /division/6/compliance-status                    overall compliance posture
+// POST   /division/6/capability-statement                 generate capability statement
 
 import { Router } from "express";
 import { operatorWorkflow } from "../../src/core/engine";
@@ -19,42 +16,17 @@ import { division6Controller } from "./division6.controller";
 
 const router = Router();
 
-router.post(
-  "/requirements",
-  operatorWorkflow("DIVISION-6", "CREATE_COMPLIANCE_REQUIREMENT"),
-  division6Controller.createRequirement
-);
+router.get("/doc-types", operatorWorkflow("DIVISION-6", "LIST_DOC_TYPES"), division6Controller.docTypes);
 
-// Alias: POST /compliance → same as /requirements
-router.post(
-  "/compliance",
-  operatorWorkflow("DIVISION-6", "CREATE_COMPLIANCE_REQUIREMENT"),
-  division6Controller.createRequirement
-);
+router.get("/compliance-status", operatorWorkflow("DIVISION-6", "COMPLIANCE_STATUS"), division6Controller.complianceStatus);
 
-// Attach a document by entity (looks up requirement automatically)
-router.post(
-  "/documents",
-  operatorWorkflow("DIVISION-6", "ATTACH_DOCUMENT_BY_ENTITY"),
-  division6Controller.attachDocumentByEntity
-);
+router.post("/capability-statement", operatorWorkflow("DIVISION-6", "GENERATE_CAP_STATEMENT"), division6Controller.generateCapabilityStatement);
 
-router.post(
-  "/requirements/:id/attach",
-  operatorWorkflow("DIVISION-6", "ATTACH_DOCUMENT"),
-  division6Controller.attachDocument
-);
+router.get("/documents", operatorWorkflow("DIVISION-6", "LIST_DOCS"), division6Controller.listDocs);
+router.post("/documents", operatorWorkflow("DIVISION-6", "CREATE_DOC"), division6Controller.createDoc);
 
-router.get(
-  "/requirements",
-  operatorWorkflow("DIVISION-6", "LIST_REQUIREMENTS"),
-  division6Controller.listRequirements
-);
-
-router.get(
-  "/requirements/:id",
-  operatorWorkflow("DIVISION-6", "GET_REQUIREMENT"),
-  division6Controller.getRequirement
-);
+router.get("/documents/:docId", operatorWorkflow("DIVISION-6", "GET_DOC"), division6Controller.getDoc);
+router.patch("/documents/:docId", operatorWorkflow("DIVISION-6", "UPDATE_DOC"), division6Controller.updateDoc);
+router.delete("/documents/:docId", operatorWorkflow("DIVISION-6", "DELETE_DOC"), division6Controller.deleteDoc);
 
 export default router;

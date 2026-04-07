@@ -1,47 +1,62 @@
 // modules/division6/division6.controller.ts
+// Division 6 — Compliance & Documentation
 
 import { Request, Response } from "express";
 import { division6Service } from "./division6.service";
 
 export const division6Controller = {
-  createRequirement(req: Request, res: Response) {
-    const { entityType, entityId } = req.body;
-    const documentType: string = req.body.documentType ?? req.body.requirement ?? req.body.name;
-    if (!entityType || !entityId || !documentType) {
-      return res.status(400).json({ error: "entityType, entityId, and documentType (or requirement) are required" });
-    }
-    const req_ = division6Service.createRequirement({ entityType, entityId, documentType });
-    return res.status(201).json(req_);
+
+  docTypes(_req: Request, res: Response) {
+    return res.json(division6Service.docTypes());
   },
 
-  attachDocument(req: Request, res: Response) {
-    const { url, uploadedBy, uploadedAt } = req.body;
-    const name: string = req.body.name ?? req.body.documentName ?? req.body.fileName;
-    if (!name) return res.status(400).json({ error: "name (or documentName) is required" });
-    const result = division6Service.attachDocument(req.params.id, { name, url, uploadedBy, uploadedAt });
-    if (!result) return res.status(404).json({ error: "Compliance requirement not found" });
-    return res.json(result);
+  async listDocs(req: Request, res: Response) {
+    try {
+      const { docType, status } = req.query as Record<string, string | undefined>;
+      return res.json(await division6Service.listDocs(docType, status));
+    } catch (e: any) { return res.status(500).json({ error: e.message }); }
   },
 
-  attachDocumentByEntity(req: Request, res: Response) {
-    const { entityType, entityId, url, uploadedBy, uploadedAt } = req.body;
-    const name: string = req.body.name ?? req.body.documentName ?? req.body.fileName;
-    if (!entityType || !entityId || !name) {
-      return res.status(400).json({ error: "entityType, entityId, and documentName are required" });
-    }
-    const result = division6Service.attachDocumentByEntity(entityType, entityId, { name, url, uploadedBy, uploadedAt });
-    if (!result) return res.status(404).json({ error: "No compliance requirement found for this entity" });
-    return res.json(result);
+  async getDoc(req: Request, res: Response) {
+    try {
+      const doc = await division6Service.getDoc(req.params.docId);
+      if (!doc) return res.status(404).json({ error: "Document not found" });
+      return res.json(doc);
+    } catch (e: any) { return res.status(500).json({ error: e.message }); }
   },
 
-  listRequirements(req: Request, res: Response) {
-    const { entityId, entityType } = req.query as Record<string, string | undefined>;
-    return res.json(division6Service.listRequirements({ entityId, entityType }));
+  async createDoc(req: Request, res: Response) {
+    try {
+      const { docType, title } = req.body;
+      if (!docType || !title) return res.status(400).json({ error: "docType and title are required" });
+      return res.status(201).json(await division6Service.createDoc(req.body));
+    } catch (e: any) { return res.status(400).json({ error: e.message }); }
   },
 
-  getRequirement(req: Request, res: Response) {
-    const result = division6Service.getRequirement(req.params.id);
-    if (!result) return res.status(404).json({ error: "Compliance requirement not found" });
-    return res.json(result);
+  async updateDoc(req: Request, res: Response) {
+    try {
+      return res.json(await division6Service.updateDoc(req.params.docId, req.body));
+    } catch (e: any) { return res.status(400).json({ error: e.message }); }
+  },
+
+  async deleteDoc(req: Request, res: Response) {
+    try {
+      await division6Service.deleteDoc(req.params.docId);
+      return res.json({ deleted: req.params.docId });
+    } catch (e: any) { return res.status(404).json({ error: e.message }); }
+  },
+
+  async complianceStatus(_req: Request, res: Response) {
+    try {
+      return res.json(await division6Service.complianceStatus());
+    } catch (e: any) { return res.status(500).json({ error: e.message }); }
+  },
+
+  async generateCapabilityStatement(req: Request, res: Response) {
+    try {
+      const { companyName } = req.body;
+      if (!companyName) return res.status(400).json({ error: "companyName is required" });
+      return res.json(await division6Service.generateCapabilityStatement(req.body));
+    } catch (e: any) { return res.status(400).json({ error: e.message }); }
   },
 };

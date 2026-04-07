@@ -1,65 +1,161 @@
 // modules/division8/division8.service.ts
-// Division 8 — Agency / Customer Management
+// Division 8 — Agency & Customer Management (PostgreSQL-backed)
 
-import { randomUUID } from "crypto";
-import { registry } from "../../src/core/engine";
-import { Agency, AgencyContact } from "./division8.types";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const INTERACTION_TYPES = ["NOTE", "AWARD", "BID", "MEETING", "CALL", "EMAIL"];
+const CONTACT_ROLES     = ["CO", "COR", "KO", "PM", "POC", "OTHER"];
+
+const include = {
+  contacts:     true,
+  interactions: { orderBy: { createdAt: "desc" as const }, take: 50 },
+};
+
+function toAgency(row: any) {
+  return {
+    agencyId:     row.agencyId,
+    name:         row.name,
+    agencyType:   row.agencyType   ?? undefined,
+    department:   row.department   ?? undefined,
+    naicsCodes:   JSON.parse(row.naicsJson || "[]"),
+    status:       row.status,
+    notes:        row.notes        ?? undefined,
+    contacts:     (row.contacts     ?? []).map(toContact),
+    interactions: (row.interactions ?? []).map(toInteraction),
+    createdAt:    row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+    updatedAt:    row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
+  };
+}
+
+function toContact(row: any) {
+  return {
+    contactId: row.contactId,
+    agencyId:  row.agencyId,
+    name:      row.name,
+    title:     row.title ?? undefined,
+    email:     row.email ?? undefined,
+    phone:     row.phone ?? undefined,
+    role:      row.role  ?? undefined,
+    notes:     row.notes ?? undefined,
+    createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+  };
+}
+
+function toInteraction(row: any) {
+  return {
+    interactionId: row.interactionId,
+    agencyId:      row.agencyId,
+    type:          row.type,
+    contractRef:   row.contractRef ?? undefined,
+    bidRef:        row.bidRef      ?? undefined,
+    summary:       row.summary,
+    createdAt:     row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+  };
+}
 
 export class Division8Service {
-  createAgency(data: {
-    name: string;
-    contacts?: AgencyContact[];
-    preferences?: Record<string, any>;
-  }): Agency {
-    const now = new Date().toISOString();
-    const agency: Agency = {
-      id: randomUUID(),
-      name: data.name,
-      contacts: data.contacts ?? [],
-      preferences: data.preferences ?? {},
-      linkedContracts: [],
-      linkedRequests: [],
-      createdAt: now,
-      updatedAt: now,
-    };
-    registry.agencies[agency.id] = agency;
-    return agency;
+
+  async listAgencies(status?: string) {
+    const where = status ? { status } : {};
+    const rows = await prisma.govAgency.findMany({ where, include, orderBy: { name: "asc" } });
+    return rows.map(toAgency);
   }
 
-  listAgencies(): Agency[] {
-    return Object.values(registry.agencies) as Agency[];
+  async getAgency(agencyId: string) {
+    const row = await prisma.govAgency.findUnique({ where: { agencyId }, include });
+    return row ? toAgency(row) : null;
   }
 
-  getAgency(id: string): Agency | null {
-    return (registry.agencies[id] as Agency) ?? null;
+  async createAgency(data: {
+    name:        string;
+    agencyType?: string;
+    department?: string;
+    naicsCodes?: string[];
+    notes?:      string;
+  }) {
+    const row = await prisma.govAgency.create({
+      data: {
+        name:       data.name,
+        agencyType: data.agencyType,
+        department: data.department,
+        naicsJson:  JSON.stringify(data.naicsCodes ?? []),
+        notes:      data.notes,
+      },
+      include,
+    });
+    return toAgency(row);
   }
 
-  updateAgency(id: string, updates: Partial<Agency>): Agency | null {
-    const agency = registry.agencies[id] as Agency;
-    if (!agency) return null;
-    Object.assign(agency, { ...updates, updatedAt: new Date().toISOString() });
-    return agency;
+  async updateAgency(agencyId: string, data: Partial<{
+    name:        string;
+    agencyType:  string;
+    department:  string;
+    naicsCodes:  string[];
+    status:      string;
+    notes:       string;
+  }>) {
+    const update: any = { ...data };
+    if (data.naicsCodes) { update.naicsJson = JSON.stringify(data.naicsCodes); delete update.naicsCodes; }
+    const row = await prisma.govAgency.update({ where: { agencyId }, data: update, include });
+    return toAgency(row);
   }
 
-  linkContract(id: string, contractId: string): Agency | null {
-    const agency = registry.agencies[id] as Agency;
-    if (!agency) return null;
-    if (!agency.linkedContracts.includes(contractId)) {
-      agency.linkedContracts.push(contractId);
+  async addContact(agencyId: string, data: {
+    name:   string;
+    title?: string;
+    email?: string;
+    phone?: string;
+    role?:  string;
+    notes?: string;
+  }) {
+    const exists = await prisma.govAgency.findUnique({ where: { agencyId } });
+    if (!exists) throw new Error(`Agency ${agencyId} not found`);
+    if (data.role && !CONTACT_ROLES.includes(data.role.toUpperCase())) {
+      throw new Error(`Invalid role. Valid: ${CONTACT_ROLES.join(", ")}`);
     }
-    agency.updatedAt = new Date().toISOString();
-    return agency;
+    const row = await prisma.govAgencyContact.create({
+      data: { agencyId, ...data, role: data.role?.toUpperCase() },
+    });
+    return toContact(row);
   }
 
-  linkRequest(id: string, requestId: string): Agency | null {
-    const agency = registry.agencies[id] as Agency;
-    if (!agency) return null;
-    if (!agency.linkedRequests.includes(requestId)) {
-      agency.linkedRequests.push(requestId);
-    }
-    agency.updatedAt = new Date().toISOString();
-    return agency;
+  async deleteContact(contactId: string) {
+    await prisma.govAgencyContact.delete({ where: { contactId } });
   }
+
+  async addInteraction(agencyId: string, data: {
+    type:          string;
+    summary:       string;
+    contractRef?:  string;
+    bidRef?:       string;
+  }) {
+    const exists = await prisma.govAgency.findUnique({ where: { agencyId } });
+    if (!exists) throw new Error(`Agency ${agencyId} not found`);
+    const type = data.type.toUpperCase();
+    if (!INTERACTION_TYPES.includes(type)) {
+      throw new Error(`Invalid type. Valid: ${INTERACTION_TYPES.join(", ")}`);
+    }
+    const row = await prisma.govAgencyInteraction.create({
+      data: { agencyId, type, summary: data.summary, contractRef: data.contractRef, bidRef: data.bidRef },
+    });
+    return toInteraction(row);
+  }
+
+  async agencySummary() {
+    const [total, federal, tribal] = await Promise.all([
+      prisma.govAgency.count(),
+      prisma.govAgency.count({ where: { agencyType: "FEDERAL" } }),
+      prisma.govAgency.count({ where: { agencyType: "TRIBAL" } }),
+    ]);
+    const contacts     = await prisma.govAgencyContact.count();
+    const interactions = await prisma.govAgencyInteraction.count();
+    return { totalAgencies: total, federal, tribal, contacts, interactions };
+  }
+
+  contactRoles()     { return CONTACT_ROLES; }
+  interactionTypes() { return INTERACTION_TYPES; }
 }
 
 export const division8Service = new Division8Service();

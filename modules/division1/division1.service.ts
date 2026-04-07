@@ -1,127 +1,170 @@
 // modules/division1/division1.service.ts
-// Division 1 — Product Intake & Pricing
+// Division 1 — Product Catalog & Pricing (PostgreSQL-backed)
 
-import { registry } from "../../src/core/engine";
-import { Product, ProductCategory, PRODUCT_CATEGORIES, CATEGORY_META, CategoryMeta } from "./division1.types";
+import { PrismaClient } from "@prisma/client";
 
-// Normalize exported catalog field names (Title Case / spaced) to camelCase schema
-function normalize(raw: Record<string, any>): Record<string, any> {
+const prisma = new PrismaClient();
+
+const MARGIN_BANDS: Record<string, number> = { low: 0.08, target: 0.18, premium: 0.27 };
+
+function calcMargin(cost: number, price: number): number {
+  if (price <= 0) return 0;
+  return Math.round(((price - cost) / price) * 10000) / 100;
+}
+
+function priceAt(cost: number, band: string): number {
+  const m = MARGIN_BANDS[band] ?? MARGIN_BANDS.target;
+  return Math.round((cost / (1 - m)) * 100) / 100;
+}
+
+function toProduct(row: any) {
   return {
-    productName: raw.productName ?? raw["Product Name"],
-    sku:         raw.sku         ?? raw["Product Code"] ?? raw["SKU"],
-    clin:        raw.clin        ?? raw["CLIN"],
-    naics:       raw.naics       ?? raw["NAICS"],
-    brand:       raw.brand       ?? raw["Brand"],
-    category:    raw.category    ?? raw["Category"],
-    description: raw.description ?? raw["Description"],
-    price:       raw.price       ?? raw["Price"],
-    cost:        raw.cost        ?? raw["Cost"],
-    margin:      (() => {
-                   const m = raw.margin ?? raw["Margin"];
-                   if (typeof m === "number") return m;
-                   if (typeof m === "string") return parseFloat(m) || 0;
-                   return undefined;
-                 })(),
-    status:      (raw.status ?? raw["Status"] ?? "active").toLowerCase(),
-    imageUrl:    raw.imageUrl    ?? raw["Image URL"],
-    source:      raw.source      ?? raw["Source"],
+    productId:     row.productId,
+    sku:           row.sku,
+    name:          row.name,
+    description:   row.description   ?? undefined,
+    category:      row.category      ?? undefined,
+    unitOfMeasure: row.unitOfMeasure ?? undefined,
+    cost:          row.cost,
+    price:         row.price,
+    marginPct:     row.marginPct,
+    naics:         row.naics         ?? undefined,
+    notes:         row.notes         ?? undefined,
+    status:        row.status,
+    createdAt:     row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+    updatedAt:     row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
   };
 }
 
-// Validate that a category value is one of the 10 defined categories
-function resolveCategory(value: string | undefined): ProductCategory | undefined {
-  if (!value) return undefined;
-  const upper = value.toUpperCase().replace(/[\s\-]+/g, "_") as ProductCategory;
-  return PRODUCT_CATEGORIES.includes(upper as ProductCategory) ? upper : undefined;
-}
-
 export class Division1Service {
-  // ── Import ─────────────────────────────────────────────────────────────────
-  importProducts(products: Record<string, any>[]): { imported: number; skipped: number } {
-    let imported = 0;
-    let skipped  = 0;
 
-    for (const raw of products) {
-      const p = normalize(raw) as Product;
-      if (!p.sku || !p.productName) { skipped++; continue; }
+  async listProducts(category?: string, status?: string) {
+    const where: any = {};
+    if (category) where.category = category;
+    if (status)   where.status   = status;
+    const rows = await prisma.govProduct.findMany({ where, orderBy: { name: "asc" } });
+    return rows.map(toProduct);
+  }
 
-      const margin = p.cost > 0
-        ? parseFloat((((p.price - p.cost) / p.price) * 100).toFixed(2))
-        : 0;
+  async getProduct(sku: string) {
+    const row = await prisma.govProduct.findUnique({ where: { sku } });
+    return row ? toProduct(row) : null;
+  }
 
-      registry.products[p.sku] = {
-        ...p,
-        category:    resolveCategory(p.category as any) ?? (p.category as any),
-        margin:      p.margin ?? margin,
-        lastSynced:  new Date().toISOString(),
-      };
-      imported++;
+  async createProduct(data: {
+    sku:           string;
+    name:          string;
+    cost:          number;
+    price?:        number;
+    marginBand?:   string;
+    description?:  string;
+    category?:     string;
+    unitOfMeasure?: string;
+    naics?:        string;
+    notes?:        string;
+  }) {
+    const cost  = data.cost;
+    const price = data.price ?? priceAt(cost, data.marginBand ?? "target");
+    const marginPct = calcMargin(cost, price);
+
+    const row = await prisma.govProduct.create({
+      data: {
+        sku:           data.sku,
+        name:          data.name,
+        description:   data.description,
+        category:      data.category,
+        unitOfMeasure: data.unitOfMeasure,
+        cost,
+        price,
+        marginPct,
+        naics:         data.naics,
+        notes:         data.notes,
+      },
+    });
+    return toProduct(row);
+  }
+
+  async updateProduct(sku: string, data: Partial<{
+    name:          string;
+    description:   string;
+    category:      string;
+    unitOfMeasure: string;
+    cost:          number;
+    price:         number;
+    marginBand:    string;
+    naics:         string;
+    notes:         string;
+    status:        string;
+  }>) {
+    const existing = await prisma.govProduct.findUnique({ where: { sku } });
+    if (!existing) throw new Error(`Product ${sku} not found`);
+
+    const cost  = data.cost  ?? existing.cost;
+    const price = data.price ?? (data.cost && data.marginBand ? priceAt(data.cost, data.marginBand) : existing.price);
+    const marginPct = calcMargin(cost, price);
+
+    const row = await prisma.govProduct.update({
+      where: { sku },
+      data:  { ...data, cost, price, marginPct, marginBand: undefined } as any,
+    });
+    return toProduct(row);
+  }
+
+  async deleteProduct(sku: string) {
+    await prisma.govProduct.delete({ where: { sku } });
+  }
+
+  async priceCalc(sku: string) {
+    const p = await prisma.govProduct.findUnique({ where: { sku } });
+    if (!p) throw new Error(`Product ${sku} not found`);
+    return {
+      sku:    p.sku,
+      name:   p.name,
+      cost:   p.cost,
+      bands: {
+        low:     { price: priceAt(p.cost, "low"),     margin: "8%" },
+        target:  { price: priceAt(p.cost, "target"),  margin: "18%" },
+        premium: { price: priceAt(p.cost, "premium"), margin: "27%" },
+      },
+      current: { price: p.price, marginPct: p.marginPct },
+    };
+  }
+
+  async bulkImport(products: Array<{
+    sku: string; name: string; cost: number;
+    price?: number; marginBand?: string;
+    description?: string; category?: string;
+    unitOfMeasure?: string; naics?: string; notes?: string;
+  }>) {
+    let imported = 0; let skipped = 0; const errors: string[] = [];
+    for (const p of products) {
+      if (!p.sku || !p.name || p.cost == null) { skipped++; errors.push(`Missing sku/name/cost: ${JSON.stringify(p)}`); continue; }
+      try {
+        const cost  = p.cost;
+        const price = p.price ?? priceAt(cost, p.marginBand ?? "target");
+        await prisma.govProduct.upsert({
+          where:  { sku: p.sku },
+          create: { sku: p.sku, name: p.name, description: p.description, category: p.category, unitOfMeasure: p.unitOfMeasure, cost, price, marginPct: calcMargin(cost, price), naics: p.naics, notes: p.notes },
+          update: { name: p.name, description: p.description, category: p.category, unitOfMeasure: p.unitOfMeasure, cost, price, marginPct: calcMargin(cost, price), naics: p.naics, notes: p.notes },
+        });
+        imported++;
+      } catch (e: any) { skipped++; errors.push(`${p.sku}: ${e.message}`); }
     }
-
-    return { imported, skipped };
+    return { imported, skipped, errors };
   }
 
-  // ── List all products (optionally filtered by category) ────────────────────
-  listProducts(category?: string): Product[] {
-    const all = Object.values(registry.products) as Product[];
-    if (!category) return all;
-    const cat = resolveCategory(category);
-    if (!cat) return [];
-    return all.filter(p => p.category === cat);
-  }
+  async catalogSummary() {
+    const products = await prisma.govProduct.findMany();
+    const total    = products.length;
+    const active   = products.filter(p => p.status === "active").length;
+    const avgMargin = total ? Math.round(products.reduce((s, p) => s + p.marginPct, 0) / total * 100) / 100 : 0;
 
-  // ── Single product ─────────────────────────────────────────────────────────
-  getProductBySku(sku: string): Product | null {
-    return (registry.products[sku] as Product) ?? null;
-  }
-
-  // ── Create / upsert a single product ──────────────────────────────────────
-  createProduct(data: Omit<Product, "lastSynced">): Product {
-    const margin = data.cost > 0
-      ? parseFloat((((data.price - data.cost) / data.price) * 100).toFixed(2))
-      : 0;
-    const product: Product = {
-      ...data,
-      category:   resolveCategory(data.category as any) ?? data.category,
-      margin:     data.margin ?? margin,
-      lastSynced: new Date().toISOString(),
-    };
-    registry.products[product.sku] = product;
-    return product;
-  }
-
-  // ── Update a product ───────────────────────────────────────────────────────
-  updateProduct(sku: string, updates: Partial<Omit<Product, "sku" | "lastSynced">>): Product | null {
-    const existing = registry.products[sku] as Product | undefined;
-    if (!existing) return null;
-
-    const updated: Product = {
-      ...existing,
-      ...updates,
-      category: resolveCategory((updates.category ?? existing.category) as any) ?? existing.category,
-      sku,
-      lastSynced: new Date().toISOString(),
-    };
-    registry.products[sku] = updated;
-    return updated;
-  }
-
-  // ── Categories ─────────────────────────────────────────────────────────────
-  listCategories(): CategoryMeta[] {
-    const all = Object.values(registry.products) as Product[];
-    return CATEGORY_META.map(meta => ({
-      ...meta,
-      productCount: all.filter(p => p.category === meta.id).length,
-    }));
-  }
-
-  getCategory(catId: string): CategoryMeta | null {
-    const cat = resolveCategory(catId);
-    if (!cat) return null;
-    const meta = CATEGORY_META.find(m => m.id === cat);
-    if (!meta) return null;
-    const all = Object.values(registry.products) as Product[];
-    return { ...meta, productCount: all.filter(p => p.category === cat).length };
+    const byCategory: Record<string, number> = {};
+    for (const p of products) {
+      const cat = p.category ?? "UNCATEGORIZED";
+      byCategory[cat] = (byCategory[cat] ?? 0) + 1;
+    }
+    return { total, active, avgMarginPct: avgMargin, byCategory };
   }
 }
 

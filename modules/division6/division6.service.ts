@@ -1,75 +1,146 @@
 // modules/division6/division6.service.ts
-// Division 6 — Compliance & Documentation
+// Division 6 — Compliance & Documentation (PostgreSQL-backed)
 
-import { randomUUID } from "crypto";
-import { registry } from "../../src/core/engine";
-import { ComplianceRequirement, EntityType, AttachedDocument } from "./division6.types";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const DOC_TYPES = [
+  "SAM_REGISTRATION", "CAGE_CODE", "SET_ASIDE_CERT", "PAST_PERFORMANCE",
+  "CAPABILITY_STATEMENT", "W9", "INSURANCE", "OTHER",
+];
+
+async function nextDocRef(): Promise<string> {
+  const count = await prisma.govComplianceDoc.count();
+  return `DOC-${String(count + 1).padStart(3, "0")}`;
+}
+
+function toDoc(row: any) {
+  return {
+    docId:      row.docId,
+    docRef:     row.docRef,
+    docType:    row.docType,
+    title:      row.title,
+    issuer:     row.issuer      ?? undefined,
+    identifier: row.identifier  ?? undefined,
+    status:     row.status,
+    issuedDate: row.issuedDate  ?? undefined,
+    expiryDate: row.expiryDate  ?? undefined,
+    notes:      row.notes       ?? undefined,
+    createdAt:  row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+    updatedAt:  row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
+  };
+}
 
 export class Division6Service {
-  createRequirement(data: {
-    entityType: EntityType;
-    entityId: string;
-    documentType: string;
-  }): ComplianceRequirement {
-    const now = new Date().toISOString();
-    const req: ComplianceRequirement = {
-      id: randomUUID(),
-      entityType: data.entityType,
-      entityId: data.entityId,
-      documentType: data.documentType,
-      status: "Pending",
-      attachedDocuments: [],
-      createdAt: now,
-      updatedAt: now,
-    };
-    registry.compliance[req.id] = req;
-    return req;
+
+  docTypes() { return DOC_TYPES; }
+
+  async listDocs(docType?: string, status?: string) {
+    const where: any = {};
+    if (docType) where.docType = docType.toUpperCase();
+    if (status)  where.status  = status.toUpperCase();
+    const rows = await prisma.govComplianceDoc.findMany({ where, orderBy: { createdAt: "desc" } });
+    return rows.map(toDoc);
   }
 
-  attachDocument(id: string, doc: { name: string; url?: string; uploadedBy?: string; uploadedAt?: string }): ComplianceRequirement | null {
-    const req = registry.compliance[id] as ComplianceRequirement;
-    if (!req) return null;
-
-    const attachment: AttachedDocument = {
-      documentId: randomUUID(),
-      name: doc.name,
-      url: doc.url,
-      uploadedBy: doc.uploadedBy,
-      uploadedAt: doc.uploadedAt,
-      attachedAt: new Date().toISOString(),
-    };
-
-    req.attachedDocuments.push(attachment);
-    req.status = "In Progress";
-    req.updatedAt = new Date().toISOString();
-    return req;
+  async getDoc(docId: string) {
+    const row = await prisma.govComplianceDoc.findUnique({ where: { docId } });
+    return row ? toDoc(row) : null;
   }
 
-  // Attach by entity — finds the first matching requirement automatically
-  attachDocumentByEntity(
-    entityType: string,
-    entityId: string,
-    doc: { name: string; url?: string; uploadedBy?: string; uploadedAt?: string }
-  ): ComplianceRequirement | null {
-    const match = Object.values(registry.compliance).find(
-      (r: any) => r.entityId === entityId && r.entityType.toLowerCase() === entityType.toLowerCase()
-    ) as ComplianceRequirement | undefined;
-    if (!match) return null;
-    return this.attachDocument(match.id, doc);
-  }
-
-  listRequirements(filter?: { entityId?: string; entityType?: string }): ComplianceRequirement[] {
-    const all = Object.values(registry.compliance) as ComplianceRequirement[];
-    if (!filter) return all;
-    return all.filter((r) => {
-      if (filter.entityId && r.entityId !== filter.entityId) return false;
-      if (filter.entityType && r.entityType !== filter.entityType) return false;
-      return true;
+  async createDoc(data: {
+    docType:     string;
+    title:       string;
+    issuer?:     string;
+    identifier?: string;
+    issuedDate?: string;
+    expiryDate?: string;
+    notes?:      string;
+  }) {
+    const docType = data.docType.toUpperCase();
+    if (!DOC_TYPES.includes(docType)) {
+      throw new Error(`Invalid docType: ${docType}. Valid: ${DOC_TYPES.join(", ")}`);
+    }
+    const docRef = await nextDocRef();
+    const row = await prisma.govComplianceDoc.create({
+      data: { docRef, docType, title: data.title, issuer: data.issuer, identifier: data.identifier, issuedDate: data.issuedDate, expiryDate: data.expiryDate, notes: data.notes },
     });
+    return toDoc(row);
   }
 
-  getRequirement(id: string): ComplianceRequirement | null {
-    return (registry.compliance[id] as ComplianceRequirement) ?? null;
+  async updateDoc(docId: string, data: Partial<{
+    title:       string;
+    issuer:      string;
+    identifier:  string;
+    status:      string;
+    issuedDate:  string;
+    expiryDate:  string;
+    notes:       string;
+  }>) {
+    const row = await prisma.govComplianceDoc.update({ where: { docId }, data });
+    return toDoc(row);
+  }
+
+  async deleteDoc(docId: string) {
+    await prisma.govComplianceDoc.delete({ where: { docId } });
+  }
+
+  async complianceStatus() {
+    const docs = await prisma.govComplianceDoc.findMany();
+    const now  = new Date().toISOString().split("T")[0];
+    const in30 = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    const present  = new Set(docs.map(d => d.docType));
+    const missing  = DOC_TYPES.filter(t => !present.has(t));
+    const expiring = docs.filter(d => d.expiryDate && d.expiryDate > now && d.expiryDate <= in30).map(toDoc);
+    const expired  = docs.filter(d => d.expiryDate && d.expiryDate <= now).map(toDoc);
+    const active   = docs.filter(d => d.status === "ACTIVE").length;
+
+    const score = Math.round(((DOC_TYPES.length - missing.length) / DOC_TYPES.length) * 100);
+
+    return {
+      complianceScore: `${score}%`,
+      totalDocs:       docs.length,
+      active,
+      missingTypes:    missing,
+      expiringIn30Days: expiring,
+      expired,
+    };
+  }
+
+  async generateCapabilityStatement(data: {
+    companyName:    string;
+    cageCode?:      string;
+    dunsUei?:       string;
+    naicsCodes?:    string[];
+    setAsides?:     string[];
+    coreCompetencies?: string[];
+    pastPerformance?: Array<{ agency: string; value: string; description: string }>;
+    contactName?:   string;
+    contactEmail?:  string;
+    contactPhone?:  string;
+  }) {
+    const now = new Date().toISOString().split("T")[0];
+    return {
+      generated: now,
+      document: {
+        title:           `Capability Statement — ${data.companyName}`,
+        companyName:     data.companyName,
+        cageCode:        data.cageCode        ?? "TBD",
+        uei:             data.dunsUei         ?? "TBD",
+        naicsCodes:      data.naicsCodes      ?? [],
+        setAsides:       data.setAsides       ?? [],
+        coreCompetencies: data.coreCompetencies ?? [],
+        pastPerformance: data.pastPerformance  ?? [],
+        contact: {
+          name:  data.contactName  ?? "",
+          email: data.contactEmail ?? "",
+          phone: data.contactPhone ?? "",
+        },
+        footer: `This capability statement was generated by Loose Arrows Divisions Engine on ${now}. All information subject to verification.`,
+      },
+    };
   }
 }
 

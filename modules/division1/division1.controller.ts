@@ -1,58 +1,65 @@
 // modules/division1/division1.controller.ts
+// Division 1 — Product Catalog & Pricing
 
 import { Request, Response } from "express";
 import { division1Service } from "./division1.service";
 
 export const division1Controller = {
-  importProducts(req: Request, res: Response) {
-    const body = req.body;
-    const products = Array.isArray(body) ? body : (body?.products ?? null);
-    if (!Array.isArray(products)) {
-      return res.status(400).json({ error: "Body must be an array of products or { products: [...] }" });
-    }
-    const result = division1Service.importProducts(products);
-    return res.json(result);
+
+  async listProducts(req: Request, res: Response) {
+    try {
+      const { category, status } = req.query as Record<string, string | undefined>;
+      return res.json(await division1Service.listProducts(category, status));
+    } catch (e: any) { return res.status(500).json({ error: e.message }); }
   },
 
-  listProducts(req: Request, res: Response) {
-    const { category } = req.query as { category?: string };
-    return res.json(division1Service.listProducts(category));
+  async getProduct(req: Request, res: Response) {
+    try {
+      const p = await division1Service.getProduct(req.params.sku);
+      if (!p) return res.status(404).json({ error: "Product not found" });
+      return res.json(p);
+    } catch (e: any) { return res.status(500).json({ error: e.message }); }
   },
 
-  getProductBySku(req: Request, res: Response) {
-    const product = division1Service.getProductBySku(req.params.sku);
-    if (!product) return res.status(404).json({ error: "Product not found" });
-    return res.json(product);
+  async createProduct(req: Request, res: Response) {
+    try {
+      const { sku, name, cost } = req.body;
+      if (!sku || !name || cost == null) return res.status(400).json({ error: "sku, name, and cost are required" });
+      return res.status(201).json(await division1Service.createProduct(req.body));
+    } catch (e: any) { return res.status(400).json({ error: e.message }); }
   },
 
-  createProduct(req: Request, res: Response) {
-    const { sku, productName, price, cost } = req.body;
-    if (!sku || !productName || price == null || cost == null) {
-      return res.status(400).json({ error: "sku, productName, price, and cost are required" });
-    }
-    return res.status(201).json(division1Service.createProduct(req.body));
+  async updateProduct(req: Request, res: Response) {
+    try {
+      const p = await division1Service.updateProduct(req.params.sku, req.body);
+      return res.json(p);
+    } catch (e: any) { return res.status(400).json({ error: e.message }); }
   },
 
-  updateProduct(req: Request, res: Response) {
-    const updated = division1Service.updateProduct(req.params.sku, req.body);
-    if (!updated) return res.status(404).json({ error: "Product not found" });
-    return res.json(updated);
+  async deleteProduct(req: Request, res: Response) {
+    try {
+      await division1Service.deleteProduct(req.params.sku);
+      return res.json({ deleted: req.params.sku });
+    } catch (e: any) { return res.status(404).json({ error: e.message }); }
   },
 
-  listCategories(_req: Request, res: Response) {
-    return res.json(division1Service.listCategories());
+  async priceCalc(req: Request, res: Response) {
+    try {
+      return res.json(await division1Service.priceCalc(req.params.sku));
+    } catch (e: any) { return res.status(404).json({ error: e.message }); }
   },
 
-  getCategoryProducts(req: Request, res: Response) {
-    const meta = division1Service.getCategory(req.params.cat);
-    if (!meta) {
-      return res.status(404).json({ error: "Category not found", validCategories: [
-        "OFFICE_SUPPLIES","IT_ELECTRONICS","SAFETY_PPE","JANITORIAL_FACILITIES",
-        "MEDICAL_HEALTH","TOOLS_HARDWARE","FURNITURE_FIXTURES","UNIFORMS_APPAREL",
-        "FOOD_CATERING","VEHICLES_EQUIPMENT",
-      ]});
-    }
-    const products = division1Service.listProducts(req.params.cat);
-    return res.json({ category: meta, products });
+  async bulkImport(req: Request, res: Response) {
+    try {
+      const products = Array.isArray(req.body) ? req.body : req.body?.products;
+      if (!Array.isArray(products)) return res.status(400).json({ error: "Body must be an array or { products: [...] }" });
+      return res.json(await division1Service.bulkImport(products));
+    } catch (e: any) { return res.status(400).json({ error: e.message }); }
+  },
+
+  async catalogSummary(_req: Request, res: Response) {
+    try {
+      return res.json(await division1Service.catalogSummary());
+    } catch (e: any) { return res.status(500).json({ error: e.message }); }
   },
 };

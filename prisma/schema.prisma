@@ -252,6 +252,79 @@ model Tracking {
   updatedAt      DateTime @updatedAt
 }
 
+// ── Division 1: Product Catalog & Pricing ─────────────────────────────────────
+model GovProduct {
+  productId     String   @id @default(cuid())
+  sku           String   @unique
+  name          String
+  description   String?
+  category      String?
+  unitOfMeasure String?
+  cost          Float
+  price         Float
+  marginPct     Float    @default(0)
+  naics         String?
+  notes         String?
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ── Division 6: Compliance & Documentation ────────────────────────────────────
+model GovComplianceDoc {
+  docId      String   @id @default(cuid())
+  docRef     String   @unique
+  docType    String
+  title      String
+  issuer     String?
+  identifier String?
+  status     String   @default("ACTIVE")
+  issuedDate String?
+  expiryDate String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ── Division 8: Agency & Customer Management ──────────────────────────────────
+model GovAgency {
+  agencyId     String                 @id @default(cuid())
+  name         String
+  agencyType   String?
+  department   String?
+  naicsJson    String                 @default("[]")
+  status       String                 @default("active")
+  notes        String?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  contacts     GovAgencyContact[]
+  interactions GovAgencyInteraction[]
+}
+
+model GovAgencyContact {
+  contactId String    @id @default(cuid())
+  agency    GovAgency @relation(fields: [agencyId], references: [agencyId], onDelete: Cascade)
+  agencyId  String
+  name      String
+  title     String?
+  email     String?
+  phone     String?
+  role      String?
+  notes     String?
+  createdAt DateTime  @default(now())
+}
+
+model GovAgencyInteraction {
+  interactionId String    @id @default(cuid())
+  agency        GovAgency @relation(fields: [agencyId], references: [agencyId], onDelete: Cascade)
+  agencyId      String
+  type          String
+  contractRef   String?
+  bidRef        String?
+  summary       String
+  createdAt     DateTime  @default(now())
+}
+
 // ── Division 4: Purchase Orders (post-award) ──────────────────────────────────
 model GovPO {
   poId        String        @id @default(cuid())
