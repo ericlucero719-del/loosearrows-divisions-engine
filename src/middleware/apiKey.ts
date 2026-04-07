@@ -28,11 +28,19 @@ const PUBLIC_EXACT: Set<string> = new Set([
   "/pricing",
   "/onboarding",
   "/client-guide",
+  // API docs — both old and new canonical path
   "/api",
+  "/api/",
+  // Health check — both paths
+  "/division/10/system/health",
+  "/api/health",
+  // Dashboards
   "/vendor-cockpit",
   "/operator-control-room",
   "/division10-cockpit",
-  "/division/10/system/health",
+  // Legacy public aliases
+  "/vendor/dashboard",
+  "/operator/dashboard",
 ]);
 
 const PUBLIC_PREFIX: string[] = [

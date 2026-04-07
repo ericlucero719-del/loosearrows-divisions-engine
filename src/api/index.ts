@@ -1,0 +1,142 @@
+// src/api/index.ts
+// LooseArrows Supply & Logistics™
+// Master API Router — single entry point for all programmatic access
+//
+// Mount point: app.use("/api", apiRouter)  (see src/server.ts)
+//
+// ── Public (no key required) ──────────────────────────────────────────────────
+// GET  /api                     → comprehensive API docs
+// GET  /api/health              → system health (alias for /division/10/system/health)
+//
+// ── Admin (X-Admin-Secret, no API key) ───────────────────────────────────────
+// *    /api/admin/*             → Division 0 System Command Center
+//
+// ── Operator / Architect  (X-API-Key required for everything below) ───────────
+// *    /api/division/1          → Product Intake & Pricing
+// *    /api/division/2          → Contract Alignment
+// *    /api/division/3          → Requests & Work Orders
+// *    /api/division/4          → Inventory & Assets
+// *    /api/division/5          → Logistics & Fulfillment
+// *    /api/division/6          → Compliance & Documentation
+// *    /api/division/7          → Vendor & Partner Management
+// *    /api/division/8          → Agency / Customer Management
+// *    /api/division/9          → Financials
+// *    /api/division/10         → Intelligence & System View
+// *    /api/tiktok              → TikTok Sales Automation Layer
+// *    /api/field               → Rapid Response Field Operations
+
+import { Router, Request, Response } from "express";
+import { requireApiKey } from "../middleware/apiKey";
+
+// ── Division Engine routers ───────────────────────────────────────────────────
+import div0Router  from "../../modules/division0/division0.routes";
+import div1Router  from "../../modules/division1/division1.routes";
+import div2Router  from "../../modules/division2/division2.routes";
+import div3Router  from "../../modules/division3/division3.routes";
+import div4Router  from "../../modules/division4/division4.routes";
+import div5Router  from "../../modules/division5/division5.routes";
+import div6Router  from "../../modules/division6/division6.routes";
+import div7Router  from "../../modules/division7/division7.routes";
+import div8Router  from "../../modules/division8/division8.routes";
+import div9Router  from "../../modules/division9/division9.routes";
+import div10Router from "../../modules/division10/division10.routes";
+import tikTokRouter from "../../modules/tiktok/tiktok.routes";
+
+// ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rrDispatch  = require("../routes/rapidResponseDispatchRoute");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rrTask      = require("../routes/rapidResponseTaskRoute");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rrEvent     = require("../routes/rapidResponseEventRoute");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rrOperator  = require("../routes/rapidResponseOperatorRoute");
+
+const apiRouter = Router();
+
+// ── 1. Public endpoints — must come BEFORE the key gate ──────────────────────
+
+apiRouter.get("/", (_req: Request, res: Response) => {
+  res.json({
+    engine:   "Loose Arrows Divisions Engine v2.0",
+    company:  "Loose Arrows Supply & Logistics™",
+    auth: {
+      header:    "X-API-Key",
+      tiers:     { OBSERVER: "read-only GET", OPERATOR: "full pipeline", ARCHITECT: "full + bot commands" },
+      adminOnly: "X-Admin-Secret header required for /api/admin/*",
+    },
+    public: [
+      "GET  /api              — this document",
+      "GET  /api/health       — system health (all 11 divisions)",
+    ],
+    admin: [
+      "GET  /api/admin/status     — all division counts + operational score",
+      "GET  /api/admin/pipeline   — contract → bid → PO → shipment → invoice",
+      "GET  /api/admin/financials — PO value, invoiced, paid, outstanding",
+      "GET  /api/admin/vendors    — full vendor roster",
+      "GET  /api/admin/contracts  — full contract roster",
+      "GET  /api/admin/activity   — recent event feed",
+    ],
+    divisions: {
+      1:  "GET|POST  /api/division/1   — Product Intake & Pricing",
+      2:  "GET|POST  /api/division/2   — Contract Alignment",
+      3:  "GET|POST  /api/division/3   — Requests & Work Orders",
+      4:  "GET|POST  /api/division/4   — Inventory & Assets",
+      5:  "GET|POST  /api/division/5   — Logistics & Fulfillment",
+      6:  "GET|POST  /api/division/6   — Compliance & Documentation",
+      7:  "GET|POST  /api/division/7   — Vendor & Partner Management",
+      8:  "GET|POST  /api/division/8   — Agency / Customer Management",
+      9:  "GET|POST  /api/division/9   — Financials",
+      10: "GET|POST  /api/division/10  — Intelligence & System View (bot: ARCHITECT only)",
+    },
+    tiktok: {
+      capture:  "POST /api/tiktok/order              — ingest order → SKU match → profit → auto PO",
+      fulfill:  "POST /api/tiktok/fulfill             — home (label+tracking) | supplier push",
+      invoice:  "POST /api/tiktok/invoice             — generate Division 9 invoice",
+      payment:  "POST /api/tiktok/payment             — record payment, mark invoice PAID",
+      notify:   "POST /api/tiktok/notify              — log event + sync Division 1 inventory",
+      orders:   "GET  /api/tiktok/orders              — list orders (?status= filter)",
+      order:    "GET  /api/tiktok/orders/:id          — full order detail",
+      summary:  "GET  /api/tiktok/summary             — revenue / profit / status breakdown",
+    },
+    field: {
+      dispatch: "POST /api/field/rapid-response       — dispatch rapid response unit",
+      tasks:    "GET  /api/field/rapid-response/tasks — task queue",
+    },
+    keyManagement: "POST /admin/keys — issue keys (requires X-Admin-Secret)",
+  });
+});
+
+apiRouter.get("/health", (_req: Request, res: Response) => {
+  // Forward health check to Division 10 controller without going through key gate
+  res.redirect("/division/10/system/health");
+});
+
+// ── 2. Admin endpoints — X-Admin-Secret (no API key needed) ──────────────────
+apiRouter.use("/admin", div0Router);
+
+// ── 3. API key gate — applied once for everything below ───────────────────────
+apiRouter.use(requireApiKey);
+
+// ── 4. Division Engine ────────────────────────────────────────────────────────
+apiRouter.use("/division/1",   div1Router);
+apiRouter.use("/division/2",   div2Router);
+apiRouter.use("/division/3",   div3Router);
+apiRouter.use("/division/4",   div4Router);
+apiRouter.use("/division/5",   div5Router);
+apiRouter.use("/division/6",   div6Router);
+apiRouter.use("/division/7",   div7Router);
+apiRouter.use("/division/8",   div8Router);
+apiRouter.use("/division/9",   div9Router);
+apiRouter.use("/division/10",  div10Router);
+
+// ── 5. TikTok Sales Automation Layer ─────────────────────────────────────────
+apiRouter.use("/tiktok", tikTokRouter);
+
+// ── 6. Rapid Response Field Operations ───────────────────────────────────────
+apiRouter.use("/field/rapid-response",        rrDispatch);
+apiRouter.use("/field/rapid-response/tasks",  rrTask);
+apiRouter.use("/field/rapid-response",        rrEvent);
+apiRouter.use("/field/rapid-response",        rrOperator);
+
+export default apiRouter;

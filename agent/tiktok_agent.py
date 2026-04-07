@@ -3,9 +3,8 @@
 # TikTok Sales Automation Agent
 # Author: Eric Lucero — Chief Architect & Commander
 #
-# This agent talks to the live REST API on port 5000.
-# All data (orders, POs, shipments, invoices) is persisted
-# in PostgreSQL through the Node.js divisions engine — zero duplication.
+# This agent calls the consolidated REST API at /api/tiktok/*.
+# All data is persisted in PostgreSQL through the Node.js divisions engine.
 #
 # Usage (CLI):
 #   python3 agent/tiktok_agent.py capture  '{"order_id":"TT-9001","items":[{"sku":"SUPSK-001","quantity":2,"unitPrice":45.00,"name":"Supply Kit"}]}'
@@ -14,7 +13,8 @@
 #   python3 agent/tiktok_agent.py payment  '{"order_id":"TT-9001"}'
 #   python3 agent/tiktok_agent.py notify   '{"order_id":"TT-9001","event":"DELIVERED"}'
 #   python3 agent/tiktok_agent.py run      '{"type":"new_order","data":{...}}'
-#   python3 agent/tiktok_agent.py orders
+#   python3 agent/tiktok_agent.py orders   [STATUS]
+#   python3 agent/tiktok_agent.py order    <order_id>
 #   python3 agent/tiktok_agent.py summary
 
 import requests
@@ -24,12 +24,13 @@ from datetime import datetime
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-BASE_URL = "http://localhost:5000"
-OPERATOR_KEY = "la-opr-d713a007a3a47494ed56c667313b261aeaf8"
+BASE_URL      = "http://localhost:5000"
+OPERATOR_KEY  = "la-opr-d713a007a3a47494ed56c667313b261aeaf8"
+TIKTOK_BASE   = f"{BASE_URL}/api/tiktok"   # canonical path
 
 HEADERS = {
     "Content-Type": "application/json",
-    "X-API-Key": OPERATOR_KEY,
+    "X-API-Key":    OPERATOR_KEY,
 }
 
 
@@ -39,7 +40,7 @@ def _log(msg: str):
 
 def _post(path: str, payload: dict) -> dict:
     try:
-        r = requests.post(f"{BASE_URL}{path}", headers=HEADERS, json=payload, timeout=10)
+        r = requests.post(f"{TIKTOK_BASE}{path}", headers=HEADERS, json=payload, timeout=10)
         data = r.json()
         if not r.ok:
             raise RuntimeError(data.get("error", r.text))
@@ -50,7 +51,7 @@ def _post(path: str, payload: dict) -> dict:
 
 def _get(path: str) -> dict:
     try:
-        r = requests.get(f"{BASE_URL}{path}", headers=HEADERS, timeout=10)
+        r = requests.get(f"{TIKTOK_BASE}{path}", headers=HEADERS, timeout=10)
         data = r.json()
         if not r.ok:
             raise RuntimeError(data.get("error", r.text))
@@ -60,17 +61,17 @@ def _get(path: str) -> dict:
 
 
 # ─── 1. Capture TikTok Order ──────────────────────────────────────────────────
-# Runs: SKU match → profit calc → record → vendor select → compliance → PO (all server-side)
+# Runs: SKU match → profit calc → record → vendor select → compliance → PO
 
 def capture_order(order: dict) -> dict:
     _log(f"New TikTok order received: {order['order_id']}")
-    result = _post("/tiktok/order", order)
+    result = _post("/order", order)
     _log(f"Order captured — profit preview: {result.get('profitPreview')} | PO: {result.get('po', {}).get('poRef')}")
     return result
 
 
 # ─── 2. Fulfillment Automation ────────────────────────────────────────────────
-# method="home"  → generates label + pushes tracking to Division 5 shipment
+# method="home"     → generates label + pushes tracking to Division 5 shipment
 # method="supplier" → pushes fulfillment to vendor via Division 5
 
 def fulfill_order(order_id: str, method: str = "supplier", carrier: str = "UPS",
@@ -78,56 +79,54 @@ def fulfill_order(order_id: str, method: str = "supplier", carrier: str = "UPS",
     payload = {"order_id": order_id, "method": method, "carrier": carrier}
     if tracking_ref:
         payload["trackingRef"] = tracking_ref
-    result = _post("/tiktok/fulfill", payload)
+    result = _post("/fulfill", payload)
     _log(f"Fulfillment triggered for {order_id} via {method} — trackingRef: {result.get('trackingRef')}")
     return result
 
 
 # ─── 3. Invoice + Payment Tracking ────────────────────────────────────────────
-# Generates a Division 9 invoice then marks it PAID
 
 def invoice_order(order_id: str) -> dict:
-    result = _post("/tiktok/invoice", {"order_id": order_id})
+    result = _post("/invoice", {"order_id": order_id})
     _log(f"Invoice synced for {order_id} — ref: {result.get('invoiceRef')} total: ${result.get('totalAmount')}")
     return result
 
 
 def sync_payment(order_id: str) -> dict:
-    result = _post("/tiktok/payment", {"order_id": order_id})
+    result = _post("/payment", {"order_id": order_id})
     _log(f"Payment recorded for {order_id} — {result.get('invoiceRef')} ${result.get('amount')}")
     return result
 
 
 # ─── 4. Notifications + Inventory Update ─────────────────────────────────────
-# Logs event to order notes + updates Division 1 inventory notes
 
 def notify_and_update(order_id: str, event: str) -> dict:
-    result = _post("/tiktok/notify", {"order_id": order_id, "event": event})
+    result = _post("/notify", {"order_id": order_id, "event": event})
     _log(f"Notification sent for {order_id}: {event}")
     return result
 
 
-# ─── 5. Query Helpers ──────────────────────────────────────────────────────────
+# ─── 5. Query Helpers ─────────────────────────────────────────────────────────
 
 def list_orders(status: str = None) -> list:
-    path = "/tiktok/orders"
+    path = "/orders"
     if status:
         path += f"?status={status}"
     return _get(path)
 
 
 def get_order(order_id: str) -> dict:
-    return _get(f"/tiktok/orders/{order_id}")
+    return _get(f"/orders/{order_id}")
 
 
 def get_summary() -> dict:
-    return _get("/tiktok/summary")
+    return _get("/summary")
 
 
-# ─── Main Dispatcher (mirrors original agent entry point) ─────────────────────
+# ─── Main Dispatcher (mirrors original Python spec exactly) ───────────────────
 
 def run_tiktok_automation(event: dict) -> dict:
-    """Main entry for Replit Agent task execution (mirrors original Python spec)."""
+    """Main entry for Replit Agent task execution."""
     event_type = event.get("type")
     data       = event.get("data", {})
 
@@ -144,7 +143,6 @@ def run_tiktok_automation(event: dict) -> dict:
 
     elif event_type == "invoice":
         result = invoice_order(data["order_id"])
-        # Auto-sync payment if requested
         if data.get("auto_pay"):
             result["payment"] = sync_payment(data["order_id"])
         return result
@@ -153,7 +151,7 @@ def run_tiktok_automation(event: dict) -> dict:
         return notify_and_update(data["order_id"], data["event"])
 
     elif event_type == "full_pipeline":
-        # Run the complete order lifecycle end-to-end
+        # Run complete order lifecycle end-to-end
         order_id = data["order_id"]
         results  = {}
         results["capture"]  = capture_order(data)
@@ -178,8 +176,10 @@ if __name__ == "__main__":
     args = sys.argv[1:]
 
     if not args:
-        print(__doc__)
         print("""
+LooseArrows Supply & Logistics™ — TikTok Automation Agent
+All commands call the consolidated API at /api/tiktok/*
+
 Commands:
   capture  <json>    Capture new TikTok order (SKU match + PO auto-fired)
   fulfill  <json>    Trigger fulfillment   {"order_id","method","carrier"}
@@ -223,7 +223,7 @@ Commands:
 
         elif cmd == "orders":
             status = args[1] if len(args) > 1 else None
-            rows = list_orders(status)
+            rows   = list_orders(status)
             _log(f"{len(rows)} order(s) returned")
             _print(rows)
 
