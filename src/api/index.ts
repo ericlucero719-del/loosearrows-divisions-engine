@@ -40,7 +40,11 @@ import div7Router  from "../../modules/division7/division7.routes";
 import div8Router  from "../../modules/division8/division8.routes";
 import div9Router  from "../../modules/division9/division9.routes";
 import div10Router from "../../modules/division10/division10.routes";
-import tikTokRouter from "../../modules/tiktok/tiktok.routes";
+import tikTokRouter     from "../../modules/tiktok/tiktok.routes";
+import instagramRouter  from "../../modules/instagram/instagram.routes";
+import youtubeRouter    from "../../modules/youtube/youtube.routes";
+import amazonRouter     from "../../modules/amazon/amazon.routes";
+import { CommerceService } from "../../modules/commerce/commerce.service";
 
 // ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -89,15 +93,20 @@ apiRouter.get("/", (_req: Request, res: Response) => {
       9:  "GET|POST  /api/division/9   — Financials",
       10: "GET|POST  /api/division/10  — Intelligence & System View (bot: ARCHITECT only)",
     },
-    tiktok: {
-      capture:  "POST /api/tiktok/order              — ingest order → SKU match → profit → auto PO",
-      fulfill:  "POST /api/tiktok/fulfill             — home (label+tracking) | supplier push",
-      invoice:  "POST /api/tiktok/invoice             — generate Division 9 invoice",
-      payment:  "POST /api/tiktok/payment             — record payment, mark invoice PAID",
-      notify:   "POST /api/tiktok/notify              — log event + sync Division 1 inventory",
-      orders:   "GET  /api/tiktok/orders              — list orders (?status= filter)",
-      order:    "GET  /api/tiktok/orders/:id          — full order detail",
-      summary:  "GET  /api/tiktok/summary             — revenue / profit / status breakdown",
+    commerce: {
+      note:         "All 4 platforms share the same 5-step pipeline — only the URL prefix differs",
+      allSummary:   "GET  /api/commerce/summary         — cross-platform aggregate (revenue/profit/orders by platform)",
+      platforms:    ["tiktok", "instagram", "youtube", "amazon"],
+      endpoints: {
+        capture:  "POST /api/<platform>/order              — ingest order → SKU match → profit → auto PO",
+        fulfill:  "POST /api/<platform>/fulfill             — home (label+tracking) | supplier push",
+        invoice:  "POST /api/<platform>/invoice             — generate Division 9 invoice",
+        payment:  "POST /api/<platform>/payment             — record payment, mark invoice PAID",
+        notify:   "POST /api/<platform>/notify              — log event + sync Division 1 inventory",
+        orders:   "GET  /api/<platform>/orders              — list orders (?status= filter)",
+        order:    "GET  /api/<platform>/orders/:id          — full order detail",
+        summary:  "GET  /api/<platform>/summary             — per-platform revenue / profit / breakdown",
+      },
     },
     field: {
       dispatch: "POST /api/field/rapid-response       — dispatch rapid response unit",
@@ -130,8 +139,18 @@ apiRouter.use("/division/8",   div8Router);
 apiRouter.use("/division/9",   div9Router);
 apiRouter.use("/division/10",  div10Router);
 
-// ── 5. TikTok Sales Automation Layer ─────────────────────────────────────────
-apiRouter.use("/tiktok", tikTokRouter);
+// ── 5. Commerce Automation Layer — TikTok + Instagram + YouTube + Amazon ──────
+apiRouter.use("/tiktok",    tikTokRouter);
+apiRouter.use("/instagram", instagramRouter);
+apiRouter.use("/youtube",   youtubeRouter);
+apiRouter.use("/amazon",    amazonRouter);
+
+// Cross-platform aggregate summary
+apiRouter.get("/commerce/summary", async (_req: Request, res: Response) => {
+  try {
+    return res.json(await CommerceService.allPlatformsSummary());
+  } catch (e: any) { return res.status(500).json({ error: e.message }); }
+});
 
 // ── 6. Rapid Response Field Operations ───────────────────────────────────────
 apiRouter.use("/field/rapid-response",        rrDispatch);

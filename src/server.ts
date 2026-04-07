@@ -44,7 +44,10 @@ import div7Router  from "../modules/division7/division7.routes";
 import div8Router  from "../modules/division8/division8.routes";
 import div9Router  from "../modules/division9/division9.routes";
 import div10Router from "../modules/division10/division10.routes";
-import tikTokRouter from "../modules/tiktok/tiktok.routes";
+import tikTokRouter    from "../modules/tiktok/tiktok.routes";
+import instagramRouter from "../modules/instagram/instagram.routes";
+import youtubeRouter   from "../modules/youtube/youtube.routes";
+import amazonRouter    from "../modules/amazon/amazon.routes";
 
 export const app = express();
 const port = process.env.PORT || 5000;
@@ -77,7 +80,7 @@ app.use([
   "/division/1", "/division/2", "/division/3", "/division/4", "/division/5",
   "/division/6", "/division/7", "/division/8", "/division/9", "/division/10",
   "/division1", "/division2", "/dashboard", "/dispatch", "/rapid-response", "/field",
-  "/tiktok",
+  "/tiktok", "/instagram", "/youtube", "/amazon",
 ], requireApiKey);
 
 // 10-Division Engine (old paths)
@@ -92,6 +95,9 @@ app.use("/division/8",  div8Router);
 app.use("/division/9",  div9Router);
 app.use("/division/10", div10Router);
 app.use("/tiktok",      tikTokRouter);
+app.use("/instagram",   instagramRouter);
+app.use("/youtube",     youtubeRouter);
+app.use("/amazon",      amazonRouter);
 
 // Legacy routes (old paths)
 app.use("/division1",   division1UploadRouter);

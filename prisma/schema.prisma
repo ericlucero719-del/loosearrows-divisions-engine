@@ -443,3 +443,33 @@ model TikTokOrder {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+// ── Multi-Platform Commerce Automation Layer ───────────────────────────────────
+// Shared table for Instagram, YouTube, Amazon, and future e-commerce platforms.
+// Platform discrimination via `platform` field (INSTAGRAM | YOUTUBE | AMAZON | ...).
+model CommerceOrder {
+  orderId       String   @id @default(cuid())
+  platform      String
+  externalId    String
+  status        String   @default("RECEIVED")
+  itemsJson     String   @default("[]")
+  skuMatchJson  String   @default("[]")
+  profitUsd     Float    @default(0)
+  vendorId      String?
+  vendorName    String?
+  poId          String?
+  shipmentId    String?
+  invoiceId     String?
+  fulfillMethod String?
+  trackingRef   String?
+  carrier       String?
+  labelRef      String?
+  channel       String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([platform, externalId])
+  @@index([platform])
+  @@index([status])
+}
