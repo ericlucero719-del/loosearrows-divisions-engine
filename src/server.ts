@@ -54,6 +54,14 @@ const port = process.env.PORT || 5000;
 
 app.use(express.json());
 
+// ── Health check (must be before auth — used by deployment platform) ──────────
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", engine: "loosearrows-divisions-engine", ts: new Date().toISOString() });
+});
+
+// ── Suppress favicon 404 (no browser alert) ───────────────────────────────────
+app.get("/favicon.ico", (_req, res) => res.status(204).end());
+
 // ── Static assets ─────────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, "..", "public")));
 
