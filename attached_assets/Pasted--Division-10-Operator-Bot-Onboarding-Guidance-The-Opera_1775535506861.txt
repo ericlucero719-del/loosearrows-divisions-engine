@@ -1,0 +1,135 @@
+# Division 10 — Operator Bot (Onboarding & Guidance)
+
+The Operator Bot is your automated guide inside the LooseArrows Divisions Engine. 
+It explains each step, routes tasks to the correct division, and keeps your contracting 
+pipeline moving from RFQ intake to payment received.
+
+---
+
+## What the Operator Bot Does
+
+- Guides you through the RFQ → Bid → Award → PO → Shipment → Invoice → Payment pipeline  
+- Explains what each division does and when to use it  
+- Monitors statuses across all divisions  
+- Alerts you when an action is required  
+- Provides step-by-step instructions for every stage  
+- Ensures nothing stalls or gets stuck  
+- Maintains chain-of-custody and activity logs  
+
+---
+
+## How to Use the Operator Bot
+
+### 1. Start with an RFQ
+Type or click:
+**"I have an RFQ"**
+
+The bot will:
+- Ask how you want to upload it  
+- Route it to Division 2  
+- Confirm extraction and pricing  
+- Notify you when the draft is ready  
+
+---
+
+### 2. Review Your Bid
+Type:
+**"Review my bid"**
+
+The bot will:
+- Open your draft  
+- Show CLINs, pricing, and compliance packet  
+- Explain what to check before submission  
+
+---
+
+### 3. Mark as Submitted
+Type:
+**"Mark submitted"**
+
+The bot will:
+- Update status  
+- Log the submission  
+- Move the contract into the waiting stage  
+
+---
+
+### 4. When Awarded
+Type:
+**"We got awarded"**
+
+The bot will:
+- Route to Division 4  
+- Create your Purchase Order  
+- Explain next steps  
+
+---
+
+### 5. Create Your PO
+Type:
+**"Create PO"**
+
+The bot will:
+- Auto-generate the PO  
+- Show status timeline  
+- Prepare for shipment creation  
+
+---
+
+### 6. Create Your Shipment
+Type:
+**"Create shipment"**
+
+The bot will:
+- Auto-generate the shipment  
+- Ask for carrier + tracking  
+- Track delivery status  
+
+---
+
+### 7. Create Your Invoice
+Type:
+**"Create invoice"**
+
+The bot will:
+- Auto-generate the invoice  
+- Set due date  
+- Track payment status  
+
+---
+
+### 8. Record Payment
+Type:
+**"Payment received"**
+
+The bot will:
+- Update invoice  
+- Update financial summary  
+- Close out the contract  
+
+---
+
+## Operator Bot Commands (Quick Reference)
+
+- **"I have an RFQ"** — Start a new contract  
+- **"Review my bid"** — Open your draft  
+- **"Mark submitted"** — Move to waiting stage  
+- **"We got awarded"** — Trigger post-award pipeline  
+- **"Create PO"** — Generate purchase order  
+- **"Create shipment"** — Generate shipment  
+- **"Create invoice"** — Generate invoice  
+- **"Payment received"** — Close out the contract  
+
+---
+
+## Purpose of Division 10
+
+Division 10 ensures:
+- No step is missed  
+- No contract stalls  
+- No client gets lost  
+- Every division stays in sync  
+- Every action is logged  
+- Every operator stays informed  
+
+This is your AI foreman — keeping the entire contracting engine running smoothly.

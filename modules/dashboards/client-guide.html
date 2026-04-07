@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LooseArrows Divisions Engine — Client Onboarding Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #ffffff;
+  color: #1a1a2e;
+  line-height: 1.6;
+}
+
+/* ── TOPBAR (screen only) ── */
+.topbar {
+  background: #0f0f23;
+  padding: .9rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #00fff7;
+}
+.brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: .85rem;
+  color: #00fff7;
+  letter-spacing: 3px;
+}
+.brand span { color: #ff00c8; }
+.topbar-nav { display: flex; gap: 1.5rem; }
+.topbar-nav a {
+  color: #7090b0;
+  text-decoration: none;
+  font-size: .75rem;
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  transition: color .2s;
+}
+.topbar-nav a:hover { color: #00fff7; }
+.topbar-nav .active { color: #ffe600; }
+
+/* ── DOCUMENT WRAPPER ── */
+.doc {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+
+/* ── HEADER ── */
+.doc-header {
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 2rem;
+  margin-bottom: 3rem;
+}
+.doc-label {
+  font-size: .7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: .5rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.doc-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: .5rem;
+  line-height: 1.2;
+}
+.doc-sub {
+  font-size: .9rem;
+  color: #64748b;
+}
+.doc-meta {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f1f5f9;
+}
+.doc-meta-item {
+  font-size: .75rem;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+}
+.doc-meta-item strong { color: #475569; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: .7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  padding: .4rem .75rem;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+.section-label.pre { background: #eff6ff; color: #2563eb; }
+.section-label.post { background: #f0fdf4; color: #16a34a; }
+.section-label.close { background: #fdf4ff; color: #9333ea; }
+
+/* ── STEPS ── */
+.steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 3rem; }
+
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+.step:last-child { border-bottom: none; }
+
+.step-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: .2rem;
+}
+.step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .9rem;
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.step-num.blue  { background: #dbeafe; color: #1d4ed8; }
+.step-num.green { background: #dcfce7; color: #15803d; }
+.step-num.amber { background: #fef3c7; color: #92400e; }
+.step-num.slate { background: #f1f5f9; color: #334155; }
+.step-connector {
+  width: 1px;
+  flex: 1;
+  background: #e2e8f0;
+  margin-top: .5rem;
+}
+.step:last-child .step-connector { display: none; }
+
+.step-right {}
+.step-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: .25rem;
+}
+.step-div {
+  font-size: .7rem;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: .75rem;
+}
+.step-body {
+  font-size: .875rem;
+  color: #475569;
+  line-height: 1.7;
+  margin-bottom: .75rem;
+}
+
+/* ── BULLET LIST ── */
+.bullet-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  margin: .5rem 0;
+}
+.bullet-list li {
+  font-size: .85rem;
+  color: #334155;
+  display: flex;
+  gap: .6rem;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+.bullet-list li::before {
+  content: '—';
+  color: #94a3b8;
+  flex-shrink: 0;
+  margin-top: .05rem;
+}
+
+/* ── SUB-LABEL ── */
+.sub-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: .75rem 0 .35rem;
+}
+
+/* ── STATUS CHAIN ── */
+.status-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  margin-top: .5rem;
+}
+.status-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: .25rem .65rem;
+  font-size: .72rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #475569;
+  font-weight: 500;
+}
+.status-pill.start { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.status-pill.end   { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+.status-arrow { color: #94a3b8; font-size: .8rem; }
+
+/* ── NOTE BOX ── */
+.note {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #94a3b8;
+  border-radius: 4px;
+  padding: .75rem 1rem;
+  font-size: .825rem;
+  color: #475569;
+  margin-top: .75rem;
+  line-height: 1.6;
+}
+.note.blue  { border-left-color: #3b82f6; background: #eff6ff; color: #1e3a5f; }
+.note.green { border-left-color: #22c55e; background: #f0fdf4; color: #14532d; }
+.note.amber { border-left-color: #f59e0b; background: #fffbeb; color: #78350f; }
+
+/* ── DIVIDER ── */
+.section-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 2.5rem 0;
+}
+
+/* ── CLOSING PANEL ── */
+.closing {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2rem 2.5rem;
+  margin-top: 3rem;
+}
+.closing-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1.25rem;
+}
+.closing-lines {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+.closing-line {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: .875rem;
+  color: #334155;
+}
+.closing-line .check {
+  width: 20px;
+  height: 20px;
+  background: #dcfce7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  color: #15803d;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+/* ── FOOTER ── */
+.doc-footer {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.doc-footer-brand {
+  font-size: .75rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #94a3b8;
+  letter-spacing: 2px;
+}
+.print-btn {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: .5rem 1.25rem;
+  font-size: .8rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.print-btn:hover { background: #1e293b; }
+
+/* ── PRINT ── */
+@media print {
+  .topbar, .print-btn { display: none !important; }
+  body { font-size: 12pt; }
+  .doc { padding: 1rem; max-width: 100%; }
+  .step { break-inside: avoid; }
+  .closing { break-inside: avoid; }
+}
+
+@media (max-width: 600px) {
+  .step { grid-template-columns: 48px 1fr; gap: 1rem; }
+  .doc { padding: 2rem 1.25rem; }
+  .doc-meta { flex-direction: column; gap: .5rem; }
+  .topbar-nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR (screen only) ── -->
+<div class="topbar">
+  <div class="brand">LOOSE<span>ARROWS</span></div>
+  <nav class="topbar-nav">
+    <a href="/demo">HOME</a>
+    <a href="/pricing">PRICING</a>
+    <a href="/onboarding">ONBOARDING</a>
+    <a href="/client-guide" class="active">CLIENT GUIDE</a>
+    <a href="/legal">LEGAL</a>
+  </nav>
+</div>
+
+<!-- ── DOCUMENT ── -->
+<div class="doc">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="doc-label">Client Onboarding Document</div>
+    <div class="doc-title">LooseArrows Divisions Engine</div>
+    <div class="doc-sub">Your full contracting pipeline — from RFQ to payment received.</div>
+    <div class="doc-meta">
+      <div class="doc-meta-item"><strong>Issued by</strong> Loose Arrows Supply Logistics</div>
+      <div class="doc-meta-item"><strong>Version</strong> 2.0</div>
+      <div class="doc-meta-item"><strong>Classification</strong> Client — Unrestricted</div>
+    </div>
+  </div>
+
+  <!-- PRE-AWARD -->
+  <div class="section-label pre">Pre-Award</div>
+
+  <div class="steps">
+
+    <!-- STEP 1 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num blue">1</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">Upload or Paste Your RFQ</div>
+        <div class="step-div">DIVISION 2 — CONTRACT REGISTRY</div>
+        <div class="step-body">Provide the solicitation in any format. The system extracts everything it needs automatically.</div>
+        <div class="sub-label">You can provide an RFQ by:</div>
+        <ul class="bullet-list">
+          <li>Pasting the SAM.gov link</li>
+          <li>Uploading the PDF</li>
+          <li>Pasting the text</li>
+          <li>Dropping in the CLIN table</li>
+        </ul>
+        <div class="sub-label">The system automatically extracts:</div>
+        <ul class="bullet-list">
+          <li>CLINs</li>
+          <li>Quantities</li>
+          <li>Delivery info</li>
+          <li>NAICS / PSC</li>
+          <li>Set-aside</li>
+          <li>Compliance language</li>
+          <li>Deadlines</li>
+          <li>Attachments required</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num blue">2</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">Review the Auto-Generated Draft</div>
+        <div class="step-div">DIVISION 3 — BID PIPELINE</div>
+        <div class="step-body">Once the contract is registered, the system builds your complete bid package automatically.</div>
+        <div class="sub-label">The system builds:</div>
+        <ul class="bullet-list">
+          <li>CLIN pricing table</li>
+          <li>Capability statement</li>
+          <li>Compliance packet</li>
+          <li>Submission packet (internal only)</li>
+        </ul>
+        <div class="note amber">You review everything before submitting. Nothing is sent externally.</div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num blue">3</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">Submit Your Bid Manually</div>
+        <div class="step-div">DIVISION 3 — SUBMISSION</div>
+        <div class="step-body">Download the packet and submit through your chosen channel. The system never submits on your behalf.</div>
+        <div class="sub-label">Submit through:</div>
+        <ul class="bullet-list">
+          <li>SAM.gov</li>
+          <li>Email to the CO</li>
+          <li>Agency portal</li>
+        </ul>
+        <div class="note green">You stay in full control of all external submissions.</div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num blue">4</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">When Awarded, Activate the Pipeline</div>
+        <div class="step-div">DIVISION 3 — AWARD</div>
+        <div class="step-body">Mark the bid as <strong>AWARDED</strong> to unlock the post-award workflow.</div>
+        <div class="status-chain" style="margin-top:.75rem;">
+          <span class="status-pill start">DRAFT</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill">SUBMITTED</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill end">AWARDED</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- POST-AWARD -->
+  <div class="section-label post">Post-Award</div>
+
+  <div class="steps">
+
+    <!-- STEP 5 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num green">5</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">Create Your Purchase Order</div>
+        <div class="step-div">DIVISION 4 — PURCHASE ORDERS</div>
+        <div class="step-body">Click <strong>Create PO</strong>.</div>
+        <div class="sub-label">The system auto-creates:</div>
+        <ul class="bullet-list">
+          <li>PO number</li>
+          <li>Vendor</li>
+          <li>Delivery info</li>
+          <li>Line items</li>
+        </ul>
+        <div class="status-chain">
+          <span class="status-pill start">DRAFT</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill">SENT</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill">ACKNOWLEDGED</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill end">FULFILLED</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num green">6</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">Create Your Shipment</div>
+        <div class="step-div">DIVISION 5 — LOGISTICS & FULFILLMENT</div>
+        <div class="step-body">Click <strong>Create Shipment</strong>.</div>
+        <div class="sub-label">The system auto-creates:</div>
+        <ul class="bullet-list">
+          <li>Shipment record</li>
+          <li>Carrier</li>
+          <li>Tracking number</li>
+        </ul>
+        <div class="status-chain">
+          <span class="status-pill start">PENDING</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill">IN_TRANSIT</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill end">DELIVERED</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num green">7</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">Create Your Invoice</div>
+        <div class="step-div">DIVISION 9 — FINANCIALS</div>
+        <div class="step-body">Click <strong>Create Invoice</strong>.</div>
+        <div class="sub-label">The system auto-creates:</div>
+        <ul class="bullet-list">
+          <li>Invoice number</li>
+          <li>Due date</li>
+          <li>Line items</li>
+        </ul>
+        <div class="status-chain">
+          <span class="status-pill start">DRAFT</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill">SENT</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill">PARTIAL</span>
+          <span class="status-arrow">→</span>
+          <span class="status-pill end">PAID</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num green">8</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-title">Record Payment</div>
+        <div class="step-div">DIVISION 9 — PAYMENT RECONCILIATION</div>
+        <div class="step-body">When the CO pays, click <strong>Record Payment</strong>.</div>
+        <div class="sub-label">The system updates:</div>
+        <ul class="bullet-list">
+          <li>Invoice status</li>
+          <li>Financial summary</li>
+          <li>Outstanding balance</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CLOSING PANEL -->
+  <div class="closing">
+    <div class="closing-title">Your Full Contracting Engine</div>
+    <div class="closing-lines">
+      <div class="closing-line"><div class="check">✓</div> Every step is logged.</div>
+      <div class="closing-line"><div class="check">✓</div> Every action is tracked.</div>
+      <div class="closing-line"><div class="check">✓</div> Every division is connected.</div>
+      <div class="closing-line"><div class="check">✓</div> Every record is stored.</div>
+    </div>
+    <div style="margin-top:1.25rem;font-size:.85rem;color:#64748b;border-top:1px solid #e2e8f0;padding-top:1.25rem;line-height:1.7;">
+      Operate your entire federal contracting lifecycle in one system.
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <div class="doc-footer-brand">LOOSE ARROWS SUPPLY LOGISTICS — DIVISIONS ENGINE v2.0</div>
+    <button class="print-btn" onclick="window.print()">Save as PDF</button>
+  </div>
+
+</div>
+
+</body>
+</html>

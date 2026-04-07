@@ -1,0 +1,149 @@
+# Client Portal — LooseArrows Divisions Engine
+
+Welcome to your contracting operations dashboard.  
+Everything you need to run RFQs, bids, awards, POs, shipments, invoices, and payments is here.
+
+---
+
+## Dashboard Overview
+
+### Active Items
+- RFQs in progress
+- Draft bids
+- Awarded contracts
+- Purchase orders
+- Shipments
+- Invoices
+- Payments received
+
+### Quick Actions
+- Upload RFQ
+- Create PO
+- Create Shipment
+- Create Invoice
+
+### Recent Activity
+Live feed of:
+- RFQ extractions
+- Quote generation
+- PO creation
+- Shipment updates
+- Invoice status changes
+- Payments recorded
+
+---
+
+## RFQ Intake (Division 2)
+
+Upload or paste:
+- SAM.gov link
+- PDF file
+- Raw text
+- CLIN table
+
+System automatically extracts:
+- CLINs + quantities
+- Delivery info
+- NAICS / PSC
+- Set-aside
+- Compliance language
+- Deadlines
+- Attachments required
+
+Outputs generated:
+- CLIN pricing table
+- Capability statement
+- Compliance packet
+- Submission packet (internal)
+
+---
+
+## Bid Review
+
+Review:
+- Pricing
+- Capability statement
+- Compliance packet
+- Submission packet
+
+Actions:
+- Approve draft
+- Download packet
+- Mark as submitted
+
+---
+
+## Award Workflow
+
+When awarded:
+- Mark contract as **AWARDED**
+- Unlock post-award pipeline
+
+---
+
+## Purchase Orders (Division 4)
+
+Actions:
+- Create PO
+- Send PO
+- Mark acknowledged
+- Mark fulfilled
+
+PO includes:
+- PO number
+- Vendor
+- Delivery info
+- Line items
+- Status timeline
+
+---
+
+## Shipments (Division 5)
+
+Actions:
+- Create shipment
+- Update tracking
+- Mark delivered
+
+Shipment includes:
+- Carrier
+- Tracking number
+- Status timeline
+- Expected delivery
+
+---
+
+## Invoices (Division 9)
+
+Actions:
+- Create invoice
+- Send invoice
+- Record payment
+
+Invoice includes:
+- Invoice number
+- Due date
+- Line items
+- Balance
+- Status timeline
+
+---
+
+## Financial Summary
+
+View:
+- Total billed
+- Total collected
+- Outstanding balance
+- Paid invoices
+- Unpaid invoices
+
+---
+
+## System Notes
+
+- Nothing is submitted externally.
+- All actions are logged.
+- Every division is connected.
+- Every record is stored.
+- You stay in full control of your contracting pipeline.
