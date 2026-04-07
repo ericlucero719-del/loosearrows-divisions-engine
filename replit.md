@@ -25,6 +25,7 @@ modules/
     pricing.html              - Public pricing & access request page
     guide.html                - Public user guide (12 sections)
     legal.html                - Public legal/compliance (10 sections)
+    onboarding.html           - Client onboarding page (8-step pipeline + training guide)
     vendor-dashboard.html     - Vendor cockpit dashboard
     operator-dashboard.html   - Operator control room dashboard
     dashboards.routes.ts      - Routes for all HTML pages

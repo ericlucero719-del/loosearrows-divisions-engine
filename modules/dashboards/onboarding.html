@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LOOSE ARROWS — Client Onboarding</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+:root {
+  --cyan:#00fff7; --magenta:#ff00c8; --yellow:#ffe600; --green:#00ff88;
+  --red:#ff2244; --orange:#ff9900; --purple:#cc44ff;
+  --dim:#06061a; --panel:#0d0d2b; --panel2:#10102e; --border:#1a1a4a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--dim);color:#c8d8e8;font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,247,.012) 2px,rgba(0,255,247,.012) 4px);pointer-events:none;z-index:9999;}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+body::after{content:'';position:fixed;left:0;top:0;width:100%;height:80px;background:linear-gradient(transparent,rgba(0,255,247,.04),transparent);pointer-events:none;z-index:9998;animation:scanline 8s linear infinite;}
+
+.topbar{background:var(--panel);border-bottom:2px solid var(--cyan);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 0 30px rgba(0,255,247,.15);}
+.brand{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.9rem;color:var(--cyan);text-shadow:0 0 20px var(--cyan);letter-spacing:4px;}
+.brand span{color:var(--magenta);}
+.topbar-nav{display:flex;gap:1.5rem;align-items:center;}
+.topbar-nav a{color:#7090b0;text-decoration:none;font-size:.75rem;letter-spacing:2px;transition:color .2s;}
+.topbar-nav a:hover{color:var(--cyan);}
+.topbar-nav .active{color:var(--yellow);}
+
+.hero{padding:4rem 2rem 3rem;text-align:center;background:linear-gradient(135deg,var(--panel) 0%,#08082a 100%);border-bottom:1px solid var(--border);}
+.hero-tag{font-size:.7rem;letter-spacing:4px;color:var(--yellow);margin-bottom:1rem;}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:2.2rem;color:var(--cyan);text-shadow:0 0 40px rgba(0,255,247,.5);margin-bottom:1rem;}
+.hero p{color:#7090b0;font-size:.85rem;max-width:600px;margin:0 auto;line-height:1.8;}
+
+.container{max-width:900px;margin:0 auto;padding:3rem 2rem;}
+
+/* ── SECTION HEADER ── */
+.section-header{margin-bottom:2.5rem;}
+.section-tag{font-size:.65rem;letter-spacing:4px;color:var(--magenta);margin-bottom:.5rem;}
+.section-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1.2rem;color:#c8d8e8;}
+.section-divider{height:1px;background:linear-gradient(90deg,var(--cyan),transparent);margin-top:1rem;}
+
+/* ── STEP CARDS ── */
+.steps{display:flex;flex-direction:column;gap:1.5rem;margin-bottom:4rem;}
+
+.step{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:2rem;display:grid;grid-template-columns:80px 1fr;gap:1.5rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s;}
+.step:hover{border-color:rgba(0,255,247,.3);box-shadow:0 0 30px rgba(0,255,247,.06);}
+.step::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+
+.step.cyan::before{background:var(--cyan);}
+.step.yellow::before{background:var(--yellow);}
+.step.green::before{background:var(--green);}
+.step.magenta::before{background:var(--magenta);}
+.step.orange::before{background:var(--orange);}
+.step.purple::before{background:var(--purple);}
+
+.step-number{display:flex;flex-direction:column;align-items:center;gap:.5rem;}
+.step-num{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.8rem;line-height:1;}
+.step.cyan .step-num{color:var(--cyan);text-shadow:0 0 20px var(--cyan);}
+.step.yellow .step-num{color:var(--yellow);text-shadow:0 0 20px var(--yellow);}
+.step.green .step-num{color:var(--green);text-shadow:0 0 20px var(--green);}
+.step.magenta .step-num{color:var(--magenta);text-shadow:0 0 20px var(--magenta);}
+.step.orange .step-num{color:var(--orange);text-shadow:0 0 20px var(--orange);}
+.step.purple .step-num{color:var(--purple);text-shadow:0 0 20px var(--purple);}
+
+.step-div-badge{font-size:.55rem;letter-spacing:2px;color:#4a6a8a;border:1px solid #1a1a4a;padding:.2rem .4rem;border-radius:3px;text-align:center;}
+
+.step-content{}
+.step-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:.95rem;color:#c8d8e8;margin-bottom:.4rem;}
+.step-sub{font-size:.7rem;letter-spacing:3px;margin-bottom:1rem;}
+.step.cyan .step-sub{color:var(--cyan);}
+.step.yellow .step-sub{color:var(--yellow);}
+.step.green .step-sub{color:var(--green);}
+.step.magenta .step-sub{color:var(--magenta);}
+.step.orange .step-sub{color:var(--orange);}
+.step.purple .step-sub{color:var(--purple);}
+
+.step-desc{font-size:.8rem;color:#7090b0;line-height:1.7;margin-bottom:1rem;}
+
+/* ── EXTRACT GRID ── */
+.extract-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem;margin-top:.75rem;}
+.extract-item{background:#08082a;border:1px solid var(--border);border-radius:4px;padding:.5rem .75rem;font-size:.7rem;color:#9ab0c8;display:flex;align-items:center;gap:.5rem;}
+.extract-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--cyan);}
+
+/* ── INPUT METHODS ── */
+.input-methods{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem;margin-top:.75rem;}
+.input-method{background:#08082a;border:1px solid var(--border);border-radius:4px;padding:.6rem .75rem;font-size:.7rem;color:#9ab0c8;display:flex;align-items:center;gap:.5rem;}
+.input-method .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--yellow);}
+
+/* ── AUTO-BUILDS ── */
+.auto-builds{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem;margin-top:.75rem;}
+.build-item{background:#08082a;border:1px solid var(--border);border-radius:4px;padding:.6rem .75rem;font-size:.7rem;color:#9ab0c8;display:flex;align-items:center;gap:.5rem;}
+.build-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--green);}
+
+/* ── STATUS CHAIN ── */
+.status-chain{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-top:.75rem;}
+.status-pill{background:#08082a;border:1px solid var(--border);border-radius:20px;padding:.3rem .8rem;font-size:.65rem;letter-spacing:2px;}
+.status-chain .arrow{color:#2a3a5a;font-size:.8rem;}
+
+/* ── ONE-CLICK BOX ── */
+.oneclick{display:inline-flex;align-items:center;gap:.75rem;background:#08082a;border:1px solid;border-radius:6px;padding:.75rem 1.25rem;margin:.75rem 0;font-size:.75rem;letter-spacing:2px;}
+.step.cyan .oneclick{border-color:rgba(0,255,247,.3);color:var(--cyan);}
+.step.magenta .oneclick{border-color:rgba(255,0,200,.3);color:var(--magenta);}
+.step.orange .oneclick{border-color:rgba(255,153,0,.3);color:var(--orange);}
+.step.purple .oneclick{border-color:rgba(204,68,255,.3);color:var(--purple);}
+.oneclick .icon{font-size:1rem;}
+
+/* ── NOTICE BOX ── */
+.notice{background:#0a0a1e;border:1px solid #1a2a4a;border-radius:6px;padding:1rem 1.25rem;margin-top:.75rem;font-size:.75rem;color:#5a7a9a;line-height:1.7;}
+.notice strong{color:#7090b0;}
+
+/* ── SUMMARY PANEL ── */
+.summary{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:2.5rem;margin-bottom:4rem;position:relative;overflow:hidden;}
+.summary::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--cyan),var(--magenta),var(--yellow));}
+.summary-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.1rem;color:var(--cyan);text-shadow:0 0 20px rgba(0,255,247,.5);margin-bottom:1.5rem;}
+.summary-lines{display:flex;flex-direction:column;gap:.75rem;}
+.summary-line{display:flex;align-items:center;gap:.75rem;font-size:.8rem;color:#9ab0c8;}
+.summary-line .check{color:var(--green);font-size:1rem;}
+
+/* ── TRAINING GUIDE ── */
+.guide-section{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:2.5rem;margin-bottom:4rem;}
+.guide-header{margin-bottom:2rem;}
+.guide-tag{font-size:.65rem;letter-spacing:4px;color:var(--yellow);margin-bottom:.5rem;}
+.guide-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1.1rem;color:var(--yellow);margin-bottom:.5rem;}
+.guide-sub{font-size:.75rem;color:#5a7a9a;line-height:1.7;}
+
+.guide-rows{display:flex;flex-direction:column;gap:1rem;}
+.guide-row{display:grid;grid-template-columns:40px 1fr;gap:1rem;align-items:start;padding:.75rem 0;border-bottom:1px solid var(--border);}
+.guide-row:last-child{border-bottom:none;}
+.guide-n{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1rem;color:var(--yellow);line-height:1;}
+.guide-text{}
+.guide-label{font-size:.8rem;color:#c8d8e8;margin-bottom:.25rem;}
+.guide-detail{font-size:.72rem;color:#5a7a9a;line-height:1.6;}
+
+.lifecycle{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem;margin:1.5rem 0;}
+.lc-item{background:#08082a;border:1px solid var(--border);border-radius:4px;padding:.6rem .75rem;}
+.lc-num{font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--yellow);margin-bottom:.25rem;}
+.lc-name{font-size:.72rem;color:#9ab0c8;}
+
+.does-not{background:#08082a;border:1px solid #1a2a3a;border-radius:6px;padding:1.25rem 1.5rem;margin:1.5rem 0;}
+.does-not-title{font-size:.7rem;letter-spacing:3px;color:var(--red);margin-bottom:.75rem;}
+.does-not ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+.does-not li{font-size:.75rem;color:#5a7a9a;display:flex;gap:.75rem;align-items:flex-start;}
+.does-not li::before{content:'✗';color:var(--red);flex-shrink:0;}
+
+.control-note{background:linear-gradient(135deg,#06061a,#0a0a24);border:1px solid rgba(0,255,247,.2);border-radius:6px;padding:1rem 1.25rem;margin-top:1rem;font-size:.75rem;color:var(--cyan);text-shadow:0 0 10px rgba(0,255,247,.3);text-align:center;letter-spacing:2px;}
+
+/* ── DOWNLOAD GUIDE ── */
+.download-bar{background:linear-gradient(135deg,#0a0a24,var(--panel));border:1px solid rgba(0,255,247,.2);border-radius:8px;padding:1.5rem 2rem;margin-bottom:4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.download-text{}
+.download-title{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);margin-bottom:.3rem;}
+.download-sub{font-size:.72rem;color:#5a7a9a;}
+.download-btn{background:transparent;border:1px solid var(--cyan);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:.75rem;letter-spacing:2px;padding:.6rem 1.5rem;border-radius:4px;cursor:pointer;transition:background .2s,box-shadow .2s;}
+.download-btn:hover{background:rgba(0,255,247,.1);box-shadow:0 0 20px rgba(0,255,247,.2);}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:2rem;text-align:center;font-size:.7rem;color:#3a5a7a;letter-spacing:2px;}
+footer a{color:#4a7a9a;text-decoration:none;}
+footer a:hover{color:var(--cyan);}
+
+@media(max-width:640px){
+  .step{grid-template-columns:1fr;}
+  .step-number{flex-direction:row;}
+  .hero h1{font-size:1.5rem;}
+  .download-bar{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="brand">LOOSE<span>ARROWS</span> <span style="color:#4a6a8a;font-size:.7rem;letter-spacing:2px;">DIVISIONS ENGINE</span></div>
+  <nav class="topbar-nav">
+    <a href="/demo">HOME</a>
+    <a href="/pricing">PRICING</a>
+    <a href="/guide">USER GUIDE</a>
+    <a href="/onboarding" class="active">ONBOARDING</a>
+    <a href="/legal">LEGAL</a>
+  </nav>
+</div>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-tag">CLIENT ONBOARDING</div>
+  <h1>Welcome to the Divisions Engine</h1>
+  <p>Your full contracting pipeline — from RFQ to payment — in one system. Follow the steps below to get up and running.</p>
+</div>
+
+<div class="container">
+
+  <!-- ── PRE-AWARD STEPS ── -->
+  <div class="section-header">
+    <div class="section-tag">PRE-AWARD</div>
+    <div class="section-title">From RFQ to Submission</div>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="steps">
+
+    <!-- STEP 1 -->
+    <div class="step cyan">
+      <div class="step-number">
+        <div class="step-num">01</div>
+        <div class="step-div-badge">DIV 2</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Upload or Paste Your RFQ</div>
+        <div class="step-sub">INTAKE — CONTRACT REGISTRY</div>
+        <div class="step-desc">Provide the solicitation in any format. The system extracts everything it needs automatically.</div>
+
+        <div class="input-methods">
+          <div class="input-method"><div class="dot"></div> SAM.gov link</div>
+          <div class="input-method"><div class="dot"></div> PDF upload</div>
+          <div class="input-method"><div class="dot"></div> Pasted text</div>
+          <div class="input-method"><div class="dot"></div> CLIN table drop-in</div>
+        </div>
+
+        <div style="margin-top:1rem;font-size:.72rem;color:#5a7a9a;margin-bottom:.5rem;">The system automatically extracts:</div>
+        <div class="extract-grid">
+          <div class="extract-item"><div class="dot"></div> CLINs</div>
+          <div class="extract-item"><div class="dot"></div> Quantities</div>
+          <div class="extract-item"><div class="dot"></div> Delivery info</div>
+          <div class="extract-item"><div class="dot"></div> NAICS / PSC</div>
+          <div class="extract-item"><div class="dot"></div> Set-aside</div>
+          <div class="extract-item"><div class="dot"></div> Compliance language</div>
+          <div class="extract-item"><div class="dot"></div> Deadlines</div>
+          <div class="extract-item"><div class="dot"></div> Attachments required</div>
+        </div>
+
+        <div class="notice" style="margin-top:1rem;"><strong>No formatting needed.</strong> Paste what you have.</div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step yellow">
+      <div class="step-number">
+        <div class="step-num">02</div>
+        <div class="step-div-badge">DIV 3</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Review the Auto-Generated Draft</div>
+        <div class="step-sub">BID PIPELINE — AUTO-BUILD</div>
+        <div class="step-desc">Once the contract is registered, the system builds your complete bid package automatically.</div>
+
+        <div class="auto-builds">
+          <div class="build-item"><div class="dot" style="background:var(--yellow)"></div> CLIN pricing table</div>
+          <div class="build-item"><div class="dot" style="background:var(--yellow)"></div> Capability statement</div>
+          <div class="build-item"><div class="dot" style="background:var(--yellow)"></div> Compliance packet</div>
+          <div class="build-item"><div class="dot" style="background:var(--yellow)"></div> Formatted submission packet</div>
+        </div>
+
+        <div class="notice" style="margin-top:1rem;border-color:rgba(255,230,0,.1);">
+          <strong style="color:var(--yellow);">Internal only.</strong> You review everything before anything is submitted. Nothing leaves the system without your approval.
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step green">
+      <div class="step-number">
+        <div class="step-num">03</div>
+        <div class="step-div-badge">DIV 3</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Submit Your Bid Manually</div>
+        <div class="step-sub">SUBMISSION — YOU STAY IN CONTROL</div>
+        <div class="step-desc">Download the packet. Submit through your chosen channel. The system never submits on your behalf.</div>
+
+        <div class="auto-builds">
+          <div class="build-item"><div class="dot" style="background:var(--green)"></div> SAM.gov portal upload</div>
+          <div class="build-item"><div class="dot" style="background:var(--green)"></div> Email to the CO</div>
+          <div class="build-item"><div class="dot" style="background:var(--green)"></div> Agency portal</div>
+        </div>
+
+        <div class="notice" style="margin-top:1rem;border-color:rgba(0,255,136,.1);">
+          <strong style="color:var(--green);">Your system prepares everything.</strong> You stay in control of all external submissions.
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step magenta">
+      <div class="step-number">
+        <div class="step-num">04</div>
+        <div class="step-div-badge">DIV 3</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">When Awarded, Activate the Pipeline</div>
+        <div class="step-sub">AWARD — UNLOCK POST-AWARD WORKFLOW</div>
+        <div class="step-desc">When the contracting officer awards the contract, mark the bid as AWARDED. This unlocks the full post-award workflow in Divisions 4, 5, and 9.</div>
+
+        <div class="status-chain" style="margin-top:.75rem;">
+          <span class="status-pill" style="color:#5a7a9a;">DRAFT</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#5a7a9a;">SUBMITTED</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:var(--green);border-color:rgba(0,255,136,.3);">AWARDED</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── POST-AWARD STEPS ── -->
+  <div class="section-header">
+    <div class="section-tag">POST-AWARD</div>
+    <div class="section-title">From Award to Payment Received</div>
+    <div class="section-divider" style="background:linear-gradient(90deg,var(--magenta),transparent);"></div>
+  </div>
+
+  <div class="steps">
+
+    <!-- STEP 5 -->
+    <div class="step cyan">
+      <div class="step-number">
+        <div class="step-num">05</div>
+        <div class="step-div-badge">DIV 4</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Create Your Purchase Order</div>
+        <div class="step-sub">DIVISION 4 — PURCHASE ORDERS</div>
+        <div class="step-desc">One command auto-creates the purchase order from the awarded bid. Vendor, line items, and delivery info are all pre-filled.</div>
+
+        <div class="oneclick"><span class="icon">⚡</span> Create PO  <code style="color:#5a7a9a;font-size:.65rem;">POST /division/4/purchase-orders/from-bid/{bidId}</code></div>
+
+        <div class="auto-builds">
+          <div class="build-item"><div class="dot"></div> PO number (PO-001…)</div>
+          <div class="build-item"><div class="dot"></div> Vendor pre-filled</div>
+          <div class="build-item"><div class="dot"></div> Delivery info</div>
+          <div class="build-item"><div class="dot"></div> All line items copied</div>
+        </div>
+
+        <div class="status-chain" style="margin-top:.75rem;">
+          <span class="status-pill" style="color:var(--cyan);border-color:rgba(0,255,247,.3);">DRAFT</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#7090b0;">SENT</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#7090b0;">ACKNOWLEDGED</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#7090b0;">FULFILLED</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step orange">
+      <div class="step-number">
+        <div class="step-num">06</div>
+        <div class="step-div-badge">DIV 5</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Create Your Shipment</div>
+        <div class="step-sub">DIVISION 5 — LOGISTICS & FULFILLMENT</div>
+        <div class="step-desc">One command creates the shipment record from the PO. Update the carrier and tracking number when goods ship.</div>
+
+        <div class="oneclick" style="border-color:rgba(255,153,0,.3);color:var(--orange);"><span class="icon">📦</span> Create Shipment  <code style="color:#5a7a9a;font-size:.65rem;">POST /division/5/shipments/from-po/{poId}</code></div>
+
+        <div class="auto-builds">
+          <div class="build-item"><div class="dot" style="background:var(--orange)"></div> Shipment number (SHIP-001…)</div>
+          <div class="build-item"><div class="dot" style="background:var(--orange)"></div> Vendor linked</div>
+          <div class="build-item"><div class="dot" style="background:var(--orange)"></div> Carrier + tracking fields</div>
+          <div class="build-item"><div class="dot" style="background:var(--orange)"></div> Expected delivery date</div>
+        </div>
+
+        <div class="status-chain" style="margin-top:.75rem;">
+          <span class="status-pill" style="color:var(--orange);border-color:rgba(255,153,0,.3);">PENDING</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#7090b0;">IN_TRANSIT</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#7090b0;">DELIVERED</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step purple">
+      <div class="step-number">
+        <div class="step-num">07</div>
+        <div class="step-div-badge">DIV 9</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Create Your Invoice</div>
+        <div class="step-sub">DIVISION 9 — FINANCIALS & BILLING</div>
+        <div class="step-desc">One command generates the invoice from the awarded bid. All line items and pricing are pre-populated. Set your due date.</div>
+
+        <div class="oneclick" style="border-color:rgba(204,68,255,.3);color:var(--purple);"><span class="icon">🧾</span> Create Invoice  <code style="color:#5a7a9a;font-size:.65rem;">POST /division/9/invoices/from-bid/{bidId}</code></div>
+
+        <div class="auto-builds">
+          <div class="build-item"><div class="dot" style="background:var(--purple)"></div> Invoice number (INV-001…)</div>
+          <div class="build-item"><div class="dot" style="background:var(--purple)"></div> Due date set</div>
+          <div class="build-item"><div class="dot" style="background:var(--purple)"></div> Line items pre-filled</div>
+          <div class="build-item"><div class="dot" style="background:var(--purple)"></div> Agency name pre-filled</div>
+        </div>
+
+        <div class="status-chain" style="margin-top:.75rem;">
+          <span class="status-pill" style="color:var(--purple);border-color:rgba(204,68,255,.3);">DRAFT</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#7090b0;">SENT</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:#7090b0;">PARTIAL</span>
+          <span class="arrow">→</span>
+          <span class="status-pill" style="color:var(--green);border-color:rgba(0,255,136,.3);">PAID</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step green">
+      <div class="step-number">
+        <div class="step-num">08</div>
+        <div class="step-div-badge">DIV 9</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Record Payment</div>
+        <div class="step-sub">DIVISION 9 — PAYMENT RECONCILIATION</div>
+        <div class="step-desc">When the contracting officer pays, record the amount. The system updates the invoice status, financial summary, and outstanding balance automatically.</div>
+
+        <div class="oneclick" style="border-color:rgba(0,255,136,.3);color:var(--green);"><span class="icon">✓</span> Record Payment  <code style="color:#5a7a9a;font-size:.65rem;">POST /division/9/invoices/{id}/payment</code></div>
+
+        <div class="auto-builds">
+          <div class="build-item"><div class="dot" style="background:var(--green)"></div> Invoice status → PAID</div>
+          <div class="build-item"><div class="dot" style="background:var(--green)"></div> Financial summary updated</div>
+          <div class="build-item"><div class="dot" style="background:var(--green)"></div> Outstanding balance cleared</div>
+          <div class="build-item"><div class="dot" style="background:var(--green)"></div> Payment timestamp logged</div>
+        </div>
+
+        <div class="notice" style="margin-top:1rem;border-color:rgba(0,255,136,.1);">
+          Check your full financial position at any time: <code style="color:var(--green);">GET /division/9/summary</code> — total billed, collected, and outstanding across all contracts.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── SUMMARY PANEL ── -->
+  <div class="summary">
+    <div class="summary-title">You Now Have a Full Contracting Engine</div>
+    <div class="summary-lines">
+      <div class="summary-line"><span class="check">✓</span> Every step is logged.</div>
+      <div class="summary-line"><span class="check">✓</span> Every action is tracked.</div>
+      <div class="summary-line"><span class="check">✓</span> Every division is connected.</div>
+      <div class="summary-line"><span class="check">✓</span> Every record is stored in your database.</div>
+      <div class="summary-line"><span class="check">✓</span> Your win history becomes your pricing advantage on the next bid.</div>
+    </div>
+  </div>
+
+  <!-- ── TRAINING GUIDE ── -->
+  <div class="section-header">
+    <div class="section-tag">TRAINING GUIDE</div>
+    <div class="section-title">What to send your team</div>
+    <div class="section-divider" style="background:linear-gradient(90deg,var(--yellow),transparent);"></div>
+  </div>
+
+  <div class="guide-section">
+    <div class="guide-header">
+      <div class="guide-tag">LOOSEARROWS DIVISIONS ENGINE</div>
+      <div class="guide-title">Training Guide — Client Edition</div>
+      <div class="guide-sub">Send this to anyone who needs to understand what the system does and how to use it. No technical knowledge required.</div>
+    </div>
+
+    <div style="font-size:.75rem;color:#5a7a9a;margin-bottom:1rem;">What this system does — handles the entire contracting lifecycle:</div>
+
+    <div class="lifecycle">
+      <div class="lc-item"><div class="lc-num">01</div><div class="lc-name">RFQ intake</div></div>
+      <div class="lc-item"><div class="lc-num">02</div><div class="lc-name">CLIN extraction</div></div>
+      <div class="lc-item"><div class="lc-num">03</div><div class="lc-name">Quote generation</div></div>
+      <div class="lc-item"><div class="lc-num">04</div><div class="lc-name">Compliance packet</div></div>
+      <div class="lc-item"><div class="lc-num">05</div><div class="lc-name">Submission prep</div></div>
+      <div class="lc-item"><div class="lc-num">06</div><div class="lc-name">Award tracking</div></div>
+      <div class="lc-item"><div class="lc-num">07</div><div class="lc-name">Purchase orders</div></div>
+      <div class="lc-item"><div class="lc-num">08</div><div class="lc-name">Shipments</div></div>
+      <div class="lc-item"><div class="lc-num">09</div><div class="lc-name">Invoices</div></div>
+      <div class="lc-item"><div class="lc-num">10</div><div class="lc-name">Payments</div></div>
+    </div>
+
+    <div style="height:1px;background:var(--border);margin:1.5rem 0;"></div>
+
+    <div style="font-size:.75rem;color:#7090b0;margin-bottom:1.25rem;letter-spacing:2px;">HOW TO USE IT</div>
+
+    <div class="guide-rows">
+      <div class="guide-row">
+        <div class="guide-n">1</div>
+        <div class="guide-text">
+          <div class="guide-label">Feed the system an RFQ</div>
+          <div class="guide-detail">Paste the link, upload the PDF, or paste the text. Any format works.</div>
+        </div>
+      </div>
+      <div class="guide-row">
+        <div class="guide-n">2</div>
+        <div class="guide-text">
+          <div class="guide-label">Review the draft</div>
+          <div class="guide-detail">The system builds everything automatically. You review pricing, line items, and the capability statement before anything is submitted.</div>
+        </div>
+      </div>
+      <div class="guide-row">
+        <div class="guide-n">3</div>
+        <div class="guide-text">
+          <div class="guide-label">Submit manually</div>
+          <div class="guide-detail">Download the packet. Upload to SAM.gov, email the CO, or use the agency portal. You stay in control of all external submissions.</div>
+        </div>
+      </div>
+      <div class="guide-row">
+        <div class="guide-n">4</div>
+        <div class="guide-text">
+          <div class="guide-label">When awarded, click Create PO</div>
+          <div class="guide-detail">Division 4 handles the purchase order. Vendor, line items, and status chain — all automatic.</div>
+        </div>
+      </div>
+      <div class="guide-row">
+        <div class="guide-n">5</div>
+        <div class="guide-text">
+          <div class="guide-label">Click Create Shipment</div>
+          <div class="guide-detail">Division 5 handles fulfillment. Update the carrier and tracking number when goods ship.</div>
+        </div>
+      </div>
+      <div class="guide-row">
+        <div class="guide-n">6</div>
+        <div class="guide-text">
+          <div class="guide-label">Click Create Invoice</div>
+          <div class="guide-detail">Division 9 handles billing. Line items and pricing are pre-populated. Set your due date and send.</div>
+        </div>
+      </div>
+      <div class="guide-row">
+        <div class="guide-n">7</div>
+        <div class="guide-text">
+          <div class="guide-label">Record payment</div>
+          <div class="guide-detail">When the CO pays, record the amount. Financials update automatically — outstanding balance, payment timestamp, and status all update in real time.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--border);margin:1.5rem 0;"></div>
+
+    <div class="does-not">
+      <div class="does-not-title">WHAT THE SYSTEM DOES NOT DO</div>
+      <ul>
+        <li>Submit bids externally — all external submissions are done by you</li>
+        <li>Email contracting officers — you initiate all agency communication</li>
+        <li>Commit your company to anything — you review and approve every step</li>
+      </ul>
+    </div>
+
+    <div class="control-note">You stay in control. The system does the work.</div>
+
+    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+      <div style="font-size:.7rem;color:#5a7a9a;letter-spacing:2px;margin-bottom:.5rem;">SUPPORT</div>
+      <div style="font-size:.75rem;color:#7090b0;line-height:1.7;">Your Operator Engine logs every action in every division. A complete audit trail is maintained automatically. If you need help, your key identifies your session — every request is logged by division, operation, and timestamp.</div>
+    </div>
+  </div>
+
+  <!-- ── DOWNLOAD BAR ── -->
+  <div class="download-bar">
+    <div class="download-text">
+      <div class="download-title">Training Guide — PDF Version</div>
+      <div class="download-sub">Print this page or save as PDF to send to your team. Use Ctrl+P → Save as PDF.</div>
+    </div>
+    <button class="download-btn" onclick="window.print()">⬇ SAVE AS PDF</button>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  LOOSE ARROWS SUPPLY & LOGISTICS — DIVISIONS ENGINE v2.0 &nbsp;|&nbsp;
+  <a href="/pricing">PRICING</a> &nbsp;|&nbsp;
+  <a href="/guide">USER GUIDE</a> &nbsp;|&nbsp;
+  <a href="/legal">LEGAL</a> &nbsp;|&nbsp;
+  <a href="/demo">HOME</a>
+</footer>
+
+</body>
+</html>

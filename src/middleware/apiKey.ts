@@ -26,6 +26,7 @@ const PUBLIC_EXACT: Set<string> = new Set([
   "/guide",
   "/legal",
   "/pricing",
+  "/onboarding",
   "/api",
   "/vendor-cockpit",
   "/operator-control-room",

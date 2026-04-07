@@ -41,6 +41,11 @@ router.get("/guide", (_req, res) => {
   res.sendFile(path.join(__dirname, "guide.html"));
 });
 
+// ── Client Onboarding ──────────────────────────────────────────────────────────
+router.get("/onboarding", (_req, res) => {
+  res.sendFile(path.join(__dirname, "onboarding.html"));
+});
+
 // ── Quick navigation index ─────────────────────────────────────────────────────
 router.get("/dashboards", (_req, res) => {
   res.json({
