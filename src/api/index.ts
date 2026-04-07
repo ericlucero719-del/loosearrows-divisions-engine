@@ -44,7 +44,10 @@ import tikTokRouter     from "../../modules/tiktok/tiktok.routes";
 import instagramRouter  from "../../modules/instagram/instagram.routes";
 import youtubeRouter    from "../../modules/youtube/youtube.routes";
 import amazonRouter     from "../../modules/amazon/amazon.routes";
-import { CommerceService } from "../../modules/commerce/commerce.service";
+import { CommerceService }  from "../../modules/commerce/commerce.service";
+import shopifyRouter        from "../../modules/shopify/shopify.routes";
+import samRouter            from "../../modules/sam/sam.routes";
+import billingRouter        from "../../modules/billing/billing.routes";
 
 // ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -152,7 +155,16 @@ apiRouter.get("/commerce/summary", async (_req: Request, res: Response) => {
   } catch (e: any) { return res.status(500).json({ error: e.message }); }
 });
 
-// ── 6. Rapid Response Field Operations ───────────────────────────────────────
+// ── 6. Shopify Connector ──────────────────────────────────────────────────────
+apiRouter.use("/shopify", shopifyRouter);
+
+// ── 7. SAM.gov Integration ────────────────────────────────────────────────────
+apiRouter.use("/sam", samRouter);
+
+// ── 8. Billing & Transaction Fee Engine ───────────────────────────────────────
+apiRouter.use("/billing", billingRouter);
+
+// ── 9. Rapid Response Field Operations ───────────────────────────────────────
 apiRouter.use("/field/rapid-response",        rrDispatch);
 apiRouter.use("/field/rapid-response/tasks",  rrTask);
 apiRouter.use("/field/rapid-response",        rrEvent);

@@ -51,6 +51,11 @@ router.get("/client-guide", (_req, res) => {
   res.sendFile(path.join(__dirname, "client-guide.html"));
 });
 
+// ── Vendor Portal (key-authenticated via JS) ──────────────────────────────────
+router.get("/vendor-portal", (_req, res) => {
+  res.sendFile(path.join(__dirname, "vendor-portal.html"));
+});
+
 // ── Quick navigation index ─────────────────────────────────────────────────────
 router.get("/dashboards", (_req, res) => {
   res.json({

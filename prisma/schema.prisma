@@ -465,6 +465,8 @@ model CommerceOrder {
   carrier       String?
   labelRef      String?
   channel       String?
+  feeRate       Float    @default(0.0075)   // default 0.75% of contract value
+  feeAmountUsd  Float    @default(0)
   notes         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -472,4 +474,37 @@ model CommerceOrder {
   @@unique([platform, externalId])
   @@index([platform])
   @@index([status])
+}
+
+// ── SAM.gov Opportunity Watchlist ─────────────────────────────────────────────
+model SamOpportunity {
+  id              String   @id @default(cuid())
+  noticeId        String   @unique
+  title           String
+  agency          String?
+  naicsCode       String?
+  postedDate      String?
+  responseDeadline String?
+  setAside        String?
+  placeOfPerf     String?
+  description     String?
+  solicitationNum String?
+  awardAmount     Float?
+  status          String   @default("OPEN")    // OPEN | WATCHING | BIDDING | WON | LOST
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ── Billing / Fee Configuration ───────────────────────────────────────────────
+model BillingConfig {
+  id          String   @id @default(cuid())
+  platform    String   @unique  // TIKTOK | INSTAGRAM | YOUTUBE | AMAZON | SHOPIFY | DEFAULT
+  feeRate     Float    @default(0.0075)  // 0.75%
+  minFeeUsd   Float    @default(25)
+  maxFeeUsd   Float?
+  active      Boolean  @default(true)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

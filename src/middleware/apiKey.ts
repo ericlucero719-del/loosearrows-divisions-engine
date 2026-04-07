@@ -41,6 +41,7 @@ const PUBLIC_EXACT: Set<string> = new Set([
   // Legacy public aliases
   "/vendor/dashboard",
   "/operator/dashboard",
+  "/vendor-portal",
 ]);
 
 const PUBLIC_PREFIX: string[] = [
