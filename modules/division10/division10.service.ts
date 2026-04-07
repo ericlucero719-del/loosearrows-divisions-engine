@@ -71,7 +71,11 @@ export class Division10Service {
     const safeCount = async (fn: () => Promise<number>): Promise<number> => {
       try { return await fn(); } catch { return 0; }
     };
-    const [vendorCount, contractCount, bidCount, workRequestCount, poCount, shipmentCount, invoiceCount] = await Promise.all([
+    const [
+      vendorCount, contractCount, bidCount, workRequestCount,
+      poCount, shipmentCount, invoiceCount,
+      productCount, complianceCount, agencyCount,
+    ] = await Promise.all([
       safeCount(() => prisma.govVendor.count()),
       safeCount(() => prisma.govContract.count()),
       safeCount(() => prisma.govBid.count()),
@@ -79,14 +83,20 @@ export class Division10Service {
       safeCount(() => (prisma as any).govPO.count()),
       safeCount(() => (prisma as any).govShipment.count()),
       safeCount(() => (prisma as any).govInvoice.count()),
+      safeCount(() => (prisma as any).govProduct.count()),
+      safeCount(() => (prisma as any).govComplianceDoc.count()),
+      safeCount(() => (prisma as any).govAgency.count()),
     ]);
 
     const dbCounts: Record<number, number> = {
+      1: productCount,
       2: contractCount,
       3: bidCount + workRequestCount,
       4: poCount,
       5: shipmentCount,
+      6: complianceCount,
       7: vendorCount,
+      8: agencyCount,
       9: invoiceCount,
     };
 

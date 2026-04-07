@@ -24,6 +24,7 @@ const rapidResponseEventRoute = require("./routes/rapidResponseEventRoute");
 const rapidResponseOperatorRoute = require("./routes/rapidResponseOperatorRoute");
 
 // ── 10-Division Engine ───────────────────────────────────────────────────────
+import div0Router from "../modules/division0/division0.routes";
 import div1Router from "../modules/division1/division1.routes";
 import div2Router from "../modules/division2/division2.routes";
 import div3Router from "../modules/division3/division3.routes";
@@ -57,6 +58,7 @@ app.get("/api", (_req, res) => {
     admin:    "POST /admin/keys — issue keys (requires X-Admin-Secret header)",
     engine:   "10-Division Operational Engine v2.0",
     divisions: {
+      0: "/division/0  — System Command Center (admin-only)",
       1: "/division/1  — Product Intake & Pricing",
       2: "/division/2  — Contract Alignment",
       3: "/division/3  — Requests & Work Orders",
@@ -94,6 +96,7 @@ app.use("/field/rapid-response", rapidResponseEventRoute);
 app.use("/field/rapid-response", rapidResponseOperatorRoute);
 
 // ── 10-Division Engine routes (key-gated) ────────────────────────────────────
+app.use("/division/0",  div0Router);
 app.use("/division/1",  div1Router);
 app.use("/division/2",  div2Router);
 app.use("/division/3",  div3Router);
