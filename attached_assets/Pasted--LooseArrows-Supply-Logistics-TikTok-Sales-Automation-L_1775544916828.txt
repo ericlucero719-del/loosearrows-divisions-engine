@@ -1,0 +1,90 @@
+// LooseArrows Supply & Logistics™
+// TikTok Sales Automation Layer
+// Author: Eric Lucero — Chief Architect & Commander
+
+import express from "express";
+import axios from "axios";
+
+const router = express.Router();
+
+// 🔹 1. Capture TikTok Orders
+router.post("/tiktok/order", async (req, res) => {
+  const order = req.body;
+  console.log("New TikTok order received:", order.order_id);
+
+  // Auto-capture logic
+  const skuMatch = await matchSKU(order.items);
+  const profitPreview = calculateProfit(order.items);
+
+  // Create internal record
+  await createOrderRecord(order, skuMatch, profitPreview);
+
+  // Trigger next automation step
+  await triggerPO(order);
+
+  res.json({ status: "Order captured", order_id: order.order_id });
+});
+
+// 🔹 2. Generate Purchase Order
+async function triggerPO(order) {
+  const vendor = await selectVendor(order.items);
+  const compliance = await runComplianceCheck(vendor);
+
+  const po = {
+    vendor,
+    compliance,
+    items: order.items,
+    order_id: order.order_id,
+    timestamp: new Date().toISOString(),
+  };
+
+  await sendPO(po);
+  console.log("PO generated and sent:", po);
+}
+
+// 🔹 3. Fulfillment Automation
+router.post("/tiktok/fulfill", async (req, res) => {
+  const { order_id, method } = req.body;
+
+  if (method === "home") {
+    await generateLabel(order_id);
+    await pushTracking(order_id);
+  } else {
+    await supplierFulfill(order_id);
+  }
+
+  res.json({ status: "Fulfillment triggered", order_id });
+});
+
+// 🔹 4. Invoice + Payment Tracking
+router.post("/tiktok/invoice", async (req, res) => {
+  const { order_id } = req.body;
+  const invoice = await generateInvoice(order_id);
+  await syncPayment(invoice);
+  res.json({ status: "Invoice synced", order_id });
+});
+
+// 🔹 5. Notifications + Inventory
+router.post("/tiktok/notify", async (req, res) => {
+  const { order_id, event } = req.body;
+  await sendNotification(order_id, event);
+  await updateInventory(order_id);
+  res.json({ status: "Notification sent", event });
+});
+
+// 🔹 Utility Functions
+async function matchSKU(items) { /* SKU mapping logic */ }
+function calculateProfit(items) { /* Profit logic */ }
+async function createOrderRecord(order, skuMatch, profitPreview) { /* DB logic */ }
+async function selectVendor(items) { /* Vendor logic */ }
+async function runComplianceCheck(vendor) { /* Compliance logic */ }
+async function sendPO(po) { /* Email/API push */ }
+async function generateLabel(order_id) { /* Label creation */ }
+async function pushTracking(order_id) { /* Tracking sync */ }
+async function supplierFulfill(order_id) { /* Supplier API */ }
+async function generateInvoice(order_id) { /* Invoice logic */ }
+async function syncPayment(invoice) { /* Payment sync */ }
+async function sendNotification(order_id, event) { /* Notify seller */ }
+async function updateInventory(order_id) { /* Inventory logic */ }
+
+export default router;

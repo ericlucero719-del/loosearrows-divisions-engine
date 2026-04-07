@@ -1,0 +1,84 @@
+# LooseArrows Supply & Logistics™
+# TikTok Sales Automation Agent
+# Author: Eric Lucero — Chief Architect & Commander
+
+import requests
+import json
+from datetime import datetime
+
+# 🔹 1. Capture TikTok Orders
+def capture_order(order):
+    print(f"[{datetime.now()}] New TikTok order received: {order['order_id']}")
+    sku_match = match_sku(order["items"])
+    profit_preview = calculate_profit(order["items"])
+    create_order_record(order, sku_match, profit_preview)
+    trigger_po(order)
+    return {"status": "Order captured", "order_id": order["order_id"]}
+
+# 🔹 2. Generate Purchase Order
+def trigger_po(order):
+    vendor = select_vendor(order["items"])
+    compliance = run_compliance_check(vendor)
+    po = {
+        "vendor": vendor,
+        "compliance": compliance,
+        "items": order["items"],
+        "order_id": order["order_id"],
+        "timestamp": datetime.now().isoformat()
+    }
+    send_po(po)
+    print(f"[{datetime.now()}] PO generated and sent for order {order['order_id']}")
+
+# 🔹 3. Fulfillment Automation
+def fulfill_order(order_id, method="supplier"):
+    if method == "home":
+        generate_label(order_id)
+        push_tracking(order_id)
+    else:
+        supplier_fulfill(order_id)
+    print(f"[{datetime.now()}] Fulfillment triggered for {order_id}")
+
+# 🔹 4. Invoice + Payment Tracking
+def invoice_order(order_id):
+    invoice = generate_invoice(order_id)
+    sync_payment(invoice)
+    print(f"[{datetime.now()}] Invoice synced for {order_id}")
+
+# 🔹 5. Notifications + Inventory
+def notify_and_update(order_id, event):
+    send_notification(order_id, event)
+    update_inventory(order_id)
+    print(f"[{datetime.now()}] Notification sent for {order_id}: {event}")
+
+# 🔹 Utility Functions (stubs for your agent to fill)
+def match_sku(items): return {"sku_map": "auto"}
+def calculate_profit(items): return sum(i["price"] for i in items) * 0.25
+def create_order_record(order, sku_match, profit_preview): pass
+def select_vendor(items): return "PreferredVendor"
+def run_compliance_check(vendor): return True
+def send_po(po): pass
+def generate_label(order_id): pass
+def push_tracking(order_id): pass
+def supplier_fulfill(order_id): pass
+def generate_invoice(order_id): return {"invoice_id": f"INV-{order_id}"}
+def sync_payment(invoice): pass
+def send_notification(order_id, event): pass
+def update_inventory(order_id): pass
+
+# 🔹 Entry point for Replit Agent
+def run_tiktok_automation(event):
+    """Main entry for Replit Agent task execution."""
+    if event["type"] == "new_order":
+        return capture_order(event["data"])
+    elif event["type"] == "fulfill":
+        return fulfill_order(event["data"]["order_id"], event["data"].get("method", "supplier"))
+    elif event["type"] == "invoice":
+        return invoice_order(event["data"]["order_id"])
+    elif event["type"] == "notify":
+        return notify_and_update(event["data"]["order_id"], event["data"]["event"])
+    else:
+        return {"error": "Unknown event type"}
+
+# Example usage:
+# result = run_tiktok_automation({"type": "new_order", "data": {"order_id": "12345", "items": [{"price": 20}]}})
+# print(result)

@@ -421,3 +421,25 @@ model ApiKey {
   createdAt   DateTime  @default(now())
   lastUsedAt  DateTime?
 }
+
+// ── TikTok Sales Automation Layer ─────────────────────────────────────────────
+model TikTokOrder {
+  orderId       String   @id @default(cuid())
+  externalId    String   @unique
+  status        String   @default("RECEIVED")
+  itemsJson     String   @default("[]")
+  skuMatchJson  String   @default("[]")
+  profitUsd     Float    @default(0)
+  vendorId      String?
+  vendorName    String?
+  poId          String?
+  shipmentId    String?
+  invoiceId     String?
+  fulfillMethod String?
+  trackingRef   String?
+  carrier       String?
+  labelRef      String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

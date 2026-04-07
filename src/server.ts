@@ -25,6 +25,7 @@ const rapidResponseOperatorRoute = require("./routes/rapidResponseOperatorRoute"
 
 // ── 10-Division Engine ───────────────────────────────────────────────────────
 import div0Router from "../modules/division0/division0.routes";
+import tikTokRouter from "../modules/tiktok/tiktok.routes";
 import div1Router from "../modules/division1/division1.routes";
 import div2Router from "../modules/division2/division2.routes";
 import div3Router from "../modules/division3/division3.routes";
@@ -97,6 +98,7 @@ app.use("/field/rapid-response", rapidResponseOperatorRoute);
 
 // ── 10-Division Engine routes (key-gated) ────────────────────────────────────
 app.use("/division/0",  div0Router);
+app.use("/tiktok",      tikTokRouter);
 app.use("/division/1",  div1Router);
 app.use("/division/2",  div2Router);
 app.use("/division/3",  div3Router);
