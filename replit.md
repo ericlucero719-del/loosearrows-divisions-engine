@@ -1,7 +1,7 @@
 # Loose Arrows Supply & Logistics — Divisions Engine v2.0
 
 ## Overview
-Production-grade Node.js/TypeScript logistics and government procurement backend for Loose Arrows Supply & Logistics. Features a 10-division operational engine, full post-award pipeline (bid → PO → shipment → invoice → payment), tiered API key access control, DIV10-BOT-001 autonomous contract intelligence, and customer-facing public pages.
+Production-grade Node.js/TypeScript logistics and government procurement backend for Loose Arrows Supply & Logistics. Features an 11-division operational engine, full pre→post award pipeline (SAM.gov → contract → bid → PO → shipment → invoice → payment), tiered API key access control, DIV10-BOT-001 autonomous contract intelligence, multi-platform commerce automation (Shopify/Amazon/Instagram/YouTube/TikTok), transaction fee billing engine, vendor portal, PDF document generation, and a Command Center dashboard.
 
 ## Tech Stack
 - **Language**: TypeScript 5.9

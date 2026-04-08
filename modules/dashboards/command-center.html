@@ -285,6 +285,24 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </div>
   </div>
 
+  <!-- ── DOCUMENT DOWNLOADS ─────────────────────────────────────────── -->
+  <div class="card" style="margin-top:16px;">
+    <div class="card-head">
+      <span class="card-title">📄 DOCUMENT <span>DOWNLOADS</span></span>
+      <span id="doc-count" class="badge badge-cyan">LOADING</span>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="showDocTab('pos')">Purchase Orders</button>
+        <button class="btn btn-ghost btn-sm" onclick="showDocTab('invoices')">Invoices</button>
+        <button class="btn btn-ghost btn-sm" onclick="showDocTab('bids')">Capability Statements</button>
+      </div>
+      <div id="doc-pos"><div class="loading-row">▶ LOADING DOCUMENTS...</div></div>
+      <div id="doc-invoices" style="display:none;"></div>
+      <div id="doc-bids" style="display:none;"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -331,6 +349,7 @@ function loadAll() {
   loadOrders();
   loadBilling();
   loadBot();
+  loadDocuments();
 }
 
 // ── SAM.GOV ─────────────────────────────────────────────────
@@ -646,6 +665,107 @@ async function forceBot() {
     showAlert('wl-alert','Trigger error: '+e.message,'err');
   } finally {
     setTimeout(() => { btn.disabled=false; btn.textContent='⚡ FORCE CYCLE'; }, 4000);
+  }
+}
+
+// ── DOCUMENTS ────────────────────────────────────────────────
+let gDocs = { pos: [], invoices: [], bids: [] };
+
+function fmtUsd(n) { return n ? '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'; }
+
+async function loadDocuments() {
+  try {
+    const d = await API('/api/pdf/documents');
+    gDocs = d;
+    const total = (d.pos||[]).length + (d.invoices||[]).length + (d.bids||[]).length;
+    document.getElementById('doc-count').textContent = total + ' DOCUMENTS';
+    renderDocTab('pos');
+  } catch(e) {
+    document.getElementById('doc-pos').innerHTML = `<div class="empty" style="color:var(--red)">Could not load documents: ${esc(e.message)}</div>`;
+    document.getElementById('doc-count').textContent = 'ERROR';
+  }
+}
+
+function showDocTab(tab) {
+  ['pos','invoices','bids'].forEach(t => {
+    document.getElementById('doc-'+t).style.display = t === tab ? '' : 'none';
+  });
+  renderDocTab(tab);
+}
+
+function renderDocTab(tab) {
+  if (tab === 'pos') {
+    const el = document.getElementById('doc-pos');
+    const items = gDocs.pos || [];
+    if (!items.length) { el.innerHTML = '<div class="empty">No purchase orders yet.</div>'; return; }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>PO REF</th><th>VENDOR</th><th>AGENCY</th><th>STATUS</th><th>VALUE</th><th>DATE</th><th>DOWNLOAD</th></tr></thead>
+        <tbody>${items.map(p=>`
+          <tr>
+            <td style="color:var(--cyan);font-size:11px;">${esc(p.poRef||'—')}</td>
+            <td style="color:var(--dim);font-size:11px;">${esc(p.vendorName||'—')}</td>
+            <td style="color:var(--dim);font-size:10px;">${esc(p.agencyName||'—')}</td>
+            <td><span class="badge ${p.status==='DELIVERED'||p.status==='PAID'?'badge-green':p.status==='IN_TRANSIT'||p.status==='OPEN'?'badge-orange':'badge-cyan'}">${esc(p.status)}</span></td>
+            <td class="td-amount">${fmtUsd(p.totalValue)}</td>
+            <td class="td-date">${fmt(p.createdAt)}</td>
+            <td><button class="btn btn-ghost btn-sm" onclick="downloadPdfWithKey('/api/pdf/po/${p.poId}','po-${p.poRef}.pdf')">⬇ PO PDF</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } else if (tab === 'invoices') {
+    const el = document.getElementById('doc-invoices');
+    const items = gDocs.invoices || [];
+    if (!items.length) { el.innerHTML = '<div class="empty">No invoices yet.</div>'; return; }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>INVOICE REF</th><th>VENDOR</th><th>AGENCY</th><th>STATUS</th><th>AMOUNT</th><th>DUE</th><th>DOWNLOAD</th></tr></thead>
+        <tbody>${items.map(i=>`
+          <tr>
+            <td style="color:var(--orange);font-size:11px;">${esc(i.invoiceRef||'—')}</td>
+            <td style="color:var(--dim);font-size:11px;">${esc(i.vendorName||'—')}</td>
+            <td style="color:var(--dim);font-size:10px;">${esc(i.agencyName||'—')}</td>
+            <td><span class="badge ${i.status==='PAID'?'badge-green':i.status==='PENDING'?'badge-orange':'badge-cyan'}">${esc(i.status)}</span></td>
+            <td class="td-amount">${fmtUsd(i.totalAmount)}</td>
+            <td class="td-date">${i.dueDate||'—'}</td>
+            <td><button class="btn btn-ghost btn-sm" style="color:var(--orange);border-color:var(--orange);" onclick="downloadPdfWithKey('/api/pdf/invoice/${i.invoiceId}','invoice-${i.invoiceRef}.pdf')">⬇ INVOICE PDF</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } else if (tab === 'bids') {
+    const el = document.getElementById('doc-bids');
+    const items = gDocs.bids || [];
+    if (!items.length) { el.innerHTML = '<div class="empty">No bids yet.</div>'; return; }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>BID REF</th><th>VENDOR</th><th>STATUS</th><th>VALUE</th><th>AWARDED</th><th>DOWNLOAD</th></tr></thead>
+        <tbody>${items.map(b=>`
+          <tr>
+            <td style="color:var(--green);font-size:11px;">${esc(b.bidRef||'—')}</td>
+            <td style="color:var(--dim);font-size:11px;">${esc(b.vendorName||'—')}</td>
+            <td><span class="badge ${b.status==='AWARDED'?'badge-green':b.status==='SUBMITTED'?'badge-orange':'badge-cyan'}">${esc(b.status)}</span></td>
+            <td class="td-amount">${fmtUsd(b.totalValue)}</td>
+            <td class="td-date">${fmt(b.awardedAt)}</td>
+            <td><button class="btn btn-ghost btn-sm" style="color:var(--green);border-color:var(--green);" onclick="downloadPdfWithKey('/api/pdf/bid/${b.bidId}','capability-${b.bidRef||b.bidId}.pdf')">⬇ CAPABILITY STMT</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+}
+
+async function downloadPdfWithKey(path, filename) {
+  try {
+    showAlert('wl-alert', 'Generating ' + filename + '…', 'ok');
+    const r = await fetch(path, { headers: { 'X-API-Key': getKey() } });
+    if (!r.ok) { const d = await r.json(); showAlert('wl-alert', 'PDF error: ' + (d.error||r.status), 'err'); return; }
+    const blob = await r.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showAlert('wl-alert', 'Downloaded: ' + filename, 'ok');
+  } catch(e) {
+    showAlert('wl-alert', 'Download failed: ' + e.message, 'err');
   }
 }
 

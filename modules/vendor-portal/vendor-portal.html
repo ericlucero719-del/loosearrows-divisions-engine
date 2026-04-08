@@ -210,6 +210,7 @@
               <th>TOTAL VALUE</th>
               <th>LINE ITEMS</th>
               <th>CREATED</th>
+              <th>PDF</th>
             </tr>
           </thead>
           <tbody id="pos-tbody"></tbody>
@@ -250,6 +251,7 @@
               <th>TOTAL</th>
               <th>PAID</th>
               <th>DUE DATE</th>
+              <th>PDF</th>
             </tr>
           </thead>
           <tbody id="invoices-tbody"></tbody>
@@ -354,7 +356,7 @@
 
   function renderPos(pos) {
     const tbody = document.getElementById('pos-tbody');
-    if (!pos.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">No purchase orders found for this vendor</td></tr>'; return; }
+    if (!pos.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">No purchase orders found for this vendor</td></tr>'; return; }
     tbody.innerHTML = pos.map(p => {
       const lines = (p.lineItems || []).map(l => `<li>${l.quantity}× ${l.sku} @ $${l.unitPrice} — ${l.description || ''}</li>`).join('');
       return `<tr>
@@ -364,6 +366,7 @@
         <td style="color:var(--gold)">${fmt(p.totalValue)}</td>
         <td><ul class="line-items">${lines || '<li style="color:var(--muted)">No line items</li>'}</ul></td>
         <td style="color:var(--muted)">${fmtDate(p.createdAt)}</td>
+        <td><button class="btn" style="background:#1a1a2e;color:var(--cyan);border:1px solid var(--cyan);padding:4px 9px;font-size:.7rem;" onclick="downloadPdf('/api/pdf/po/${p.poId}','po-${p.poRef}.pdf')">⬇ PDF</button></td>
       </tr>`;
     }).join('');
   }
@@ -392,7 +395,7 @@
 
   function renderInvoices(invoices) {
     const tbody = document.getElementById('invoices-tbody');
-    if (!invoices.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">No invoices found for this vendor</td></tr>'; return; }
+    if (!invoices.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No invoices found for this vendor</td></tr>'; return; }
     tbody.innerHTML = invoices.map(i => `<tr>
       <td style="color:var(--cyan)">${i.invoiceRef}</td>
       <td style="color:var(--muted)">${i.poId ? i.poId.slice(0,10)+'…' : '—'}</td>
@@ -401,7 +404,24 @@
       <td style="color:var(--gold)">${fmt(i.totalAmount)}</td>
       <td style="color:var(--green)">${fmt(i.paidAmount)}</td>
       <td style="color:var(--muted)">${i.dueDate || '—'}</td>
+      <td><button class="btn" style="background:#1a1a2e;color:var(--orange);border:1px solid var(--orange);padding:4px 9px;font-size:.7rem;" onclick="downloadPdf('/api/pdf/invoice/${i.invoiceId}','invoice-${i.invoiceRef}.pdf')">⬇ PDF</button></td>
     </tr>`).join('');
+  }
+
+  async function downloadPdf(path, filename) {
+    try {
+      showToast('Generating PDF…');
+      const r = await fetch(path, { headers: { 'X-API-Key': gApiKey } });
+      if (!r.ok) { const d = await r.json(); showToast('PDF error: ' + (d.error || r.status), true); return; }
+      const blob = await r.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast('PDF downloaded: ' + filename);
+    } catch(e) {
+      showToast('Download failed: ' + e.message, true);
+    }
   }
 
   async function updateShipment(shipmentId) {
