@@ -26,7 +26,9 @@
 // *    /api/field               → Rapid Response Field Operations
 
 import { Router, Request, Response } from "express";
-import { requireApiKey } from "../middleware/apiKey";
+import { requireApiKey }  from "../middleware/apiKey";
+import { tierLimiter }    from "../middleware/rateLimiter";
+import pdfRouter          from "../../modules/pdf/pdf.routes";
 
 // ── Division Engine routers ───────────────────────────────────────────────────
 import div0Router  from "../../modules/division0/division0.routes";
@@ -115,6 +117,11 @@ apiRouter.get("/", (_req: Request, res: Response) => {
       dispatch: "POST /api/field/rapid-response       — dispatch rapid response unit",
       tasks:    "GET  /api/field/rapid-response/tasks — task queue",
     },
+    pdf: {
+      invoice:     "GET /api/pdf/invoice/:invoiceId — download invoice PDF",
+      po:          "GET /api/pdf/po/:poId           — download purchase order PDF",
+      bid:         "GET /api/pdf/bid/:bidId         — download capability statement PDF",
+    },
     keyManagement: "POST /admin/keys — issue keys (requires X-Admin-Secret)",
   });
 });
@@ -129,6 +136,10 @@ apiRouter.use("/admin", div0Router);
 
 // ── 3. API key gate — applied once for everything below ───────────────────────
 apiRouter.use(requireApiKey);
+
+// ── 3b. Tier-aware rate limit (runs after key is validated → tier is known) ───
+// OBSERVER: 200/15min | OPERATOR: 1 000/15min | ARCHITECT: 5 000/15min
+apiRouter.use(tierLimiter);
 
 // ── 4. Division Engine ────────────────────────────────────────────────────────
 apiRouter.use("/division/1",   div1Router);
@@ -169,5 +180,8 @@ apiRouter.use("/field/rapid-response",        rrDispatch);
 apiRouter.use("/field/rapid-response/tasks",  rrTask);
 apiRouter.use("/field/rapid-response",        rrEvent);
 apiRouter.use("/field/rapid-response",        rrOperator);
+
+// ── 10. PDF Document Generation ───────────────────────────────────────────────
+apiRouter.use("/pdf", pdfRouter);
 
 export default apiRouter;

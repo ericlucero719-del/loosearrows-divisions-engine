@@ -120,6 +120,8 @@ export async function requireApiKey(req: Request, res: Response, next: NextFunct
 
   // Attach tier info to request for downstream use
   (req as any).apiTier      = tier;
+  (req as any).apiKeyTier   = tier;          // alias used by rate limiter
+  (req as any).apiKeyId     = record.id;     // used as rate-limit bucket key
   (req as any).apiKeyOwner  = record.ownerName;
 
   next();

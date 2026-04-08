@@ -6,8 +6,11 @@
   "dependencies": {
     "@prisma/client": "^4.7.0",
     "@types/multer": "^2.1.0",
+    "@types/pdfkit": "^0.17.5",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
     "multer": "^2.1.1",
+    "pdfkit": "^0.18.0",
     "prisma": "^4.7.0",
     "zod": "^4.3.6"
   },

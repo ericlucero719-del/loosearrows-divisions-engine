@@ -112,6 +112,25 @@ prisma/
 | `/operator/dashboard` | Operator control room |
 | `/division/10/dashboard` | Division 10 intelligence cockpit |
 
+## PDF Document Generation
+| Endpoint | Output |
+|---|---|
+| `GET /api/pdf/invoice/:invoiceId` | Branded invoice PDF (Loose Arrows letterhead) |
+| `GET /api/pdf/po/:poId` | Purchase order PDF |
+| `GET /api/pdf/bid/:bidId` | Capability statement PDF |
+
+Powered by `pdfkit`. All require OPERATOR+ key. Files download automatically.
+
+## Rate Limiting
+| Tier | Limit (per 15 min) |
+|---|---|
+| PUBLIC (no key) | 60 requests |
+| OBSERVER | 200 requests |
+| OPERATOR | 1,000 requests |
+| ARCHITECT | 5,000 requests |
+
+Public limiter applied at server level. Tier-aware limiter applied inside `/api` after key validation. Keys bucketed by `apiKeyId`; unauthenticated by IP.
+
 ## Development
 ```bash
 npm run dev     # ts-node-dev hot reload on port 5000

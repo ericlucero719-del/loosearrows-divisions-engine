@@ -8,7 +8,8 @@ import { PrismaClient } from "@prisma/client";
 import { randomBytes }  from "crypto";
 
 // ── Middleware & Admin ────────────────────────────────────────────────────────
-import { requireApiKey } from "./middleware/apiKey";
+import { requireApiKey }  from "./middleware/apiKey";
+import { publicLimiter, tierLimiter } from "./middleware/rateLimiter";
 import adminRouter       from "./routes/admin";
 
 // ── Master API Router (consolidated) ─────────────────────────────────────────
@@ -61,6 +62,9 @@ app.get("/health", (_req, res) => {
 
 // ── Suppress favicon 404 (no browser alert) ───────────────────────────────────
 app.get("/favicon.ico", (_req, res) => res.status(204).end());
+
+// ── Rate limiting — public cap on all routes (tier-aware is applied post-auth inside apiRouter)
+app.use(publicLimiter);           // 60 req / 15 min for unauthenticated traffic
 
 // ── Static assets ─────────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, "..", "public")));
