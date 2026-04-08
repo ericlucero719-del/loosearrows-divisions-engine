@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LOOSE ARROWS SUPPLY LOGISTICS — System Demo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+  --cyan:    #00fff7;
+  --magenta: #ff00c8;
+  --yellow:  #ffe600;
+  --green:   #00ff88;
+  --red:     #ff2244;
+  --orange:  #ff9900;
+  --purple:  #cc44ff;
+  --dim:     #06061a;
+  --panel:   #0d0d2b;
+  --panel2:  #10102e;
+  --border:  #1a1a4a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dim);
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,247,.012) 2px,rgba(0,255,247,.012) 4px);
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── SCANLINE OVERLAY ─────────── */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+body::after {
+  content: '';
+  position: fixed; left: 0; top: 0; width: 100%; height: 80px;
+  background: linear-gradient(transparent, rgba(0,255,247,.04), transparent);
+  pointer-events: none; z-index: 9998;
+  animation: scanline 8s linear infinite;
+}
+
+/* ── TOPBAR ─────────────────────── */
+.topbar {
+  background: var(--panel);
+  border-bottom: 2px solid var(--cyan);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 0 30px rgba(0,255,247,.15);
+}
+
+.brand {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: .9rem;
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan);
+  letter-spacing: 4px;
+}
+.brand span { color: var(--magenta); }
+
+.topbar-nav { display: flex; gap: 1.5rem; align-items: center; }
+.topbar-nav a {
+  color: rgba(0,255,247,.6);
+  text-decoration: none;
+  font-size: .65rem;
+  letter-spacing: 2px;
+  transition: color .2s;
+}
+.topbar-nav a:hover { color: var(--yellow); }
+
+.btn-license {
+  background: var(--magenta);
+  color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: .62rem;
+  letter-spacing: 2px;
+  padding: .4rem 1.2rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 0 18px rgba(255,0,200,.5);
+  transition: box-shadow .2s;
+}
+.btn-license:hover { box-shadow: 0 0 30px rgba(255,0,200,.8); }
+
+/* ── HERO ───────────────────────── */
+.hero {
+  position: relative;
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,255,247,.07) 0%, transparent 70%),
+              radial-gradient(ellipse 50% 40% at 20% 100%, rgba(255,0,200,.06) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 50% at 80% 80%, rgba(204,68,255,.05) 0%, transparent 60%);
+}
+
+.hero-tag {
+  display: inline-block;
+  border: 1px solid var(--magenta);
+  color: var(--magenta);
+  font-size: .6rem;
+  letter-spacing: 4px;
+  padding: .25rem .75rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.8rem, 5vw, 3.4rem);
+  color: var(--cyan);
+  text-shadow: 0 0 40px rgba(0,255,247,.6), 0 0 80px rgba(0,255,247,.2);
+  letter-spacing: 4px;
+  line-height: 1.15;
+  margin-bottom: .75rem;
+}
+.hero h1 em { color: var(--magenta); font-style: normal; }
+
+.hero-sub {
+  font-size: .78rem;
+  color: rgba(0,255,247,.55);
+  letter-spacing: 2px;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+.hstat { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+.hstat-val {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow: 0 0 20px rgba(255,230,0,.5);
+}
+.hstat-lbl { font-size: .55rem; color: rgba(0,255,247,.4); letter-spacing: 3px; }
+
+.hero-ctas { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.cta-primary {
+  background: var(--cyan);
+  color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: .7rem;
+  letter-spacing: 2px;
+  padding: .7rem 2rem;
+  text-decoration: none;
+  box-shadow: 0 0 25px rgba(0,255,247,.5);
+  transition: box-shadow .2s;
+  display: inline-block;
+}
+.cta-primary:hover { box-shadow: 0 0 45px rgba(0,255,247,.9); }
+.cta-secondary {
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: .7rem;
+  letter-spacing: 2px;
+  padding: .7rem 2rem;
+  text-decoration: none;
+  transition: background .2s;
+  display: inline-block;
+}
+.cta-secondary:hover { background: rgba(0,255,247,.08); }
+
+/* ── SECTION HEADERS ─────────────── */
+section { padding: 4rem 2rem; border-bottom: 1px solid var(--border); }
+.sec-header { text-align: center; margin-bottom: 3rem; }
+.sec-tag {
+  font-size: .55rem;
+  letter-spacing: 4px;
+  color: var(--magenta);
+  display: block;
+  margin-bottom: .5rem;
+}
+.sec-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 2px;
+}
+
+/* ── DIVISIONS GRID ─────────────── */
+.divisions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  max-width: 1100px;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+}
+.div-card {
+  background: var(--panel);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  transition: background .2s;
+  position: relative;
+  overflow: hidden;
+}
+.div-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--accent, var(--cyan));
+  box-shadow: 0 0 10px var(--accent, var(--cyan));
+}
+.div-card:hover { background: var(--panel2); }
+.div-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  color: var(--accent, var(--cyan));
+  letter-spacing: 3px;
+  opacity: .7;
+}
+.div-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+}
+.div-desc {
+  font-size: .62rem;
+  color: rgba(0,255,247,.45);
+  line-height: 1.6;
+}
+.div-badge {
+  display: inline-block;
+  font-size: .5rem;
+  letter-spacing: 2px;
+  padding: .15rem .5rem;
+  border: 1px solid;
+  border-color: var(--accent, var(--cyan));
+  color: var(--accent, var(--cyan));
+  margin-top: .25rem;
+  align-self: flex-start;
+}
+
+/* ── DASHBOARDS CARDS ─────────────── */
+.dashboards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.dash-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.dash-card:hover {
+  border-color: var(--accent, var(--cyan));
+  box-shadow: 0 0 30px rgba(0,255,247,.1);
+}
+.dash-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(0,255,247,.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+.dash-icon {
+  font-size: 2rem;
+  margin-bottom: .25rem;
+}
+.dash-name {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: .85rem;
+  color: var(--accent, var(--cyan));
+  letter-spacing: 2px;
+}
+.dash-desc {
+  font-size: .63rem;
+  color: rgba(0,255,247,.5);
+  line-height: 1.65;
+  flex: 1;
+}
+.dash-features { display: flex; flex-direction: column; gap: .35rem; }
+.dash-feat {
+  font-size: .6rem;
+  color: rgba(0,255,247,.55);
+  padding-left: .75rem;
+  position: relative;
+}
+.dash-feat::before { content: '▸'; position: absolute; left: 0; color: var(--accent, var(--cyan)); }
+.dash-link {
+  background: transparent;
+  border: 1px solid var(--accent, var(--cyan));
+  color: var(--accent, var(--cyan));
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 2px;
+  padding: .5rem 1rem;
+  text-decoration: none;
+  text-align: center;
+  transition: background .2s, box-shadow .2s;
+  display: block;
+  margin-top: .5rem;
+}
+.dash-link:hover {
+  background: rgba(0,255,247,.08);
+  box-shadow: 0 0 15px rgba(0,255,247,.2);
+}
+
+/* ── BOT SECTION ─────────────────── */
+.bot-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+@media (max-width: 700px) { .bot-layout { grid-template-columns: 1fr; } }
+
+.bot-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 1.75rem;
+}
+.bot-panel h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .8rem;
+  color: var(--green);
+  text-shadow: 0 0 10px var(--green);
+  letter-spacing: 3px;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(0,255,136,.2);
+  padding-bottom: .75rem;
+}
+.bot-steps { display: flex; flex-direction: column; gap: .5rem; }
+.bot-step {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .5rem;
+  border-left: 2px solid rgba(0,255,136,.2);
+}
+.step-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .55rem;
+  color: var(--green);
+  min-width: 1.5rem;
+  padding-top: .1rem;
+}
+.step-info { display: flex; flex-direction: column; gap: .2rem; }
+.step-name { font-size: .65rem; color: #fff; letter-spacing: 1px; }
+.step-desc { font-size: .58rem; color: rgba(0,255,247,.4); line-height: 1.5; }
+
+.score-table { width: 100%; border-collapse: collapse; }
+.score-table th {
+  font-size: .55rem;
+  letter-spacing: 2px;
+  color: rgba(0,255,136,.5);
+  text-align: left;
+  padding: .4rem;
+  border-bottom: 1px solid rgba(0,255,136,.15);
+}
+.score-table td {
+  font-size: .63rem;
+  color: rgba(0,255,247,.7);
+  padding: .5rem .4rem;
+  border-bottom: 1px solid rgba(0,255,247,.05);
+}
+.score-bar-wrap {
+  width: 80px;
+  background: rgba(0,255,136,.1);
+  height: 4px;
+  border-radius: 2px;
+}
+.score-bar {
+  height: 4px;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  border-radius: 2px;
+}
+
+/* ── PIPELINE SECTION ─────────────── */
+.pipeline-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  max-width: 1000px;
+  margin: 0 auto 3rem;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+}
+.pip-step {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  position: relative;
+  padding: .75rem .5rem;
+}
+.pip-step:not(:last-child)::after {
+  content: '──▸';
+  position: absolute; right: -12px; top: 50%;
+  transform: translateY(-50%);
+  font-size: .6rem;
+  color: var(--yellow);
+  z-index: 1;
+}
+.pip-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--yellow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem;
+  color: var(--yellow);
+  box-shadow: 0 0 12px rgba(255,230,0,.3);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+}
+.pip-label { font-size: .55rem; color: rgba(0,255,247,.5); letter-spacing: 1px; text-align: center; }
+
+.clin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.clin-row {
+  background: var(--panel);
+  padding: .6rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+  font-size: .6rem;
+  transition: background .15s;
+}
+.clin-row:hover { background: var(--panel2); }
+.clin-id { color: var(--yellow); font-family: 'Orbitron', sans-serif; font-size: .58rem; min-width: 70px; }
+.clin-name { color: rgba(0,255,247,.65); flex: 1; }
+.clin-price { color: var(--green); font-family: 'Orbitron', sans-serif; font-size: .65rem; white-space: nowrap; }
+
+/* ── SUPPLIERS SECTION ─────────────── */
+.supplier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.supplier-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--purple);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  transition: border-color .2s;
+}
+.supplier-card:hover { border-left-color: var(--cyan); }
+.sup-name { font-family: 'Orbitron', sans-serif; font-size: .75rem; color: #fff; letter-spacing: 1px; }
+.sup-type { font-size: .57rem; color: var(--purple); letter-spacing: 2px; }
+.sup-clins { font-size: .6rem; color: rgba(0,255,247,.5); line-height: 1.6; }
+.sup-badge {
+  font-size: .5rem;
+  letter-spacing: 2px;
+  padding: .15rem .5rem;
+  border: 1px solid var(--green);
+  color: var(--green);
+  align-self: flex-start;
+}
+
+/* ── API SECTION ─────────────────── */
+.api-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.api-block {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+}
+.api-block h4 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .7rem;
+  color: var(--orange);
+  letter-spacing: 2px;
+  margin-bottom: .75rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(255,153,0,.2);
+}
+.api-route {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  margin-bottom: .5rem;
+}
+.method {
+  font-size: .52rem;
+  padding: .15rem .35rem;
+  font-family: 'Orbitron', sans-serif;
+  min-width: 35px;
+  text-align: center;
+}
+.m-get  { background: rgba(0,255,136,.15); color: var(--green); }
+.m-post { background: rgba(255,153,0,.15); color: var(--orange); }
+.m-put  { background: rgba(0,255,247,.15); color: var(--cyan); }
+.route-path { font-size: .6rem; color: rgba(0,255,247,.55); flex: 1; line-height: 1.4; }
+.route-desc { font-size: .55rem; color: rgba(0,255,247,.3); }
+
+/* ── LIVE STATUS ─────────────────── */
+.status-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+@media (max-width: 600px) { .status-layout { grid-template-columns: 1fr; } }
+.status-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+.status-panel h4 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .7rem;
+  color: var(--cyan);
+  letter-spacing: 3px;
+  margin-bottom: 1rem;
+}
+#live-output {
+  font-size: .62rem;
+  color: var(--green);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  min-height: 120px;
+}
+.pulse { animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+.live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); margin-right: .5rem; }
+
+/* ── LICENSE SECTION ─────────────── */
+.license-section {
+  padding: 5rem 2rem;
+  text-align: center;
+  background: var(--panel);
+  border-top: 2px solid var(--magenta);
+}
+.license-section h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  color: var(--magenta);
+  text-shadow: 0 0 30px rgba(255,0,200,.5);
+  letter-spacing: 3px;
+  margin-bottom: 1rem;
+}
+.license-section p {
+  font-size: .72rem;
+  color: rgba(0,255,247,.55);
+  max-width: 550px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+.license-tiers {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+.tier {
+  background: var(--dim);
+  border: 1px solid var(--border);
+  padding: 1.75rem 2rem;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  align-items: center;
+  transition: border-color .2s, box-shadow .2s;
+}
+.tier.featured {
+  border-color: var(--magenta);
+  box-shadow: 0 0 25px rgba(255,0,200,.2);
+}
+.tier:hover { border-color: var(--cyan); }
+.tier-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .75rem;
+  letter-spacing: 3px;
+  color: var(--cyan);
+}
+.tier.featured .tier-name { color: var(--magenta); }
+.tier-price {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--yellow);
+}
+.tier-price span { font-size: .65rem; color: rgba(255,230,0,.6); }
+.tier-features { text-align: left; list-style: none; }
+.tier-features li {
+  font-size: .6rem;
+  color: rgba(0,255,247,.55);
+  padding: .2rem 0;
+  padding-left: .75rem;
+  position: relative;
+}
+.tier-features li::before { content: '▸'; position: absolute; left: 0; color: var(--green); }
+
+.contact-form {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.form-row { display: flex; gap: .75rem; }
+.form-row input { flex: 1; }
+.contact-form input, .contact-form textarea, .contact-form select {
+  background: var(--dim);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .65rem;
+  padding: .6rem .85rem;
+  width: 100%;
+  outline: none;
+  transition: border-color .2s;
+}
+.contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0,255,247,.1);
+}
+.contact-form textarea { resize: vertical; min-height: 80px; }
+.btn-submit {
+  background: var(--magenta);
+  color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: .65rem;
+  letter-spacing: 3px;
+  padding: .7rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255,0,200,.4);
+  transition: box-shadow .2s;
+}
+.btn-submit:hover { box-shadow: 0 0 40px rgba(255,0,200,.8); }
+
+#form-confirm {
+  display: none;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .75rem;
+  color: var(--green);
+  text-shadow: 0 0 15px var(--green);
+  letter-spacing: 2px;
+  margin-top: 1rem;
+}
+
+/* ── FOOTER ─────────────────────── */
+footer {
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: .58rem;
+  color: rgba(0,255,247,.3);
+  letter-spacing: 2px;
+}
+footer a { color: rgba(0,255,247,.4); text-decoration: none; }
+footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <div class="brand">LOOSE ARROWS <span>//</span> SUPPLY LOGISTICS</div>
+  <nav class="topbar-nav">
+    <a href="#divisions">DIVISIONS</a>
+    <a href="#dashboards">DASHBOARDS</a>
+    <a href="#bot">DIV10-BOT</a>
+    <a href="#pipeline">PIPELINE</a>
+    <a href="/pricing">PRICING</a>
+    <a href="/guide">USER GUIDE</a>
+    <a href="/legal">LEGAL</a>
+    <a href="/pricing" class="btn-license">GET ACCESS</a>
+  </nav>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="hero-tag">CLASSIFIED SYSTEM DEMO — RESTRICTED ACCESS</div>
+    <h1>DIVISIONS <em>ENGINE</em><br>v2.0</h1>
+    <p class="hero-sub">
+      A full-stack government logistics intelligence platform — autonomous contract discovery, 10-division operational engine, cyberpunk command dashboards, and a live bid pipeline.
+    </p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val">10</div><div class="hstat-lbl">OPERATIONAL DIVISIONS</div></div>
+      <div class="hstat"><div class="hstat-val">10</div><div class="hstat-lbl">PRODUCT CATEGORIES</div></div>
+      <div class="hstat"><div class="hstat-val" id="stat-vendors">—</div><div class="hstat-lbl">REGISTERED VENDORS</div></div>
+      <div class="hstat"><div class="hstat-val" id="stat-bids">—</div><div class="hstat-lbl">ACTIVE BIDS</div></div>
+      <div class="hstat"><div class="hstat-val">$3.2K</div><div class="hstat-lbl">BID SUBMITTED</div></div>
+    </div>
+    <div class="hero-ctas">
+      <a href="#dashboards" class="cta-primary">VIEW DASHBOARDS</a>
+      <a href="#license" class="cta-secondary">LICENSING OPTIONS</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── DIVISIONS ── -->
+<section id="divisions">
+  <div class="sec-header">
+    <span class="sec-tag">ARCHITECTURE</span>
+    <div class="sec-title">10-DIVISION OPERATIONAL ENGINE</div>
+  </div>
+  <div class="divisions-grid">
+    <div class="div-card" style="--accent:#00fff7">
+      <div class="div-num">DIVISION 01</div>
+      <div class="div-name">PRODUCT INTAKE & PRICING</div>
+      <div class="div-desc">Bulk product upload, SKU normalization, 10 typed product categories, price management, and catalog versioning.</div>
+      <div class="div-badge">10 PRODUCT TYPES</div>
+    </div>
+    <div class="div-card" style="--accent:#ff00c8">
+      <div class="div-num">DIVISION 02</div>
+      <div class="div-name">CONTRACT ALIGNMENT</div>
+      <div class="div-desc">CLIN-based contract management, agency/NAICS linking, product-to-contract catalog, BPA and IDIQ support.</div>
+      <div class="div-badge">CLIN PRICING</div>
+    </div>
+    <div class="div-card" style="--accent:#ffe600">
+      <div class="div-num">DIVISION 03</div>
+      <div class="div-name">REQUESTS & WORK ORDERS</div>
+      <div class="div-desc">Full bid → quote → submit pipeline. Typed line items, HTML submission docs, quoting engine, and bid tracking.</div>
+      <div class="div-badge">BID PIPELINE</div>
+    </div>
+    <div class="div-card" style="--accent:#00ff88">
+      <div class="div-num">DIVISION 04</div>
+      <div class="div-name">INVENTORY & ASSETS</div>
+      <div class="div-desc">Warehouse asset tracking, stock levels, allocation, reorder management, and inventory audit trails.</div>
+      <div class="div-badge">ASSET TRACKING</div>
+    </div>
+    <div class="div-card" style="--accent:#ff9900">
+      <div class="div-num">DIVISION 05</div>
+      <div class="div-name">LOGISTICS & FULFILLMENT</div>
+      <div class="div-desc">Dispatch engine, rapid-response events, operator task assignment, route management, and tracking updates.</div>
+      <div class="div-badge">DISPATCH ENGINE</div>
+    </div>
+    <div class="div-card" style="--accent:#cc44ff">
+      <div class="div-num">DIVISION 06</div>
+      <div class="div-name">COMPLIANCE & DOCUMENTATION</div>
+      <div class="div-desc">FAR/DFARS compliance records, documentation packages, audit logs, certifications, and regulatory tracking.</div>
+      <div class="div-badge">FAR COMPLIANT</div>
+    </div>
+    <div class="div-card" style="--accent:#00fff7">
+      <div class="div-num">DIVISION 07</div>
+      <div class="div-name">VENDOR & PARTNER MANAGEMENT</div>
+      <div class="div-desc">Supplier registry, capability scoring, SDVOSB/GSA tagging, contract linking, and performance notes.</div>
+      <div class="div-badge">SUPPLIER SCORING</div>
+    </div>
+    <div class="div-card" style="--accent:#ff00c8">
+      <div class="div-num">DIVISION 08</div>
+      <div class="div-name">AGENCY / CUSTOMER MANAGEMENT</div>
+      <div class="div-desc">Government agency accounts, POC management, delivery location records, and past performance tracking.</div>
+      <div class="div-badge">AGENCY MGMT</div>
+    </div>
+    <div class="div-card" style="--accent:#ffe600">
+      <div class="div-num">DIVISION 09</div>
+      <div class="div-name">FINANCIALS</div>
+      <div class="div-desc">Revenue tracking, margin analysis, invoice management, 18% target margin enforcement, and financial reporting.</div>
+      <div class="div-badge">18% MARGIN TARGET</div>
+    </div>
+    <div class="div-card" style="--accent:#00ff88">
+      <div class="div-num">DIVISION 10</div>
+      <div class="div-name">INTELLIGENCE & SYSTEM VIEW</div>
+      <div class="div-desc">Autonomous bot (DIV10-BOT-001), 10-step intelligence loop, Architect Command Layer, and system-wide telemetry.</div>
+      <div class="div-badge">AUTONOMOUS BOT</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DASHBOARDS ── -->
+<section id="dashboards">
+  <div class="sec-header">
+    <span class="sec-tag">COMMAND INTERFACES</span>
+    <div class="sec-title">CYBERPUNK COMMAND DASHBOARDS</div>
+  </div>
+  <div class="dashboards-row">
+
+    <div class="dash-card" style="--accent:#00fff7">
+      <div class="dash-icon">🖥</div>
+      <div class="dash-name">VENDOR COCKPIT</div>
+      <div class="dash-desc">Vendor-facing command terminal. Track active opportunities, bid status, submitted quotes, compliance docs, and delivery workflows — all in real time.</div>
+      <div class="dash-features">
+        <div class="dash-feat">Live opportunity pipeline</div>
+        <div class="dash-feat">Bid status tracking (DRAFT → SUBMITTED)</div>
+        <div class="dash-feat">Quote & CLIN breakdown</div>
+        <div class="dash-feat">Compliance document panel</div>
+        <div class="dash-feat">Delivery workflow monitor</div>
+      </div>
+      <a href="/vendor/dashboard" class="dash-link" target="_blank">▸ OPEN VENDOR COCKPIT</a>
+    </div>
+
+    <div class="dash-card" style="--accent:#ff00c8; ">
+      <div class="dash-icon">🗄</div>
+      <div class="dash-name">OPERATOR CONTROL ROOM</div>
+      <div class="dash-desc">Internal command room for operations managers. Monitor all 10 divisions, manage vendors, view task queues, track financial KPIs, and oversee system health.</div>
+      <div class="dash-features">
+        <div class="dash-feat">10-division status matrix</div>
+        <div class="dash-feat">Vendor registry view</div>
+        <div class="dash-feat">Active task & dispatch queue</div>
+        <div class="dash-feat">Revenue & margin tracking</div>
+        <div class="dash-feat">System-wide alert feed</div>
+      </div>
+      <a href="/operator/dashboard" class="dash-link" style="border-color:#ff00c8;color:#ff00c8;" target="_blank">▸ OPEN OPERATOR CONTROL ROOM</a>
+    </div>
+
+    <div class="dash-card" style="--accent:#00ff88;">
+      <div class="dash-icon">🤖</div>
+      <div class="dash-name">DIVISION 10 COCKPIT</div>
+      <div class="dash-desc">Bot intelligence command center. View the autonomous agent's live loop, opportunity pipeline, supplier match scores, escalation packets, and Architect command log.</div>
+      <div class="dash-features">
+        <div class="dash-feat">10-step autonomous loop monitor</div>
+        <div class="dash-feat">Opportunity status pipeline</div>
+        <div class="dash-feat">5-factor supplier scoring</div>
+        <div class="dash-feat">Escalation packet viewer</div>
+        <div class="dash-feat">Architect command history</div>
+      </div>
+      <a href="/division/10/dashboard" class="dash-link" style="border-color:#00ff88;color:#00ff88;" target="_blank">▸ OPEN DIV10 COCKPIT</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── BOT ── -->
+<section id="bot" style="background: linear-gradient(135deg, var(--dim) 0%, #060e1a 100%);">
+  <div class="sec-header">
+    <span class="sec-tag">DIVISION 10 INTELLIGENCE</span>
+    <div class="sec-title">DIV10-BOT-001 — AUTONOMOUS CONTRACT AGENT</div>
+  </div>
+  <div class="bot-layout">
+
+    <div class="bot-panel">
+      <h3>10-STEP INTELLIGENCE LOOP</h3>
+      <div class="bot-steps">
+        <div class="bot-step"><div class="step-num">01</div><div class="step-info"><div class="step-name">DISCOVER</div><div class="step-desc">Scans government portals for new contract opportunities matching NAICS/PSC codes</div></div></div>
+        <div class="bot-step"><div class="step-num">02</div><div class="step-info"><div class="step-name">CLASSIFY</div><div class="step-desc">Categorizes opportunity by type, set-aside, agency, and value threshold</div></div></div>
+        <div class="bot-step"><div class="step-num">03</div><div class="step-info"><div class="step-name">EXTRACT</div><div class="step-desc">Pulls CLINs, deadlines, deliverables, POC data, and technical requirements</div></div></div>
+        <div class="bot-step"><div class="step-num">04</div><div class="step-info"><div class="step-name">ANALYZE</div><div class="step-desc">Scores fit, evaluates risks, flags compliance gaps and uncertainty categories</div></div></div>
+        <div class="bot-step"><div class="step-num">05</div><div class="step-info"><div class="step-name">MATCH SUPPLIERS</div><div class="step-desc">Weighted 5-factor scoring against vendor registry — reliability, response time, category fit, inventory, past performance</div></div></div>
+        <div class="bot-step"><div class="step-num">06</div><div class="step-info"><div class="step-name">DRAFT</div><div class="step-desc">Auto-generates structured bid draft with CLIN pricing at 18% target margin</div></div></div>
+        <div class="bot-step"><div class="step-num">07</div><div class="step-info"><div class="step-name">ALERT</div><div class="step-desc">Fires typed alerts (12 types) for deadline proximity, supplier gaps, compliance flags</div></div></div>
+        <div class="bot-step"><div class="step-num">08</div><div class="step-info"><div class="step-name">RECOMMEND</div><div class="step-desc">Issues Proceed / Hold / Decline / Revise recommendation with full rationale</div></div></div>
+        <div class="bot-step"><div class="step-num">09</div><div class="step-info"><div class="step-name">LOG</div><div class="step-desc">Commits structured relic to audit trail with 8 relic types and full provenance</div></div></div>
+        <div class="bot-step"><div class="step-num">10</div><div class="step-info"><div class="step-name">AWAIT ARCHITECT</div><div class="step-desc">Escalates to Architect Command Layer with structured spec packet for final authority</div></div></div>
+      </div>
+    </div>
+
+    <div class="bot-panel">
+      <h3>5-FACTOR SUPPLIER SCORING ENGINE</h3>
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>FACTOR</th>
+            <th>WEIGHT</th>
+            <th>SCALE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Reliability</td>
+            <td><div class="score-bar-wrap"><div class="score-bar" style="width:40%"></div></div> 40%</td>
+            <td>0.0 – 1.0</td>
+          </tr>
+          <tr>
+            <td>Response Time</td>
+            <td><div class="score-bar-wrap"><div class="score-bar" style="width:20%"></div></div> 20%</td>
+            <td>0.0 – 1.0</td>
+          </tr>
+          <tr>
+            <td>Category Fit</td>
+            <td><div class="score-bar-wrap"><div class="score-bar" style="width:20%"></div></div> 20%</td>
+            <td>0.0 – 1.0</td>
+          </tr>
+          <tr>
+            <td>Inventory Availability</td>
+            <td><div class="score-bar-wrap"><div class="score-bar" style="width:10%"></div></div> 10%</td>
+            <td>0.0 – 1.0</td>
+          </tr>
+          <tr>
+            <td>Past Performance</td>
+            <td><div class="score-bar-wrap"><div class="score-bar" style="width:10%"></div></div> 10%</td>
+            <td>0.0 – 1.0</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:1.5rem;">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--green);letter-spacing:2px;margin-bottom:.75rem;border-bottom:1px solid rgba(0,255,136,.15);padding-bottom:.5rem;">FIT SCALE</h3>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <div style="width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);"></div>
+            <span style="font-size:.62rem;color:var(--green);">STRONG FIT</span>
+            <span style="font-size:.6rem;color:rgba(0,255,247,.4);margin-left:auto;">≥ 0.80</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <div style="width:12px;height:12px;border-radius:50%;background:var(--yellow);box-shadow:0 0 8px var(--yellow);"></div>
+            <span style="font-size:.62rem;color:var(--yellow);">MODERATE FIT</span>
+            <span style="font-size:.6rem;color:rgba(0,255,247,.4);margin-left:auto;">≥ 0.50</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <div style="width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);"></div>
+            <span style="font-size:.62rem;color:var(--red);">WEAK FIT</span>
+            <span style="font-size:.6rem;color:rgba(0,255,247,.4);margin-left:auto;">< 0.50</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--green);letter-spacing:2px;margin-bottom:.75rem;border-bottom:1px solid rgba(0,255,136,.15);padding-bottom:.5rem;">ARCHITECT COMMAND LAYER</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+          <span style="font-size:.57rem;padding:.2rem .55rem;border:1px solid var(--green);color:var(--green);">PROCEED</span>
+          <span style="font-size:.57rem;padding:.2rem .55rem;border:1px solid var(--yellow);color:var(--yellow);">HOLD</span>
+          <span style="font-size:.57rem;padding:.2rem .55rem;border:1px solid var(--red);color:var(--red);">DECLINE</span>
+          <span style="font-size:.57rem;padding:.2rem .55rem;border:1px solid var(--cyan);color:var(--cyan);">REVISE</span>
+          <span style="font-size:.57rem;padding:.2rem .55rem;border:1px solid var(--purple);color:var(--purple);">MORE INFO</span>
+        </div>
+        <div style="font-size:.58rem;color:rgba(0,255,247,.35);margin-top:.6rem;line-height:1.6;">
+          Structured escalation packets · Ambiguous language rejection · DECLINED status permanently blocks further commands · 6 uncertainty categories
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PIPELINE ── -->
+<section id="pipeline">
+  <div class="sec-header">
+    <span class="sec-tag">LIVE CONTRACT</span>
+    <div class="sec-title">IHS GALLUP BPA — BID SUBMITTED</div>
+  </div>
+
+  <div class="pipeline-track">
+    <div class="pip-step"><div class="pip-dot">✓</div><div class="pip-label">CONTRACT<br>CREATED</div></div>
+    <div class="pip-step"><div class="pip-dot">✓</div><div class="pip-label">BID<br>DRAFTED</div></div>
+    <div class="pip-step"><div class="pip-dot">✓</div><div class="pip-label">13 CLINs<br>PRICED</div></div>
+    <div class="pip-step"><div class="pip-dot">✓</div><div class="pip-label">QUOTE<br>GENERATED</div></div>
+    <div class="pip-step"><div class="pip-dot" style="background:rgba(255,230,0,.1);box-shadow:0 0 20px rgba(255,230,0,.5);">★</div><div class="pip-label" style="color:var(--yellow);">SUBMITTED<br>APR 6 2026</div></div>
+    <div class="pip-step"><div class="pip-dot" style="opacity:.3;">…</div><div class="pip-label" style="opacity:.3;">AWARD<br>PENDING</div></div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:2rem;">
+    <div style="font-size:.6rem;color:rgba(0,255,247,.4);letter-spacing:2px;">SOLICITATION: NOIFCGIMCBPA26003 &nbsp;·&nbsp; AGENCY: HHS/IHS NAVAJO AREA &nbsp;·&nbsp; POC: FELECIA CHAVEZ &nbsp;·&nbsp; DEADLINE: APR 16 2026 &nbsp;·&nbsp; NAICS: 339113</div>
+  </div>
+
+  <div class="clin-grid">
+    <div class="clin-row"><span class="clin-id">CLIN-001</span><span class="clin-name">Sutures — Absorbable/Non-Absorbable</span><span class="clin-price">$85.00</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-002</span><span class="clin-name">Mesh Physio (Surgical Mesh)</span><span class="clin-price">$336.30</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-003</span><span class="clin-name">Charcoal Mega Vac Filters</span><span class="clin-price">$49.56</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-004</span><span class="clin-name">Surgical Staplers</span><span class="clin-price">$1,858.50</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-005</span><span class="clin-name">Veres Needles</span><span class="clin-price">$33.63</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-006</span><span class="clin-name">Cutter Reloads</span><span class="clin-price">$106.14</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-007</span><span class="clin-name">Coated Bovie Tips</span><span class="clin-price">$68.44</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-008</span><span class="clin-name">Curved Shears</span><span class="clin-price">$80.00</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-009</span><span class="clin-name">Suction Canisters</span><span class="clin-price">$12.51</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-010</span><span class="clin-name">Veralink Cassettes</span><span class="clin-price">$182.50</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-011</span><span class="clin-name">Drape Vacs</span><span class="clin-price">$51.80</span></div>
+    <div class="clin-row"><span class="clin-id">CLIN-012</span><span class="clin-name">Incision Dressings</span><span class="clin-price">$18.76</span></div>
+    <div class="clin-row" style="background:rgba(255,230,0,.05)"><span class="clin-id">CLIN-013</span><span class="clin-name">Abthera Tubing Sets</span><span class="clin-price">$336.50</span></div>
+  </div>
+  <div style="text-align:right;max-width:1100px;margin:0 auto;padding:.75rem 1rem;background:var(--panel);border:1px solid var(--border);border-top:none;">
+    <span style="font-size:.6rem;color:rgba(0,255,247,.4);letter-spacing:2px;">BID-001 · QUOTE-001 · </span>
+    <span style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--green);text-shadow:0 0 15px var(--green);">GRAND TOTAL: $3,219.64</span>
+  </div>
+</section>
+
+<!-- ── SUPPLIERS ── -->
+<section id="suppliers" style="background:var(--panel2);">
+  <div class="sec-header">
+    <span class="sec-tag">VENDOR REGISTRY</span>
+    <div class="sec-title">REGISTERED SUPPLY CHAIN PARTNERS</div>
+  </div>
+  <div class="supplier-grid">
+    <div class="supplier-card">
+      <div class="sup-name">Geo-Med LLC</div>
+      <div class="sup-type">SDVOSB · ETHICON AUTHORIZED DISTRIBUTOR</div>
+      <div class="sup-clins">CLINs: 001 (Sutures) · 004 (Staplers) · 005 (Veres Needles) · 006 (Cutter Reloads) · 008 (Curved Shears)<br>J&J/Ethicon full product line · GSA Schedule eligible · Phone: 1-877-865-0400</div>
+      <div class="sup-badge">SDVOSB SET-ASIDE ELIGIBLE</div>
+    </div>
+    <div class="supplier-card">
+      <div class="sup-name">CIA Medical</div>
+      <div class="sup-type">KCI / 3M SOLVENTUM AUTHORIZED DISTRIBUTOR</div>
+      <div class="sup-clins">CLINs: 003 (VAC Filters) · 009 (Suction Canisters) · 010 (Veralink Cassettes) · 011 (Drape Vacs) · 013 (Abthera Tubing)<br>Live pricing verified · Ships within 24 hours for stocked items</div>
+      <div class="sup-badge" style="border-color:var(--cyan);color:var(--cyan);">KCI/3M AUTHORIZED</div>
+    </div>
+    <div class="supplier-card">
+      <div class="sup-name">Mountainside Medical Equipment</div>
+      <div class="sup-type">SDVOSB · BOVIE MEDICAL AUTHORIZED</div>
+      <div class="sup-clins">CLINs: 007 (Coated Bovie Tips) · 009 (Suction Canisters)<br>SDVOSB set-aside eligible · Phone: 1-888-687-4334 · sales@mountainside-medical.com</div>
+      <div class="sup-badge">SDVOSB SET-ASIDE ELIGIBLE</div>
+    </div>
+    <div class="supplier-card">
+      <div class="sup-name">Cardinal Health</div>
+      <div class="sup-type">FEDERAL SUPPLY SCHEDULE HOLDER</div>
+      <div class="sup-clins">CLINs: 009 (Suction Canisters) · 012 (Incision Dressings)<br>IHS/VA/DoD established distributor · GSA MAS contract holder · National distribution network</div>
+      <div class="sup-badge" style="border-color:var(--orange);color:var(--orange);">FEDERAL SUPPLY SCHEDULE</div>
+    </div>
+    <div class="supplier-card">
+      <div class="sup-name">Medline Industries LP</div>
+      <div class="sup-type">GSA MULTIPLE AWARD SCHEDULE · FULL COVERAGE</div>
+      <div class="sup-clins">CLINs: All 13 (backup/primary) · Largest private US medical distributor · IHS procurement specialist · FAR/DFARS compliant · National warehouses</div>
+      <div class="sup-badge" style="border-color:var(--yellow);color:var(--yellow);">GSA MAS HOLDER</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── API DOCS ── -->
+<section id="api">
+  <div class="sec-header">
+    <span class="sec-tag">INTEGRATION LAYER</span>
+    <div class="sec-title">REST API SURFACE</div>
+  </div>
+  <div class="api-grid">
+
+    <div class="api-block">
+      <h4>DIVISION 2 — CONTRACTS</h4>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/division/2/contracts</div><div class="route-desc">Create contract with CLIN structure</div></div></div>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/division/2/contracts/:id/products</div><div class="route-desc">Add CLIN line item to contract</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/division/2/contracts/:id/catalog</div><div class="route-desc">View full CLIN catalog</div></div></div>
+    </div>
+
+    <div class="api-block">
+      <h4>DIVISION 3 — BID PIPELINE</h4>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/division/3/bids</div><div class="route-desc">Create bid with line items</div></div></div>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/division/3/bids/:id/quote</div><div class="route-desc">Generate QUOTE-XXX from bid</div></div></div>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/division/3/bids/:id/submit</div><div class="route-desc">Submit bid for government award</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/division/3/bids/:id/submission</div><div class="route-desc">HTML capability statement doc</div></div></div>
+    </div>
+
+    <div class="api-block">
+      <h4>DIVISION 7 — VENDORS</h4>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/division/7/vendors</div><div class="route-desc">Register supplier with capabilities</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/division/7/vendors</div><div class="route-desc">List all registered vendors</div></div></div>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/division/7/vendors/:id/attach</div><div class="route-desc">Link vendor to contract/request</div></div></div>
+    </div>
+
+    <div class="api-block">
+      <h4>DIVISION 10 — BOT INTELLIGENCE</h4>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/bot/cycle</div><div class="route-desc">Run full 10-step intelligence cycle</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/bot/opportunities</div><div class="route-desc">List all tracked opportunities</div></div></div>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/bot/opportunities/:id/architect-command</div><div class="route-desc">Issue Architect command (PROCEED/HOLD/DECLINE/REVISE)</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/bot/reports/daily</div><div class="route-desc">Daily intelligence report</div></div></div>
+    </div>
+
+    <div class="api-block">
+      <h4>DISPATCH & LOGISTICS</h4>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/rapid-response/events</div><div class="route-desc">Create rapid-response dispatch event</div></div></div>
+      <div class="api-route"><span class="method m-post">POST</span><div><div class="route-path">/rapid-response/tasks</div><div class="route-desc">Assign operator task</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/rapid-response/operators</div><div class="route-desc">List available operators</div></div></div>
+    </div>
+
+    <div class="api-block">
+      <h4>SYSTEM</h4>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/health</div><div class="route-desc">System health + division index</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/bot/architect/authority</div><div class="route-desc">Architect manifest and authority scope</div></div></div>
+      <div class="api-route"><span class="method m-get">GET</span><div><div class="route-path">/dashboards</div><div class="route-desc">Dashboard navigation index</div></div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── LIVE STATUS ── -->
+<section id="live">
+  <div class="sec-header">
+    <span class="sec-tag">REAL-TIME</span>
+    <div class="sec-title">LIVE SYSTEM STATUS</div>
+  </div>
+  <div class="status-layout">
+    <div class="status-panel">
+      <h4><span class="live-dot"></span>SYSTEM HEALTH</h4>
+      <div id="live-output">Connecting to API...</div>
+    </div>
+    <div class="status-panel">
+      <h4><span class="live-dot"></span>VENDOR REGISTRY</h4>
+      <div id="vendor-output">Loading vendors...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LICENSE ── -->
+<section class="license-section" id="license">
+  <h2>REQUEST A LICENSE</h2>
+  <p>Loose Arrows Divisions Engine is available for licensing to qualified logistics, government contracting, and supply chain organizations. Get your team running with the full platform.</p>
+
+  <div class="license-tiers">
+    <div class="tier">
+      <div class="tier-name">OBSERVER</div>
+      <div class="tier-price">$499<span>/mo</span></div>
+      <ul class="tier-features">
+        <li>Read-only API access</li>
+        <li>Vendor Cockpit dashboard</li>
+        <li>Up to 5 active bids</li>
+        <li>Division 2 & 3 access</li>
+        <li>Email support</li>
+      </ul>
+    </div>
+    <div class="tier featured">
+      <div class="tier-name">OPERATOR</div>
+      <div class="tier-price">$1,299<span>/mo</span></div>
+      <ul class="tier-features">
+        <li>Full API access — all 10 divisions</li>
+        <li>All 3 command dashboards</li>
+        <li>Unlimited active bids</li>
+        <li>DIV10-BOT autonomous cycles</li>
+        <li>Vendor registry (50 suppliers)</li>
+        <li>Priority support</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <div class="tier-name">ARCHITECT</div>
+      <div class="tier-price">$3,900<span>/mo</span></div>
+      <ul class="tier-features">
+        <li>Everything in Operator</li>
+        <li>Architect Command Layer</li>
+        <li>Custom NAICS/PSC targeting</li>
+        <li>Unlimited vendor registry</li>
+        <li>White-label option</li>
+        <li>Dedicated support + onboarding</li>
+      </ul>
+    </div>
+  </div>
+
+  <form class="contact-form" id="licenseForm" onsubmit="submitForm(event)">
+    <div class="form-row">
+      <input type="text" placeholder="FULL NAME" required />
+      <input type="text" placeholder="ORGANIZATION" required />
+    </div>
+    <input type="email" placeholder="EMAIL ADDRESS" required />
+    <select>
+      <option value="">SELECT LICENSE TIER</option>
+      <option>OBSERVER — $499/mo</option>
+      <option>OPERATOR — $1,299/mo</option>
+      <option>ARCHITECT — $3,900/mo</option>
+      <option>CUSTOM ENTERPRISE</option>
+    </select>
+    <textarea placeholder="TELL US ABOUT YOUR USE CASE (government contracting, logistics, supply chain...)"></textarea>
+    <button type="submit" class="btn-submit">SUBMIT LICENSE REQUEST</button>
+  </form>
+  <div id="form-confirm">✓ REQUEST RECEIVED — WE'LL BE IN TOUCH WITHIN 24 HOURS</div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div>LOOSE ARROWS SUPPLY LOGISTICS // DIVISIONS ENGINE v2.0 // CLASSIFICATION: DEMO</div>
+  <div>
+    <a href="/vendor/dashboard">VENDOR COCKPIT</a> &nbsp;·&nbsp;
+    <a href="/operator/dashboard">OPERATOR CONTROL ROOM</a> &nbsp;·&nbsp;
+    <a href="/division/10/dashboard">DIV10 COCKPIT</a> &nbsp;·&nbsp;
+    <a href="/health">SYSTEM HEALTH</a>
+  </div>
+  <div>© 2026 LOOSE ARROWS SUPPLY LOGISTICS — ALL RIGHTS RESERVED</div>
+</footer>
+
+<script>
+function submitForm(e) {
+  e.preventDefault();
+  document.getElementById('licenseForm').style.display = 'none';
+  document.getElementById('form-confirm').style.display = 'block';
+}
+
+async function loadLiveStatus() {
+  try {
+    const [health, vendors, bids] = await Promise.all([
+      fetch('/health').then(r => r.json()),
+      fetch('/division/7/vendors').then(r => r.json()),
+      fetch('/division/3/bids').then(r => r.json()),
+    ]);
+
+    const vendorList = vendors.vendors ?? vendors ?? [];
+    const bidList = bids.bids ?? bids ?? [];
+
+    document.getElementById('stat-vendors').textContent = vendorList.length;
+    document.getElementById('stat-bids').textContent = bidList.length;
+
+    const out = [];
+    out.push('> SYSTEM STATUS: ' + (health.status ?? 'ONLINE'));
+    out.push('> DIVISIONS ACTIVE: ' + Object.keys(health.divisions ?? {}).length);
+    out.push('> TIMESTAMP: ' + new Date().toISOString());
+    out.push('');
+    out.push('DIVISION INDEX:');
+    Object.entries(health.divisions ?? {}).forEach(([k, v]) => {
+      out.push('  [' + k.padStart(2,'0') + '] ' + String(v).replace('/division/','').split(' ')[0]);
+    });
+    document.getElementById('live-output').textContent = out.join('\n');
+
+    const vout = [];
+    vout.push('> TOTAL VENDORS: ' + vendorList.length);
+    vout.push('');
+    vendorList.forEach(v => {
+      vout.push('▸ ' + v.name);
+      vout.push('  ' + v.categories.join(' · '));
+      vout.push('  STATUS: ' + v.status.toUpperCase());
+      vout.push('');
+    });
+    document.getElementById('vendor-output').textContent = vout.join('\n');
+
+  } catch(err) {
+    document.getElementById('live-output').textContent = '> ERROR: ' + err.message;
+  }
+}
+
+loadLiveStatus();
+setInterval(loadLiveStatus, 30000);
+</script>
+
+</body>
+</html>

@@ -37,10 +37,14 @@ externalPort = 3000
 localPort = 5000
 externalPort = 5000
 
+[[ports]]
+localPort = 5001
+externalPort = 80
+
 [deployment]
 deploymentTarget = "autoscale"
-run = ["node", "dist/server.js"]
-build = ["bash", "-c", "npx prisma generate && npx tsc"]
+run = ["node", "dist/src/server.js"]
+build = ["bash", "-c", "npx prisma generate && npx tsc && cp -r public dist/ && mkdir -p dist/modules/dashboards && cp modules/dashboards/*.html dist/modules/dashboards/ && mkdir -p dist/src/routes && cp src/routes/*.js dist/src/routes/"]
 
 [userenv]
 

@@ -226,10 +226,10 @@ export async function generateCapabilityStatementPdf(bidId: string, res: Respons
 
   sectionLabel(doc, "Core Capabilities");
   const capabilityText =
-    "Loose Arrows Supply & Logistics™ provides end-to-end government logistics and procurement support " +
+    "Loose Arrows Supply & Logistics\u2122 provides end-to-end government logistics and procurement support " +
     "including sourcing, compliance management, supply chain fulfilment, and last-mile delivery. " +
     "We are a performance-oriented, compliance-first operation registered in SAM.gov and experienced " +
- 2ktt   "in DLA, GSA, and agency-direct procurement channels.";
+    "in DLA, GSA, and agency-direct procurement channels.";
   doc.font(FONT_REG).fontSize(9).fillColor(C.darkGray).text(capabilityText, MARGIN, doc.y, {
     width: doc.page.width - MARGIN * 2, align: "justify",
   });
@@ -237,12 +237,14 @@ export async function generateCapabilityStatementPdf(bidId: string, res: Respons
   sectionLabel(doc, "Quoted Line Items");
   lineItemsTable(doc, bid.lineItems);
 
-  if (bid.notes) { sectionLabel(doc, "Additional Notes"); doc.font(FONT_REG).fontSize(9).fillColor(C.darkGray).text(bid.notes, MARGIN); }
+  if (bid.notes) {
+    sectionLabel(doc, "Additional Notes");
+    doc.font(FONT_REG).fontSize(9).fillColor(C.darkGray).text(bid.notes, MARGIN);
+  }
 
   sectionLabel(doc, "Certifications & Registrations");
-  const certs = ["SAM.gov Registered", "CAGE Code — On File", "UEI — On File", "Small Business — Self-Certified"];
-  certs.forEach(c => {
-    doc.font(FONT_REG).fontSize(9).fillColor(C.darkGray).text("✓  " + c, MARGIN + 10, doc.y);
+  ["SAM.gov Registered", "CAGE Code \u2014 On File", "UEI \u2014 On File", "Small Business \u2014 Self-Certified"].forEach(c => {
+    doc.font(FONT_REG).fontSize(9).fillColor(C.darkGray).text("  " + c, MARGIN + 10, doc.y);
   });
 
   footer(doc);

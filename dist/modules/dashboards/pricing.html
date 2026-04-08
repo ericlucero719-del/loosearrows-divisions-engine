@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LOOSE ARROWS — Plans & Access</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+:root {
+  --cyan:#00fff7; --magenta:#ff00c8; --yellow:#ffe600; --green:#00ff88;
+  --red:#ff2244; --orange:#ff9900; --purple:#cc44ff;
+  --dim:#06061a; --panel:#0d0d2b; --panel2:#10102e; --border:#1a1a4a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--dim);color:#c8d8e8;font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,247,.012) 2px,rgba(0,255,247,.012) 4px);pointer-events:none;z-index:9999;}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+body::after{content:'';position:fixed;left:0;top:0;width:100%;height:80px;background:linear-gradient(transparent,rgba(0,255,247,.04),transparent);pointer-events:none;z-index:9998;animation:scanline 8s linear infinite;}
+.topbar{background:var(--panel);border-bottom:2px solid var(--cyan);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 0 30px rgba(0,255,247,.15);}
+.brand{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.9rem;color:var(--cyan);text-shadow:0 0 20px var(--cyan);letter-spacing:4px;}
+.brand span{color:var(--magenta);}
+.topbar-nav{display:flex;gap:1.5rem;align-items:center;}
+.topbar-nav a{color:#7090b0;text-decoration:none;font-size:.75rem;letter-spacing:2px;transition:color .2s;}
+.topbar-nav a:hover{color:var(--cyan);}
+.topbar-nav .active{color:var(--yellow);}
+
+.hero{padding:4rem 2rem 3rem;text-align:center;background:linear-gradient(135deg,var(--panel) 0%,#08082a 100%);border-bottom:1px solid var(--border);}
+.hero-tag{font-size:.7rem;letter-spacing:4px;color:var(--yellow);margin-bottom:1rem;}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:2.2rem;color:var(--cyan);text-shadow:0 0 40px rgba(0,255,247,.5);margin-bottom:1rem;}
+.hero p{color:#7090b0;font-size:.85rem;max-width:560px;margin:0 auto;line-height:1.7;}
+
+.container{max-width:1100px;margin:0 auto;padding:3rem 2rem;}
+
+/* ── PLANS GRID ── */
+.plans{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-bottom:4rem;}
+.plan{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:2rem;position:relative;display:flex;flex-direction:column;}
+.plan.featured{border-color:var(--cyan);box-shadow:0 0 40px rgba(0,255,247,.1);}
+.plan.featured::before{content:'MOST POPULAR';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--cyan);color:var(--dim);font-family:'Orbitron',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:2px;padding:.3rem 1rem;border-radius:0 0 6px 6px;}
+.plan-tier{font-size:.65rem;letter-spacing:3px;margin-bottom:.5rem;}
+.obs .plan-tier{color:var(--yellow);}
+.opr .plan-tier{color:var(--cyan);}
+.arc .plan-tier{color:var(--magenta);}
+.plan h2{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;margin-bottom:.5rem;}
+.obs h2{color:var(--yellow);}
+.opr h2{color:var(--cyan);}
+.arc h2{color:var(--magenta);}
+.plan-sub{font-size:.75rem;color:#5a7a9a;margin-bottom:1.5rem;line-height:1.5;}
+.price{margin-bottom:1.5rem;}
+.price-amount{font-family:'Orbitron',sans-serif;font-size:2.2rem;font-weight:900;line-height:1;}
+.obs .price-amount{color:var(--yellow);}
+.opr .price-amount{color:var(--cyan);}
+.arc .price-amount{color:var(--magenta);}
+.price-per{font-size:.7rem;color:#5a7a9a;margin-top:.3rem;}
+.features{list-style:none;padding:0;flex:1;margin-bottom:1.5rem;}
+.features li{font-size:.75rem;padding:.4rem 0;border-bottom:1px solid rgba(26,26,74,.6);display:flex;align-items:flex-start;gap:.6rem;color:#9ab0c8;}
+.features li:last-child{border-bottom:none;}
+.features li .icon{flex-shrink:0;margin-top:.1rem;}
+.check{color:var(--green);}
+.cross{color:#2a3a4a;}
+.dash{color:#3a5a7a;}
+.cta{display:block;text-align:center;padding:.9rem 1.5rem;border-radius:4px;font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:2px;text-decoration:none;transition:all .2s;cursor:pointer;border:none;}
+.cta-obs{background:transparent;border:1px solid var(--yellow);color:var(--yellow);}
+.cta-obs:hover{background:rgba(255,230,0,.1);}
+.cta-opr{background:var(--cyan);color:var(--dim);}
+.cta-opr:hover{box-shadow:0 0 20px rgba(0,255,247,.4);transform:translateY(-1px);}
+.cta-arc{background:transparent;border:1px solid var(--magenta);color:var(--magenta);}
+.cta-arc:hover{background:rgba(255,0,200,.08);}
+
+/* ── USE CASES ── */
+.section-title{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--cyan);letter-spacing:3px;margin-bottom:.5rem;}
+.section-sub{font-size:.8rem;color:#5a7a9a;margin-bottom:2rem;}
+.use-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:4rem;}
+.use-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.5rem;border-left:3px solid var(--cyan);}
+.use-card.y{border-left-color:var(--yellow);}
+.use-card.m{border-left-color:var(--magenta);}
+.use-card.g{border-left-color:var(--green);}
+.use-card.o{border-left-color:var(--orange);}
+.use-card h3{font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--cyan);letter-spacing:1px;margin-bottom:.5rem;}
+.use-card.y h3{color:var(--yellow);}
+.use-card.m h3{color:var(--magenta);}
+.use-card.g h3{color:var(--green);}
+.use-card.o h3{color:var(--orange);}
+.use-card p{font-size:.78rem;color:#7090b0;line-height:1.6;}
+
+/* ── WHAT YOU GET ── */
+.what-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:4rem;}
+.what-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.5rem;text-align:center;}
+.what-icon{font-size:1.5rem;margin-bottom:.7rem;}
+.what-card h4{font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--cyan);letter-spacing:1px;margin-bottom:.5rem;}
+.what-card p{font-size:.75rem;color:#7090b0;line-height:1.5;}
+
+/* ── FAQ ── */
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:4rem;}
+.faq-item{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.2rem;}
+.faq-q{font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--yellow);letter-spacing:1px;margin-bottom:.5rem;}
+.faq-a{font-size:.75rem;color:#7090b0;line-height:1.6;}
+
+/* ── CTA BANNER ── */
+.cta-banner{background:linear-gradient(135deg,rgba(0,255,247,.06) 0%,rgba(255,0,200,.04) 100%);border:1px solid rgba(0,255,247,.2);border-radius:8px;padding:3rem 2rem;text-align:center;margin-bottom:3rem;}
+.cta-banner h2{font-family:'Orbitron',sans-serif;font-size:1.4rem;color:var(--cyan);text-shadow:0 0 30px rgba(0,255,247,.3);margin-bottom:.8rem;}
+.cta-banner p{font-size:.82rem;color:#7090b0;margin-bottom:1.5rem;}
+.cta-big{display:inline-block;padding:1rem 3rem;background:var(--cyan);color:var(--dim);font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:3px;text-decoration:none;border-radius:4px;transition:all .2s;}
+.cta-big:hover{box-shadow:0 0 40px rgba(0,255,247,.5);transform:translateY(-2px);}
+
+.footer{text-align:center;padding:2rem;border-top:1px solid var(--border);font-size:.7rem;color:#3a4a5a;}
+.footer a{color:#5a7a9a;text-decoration:none;}
+.footer a:hover{color:var(--cyan);}
+
+/* ── CONTACT FORM ── */
+.contact-section{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:2.5rem;margin-bottom:3rem;}
+.contact-section h2{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--cyan);letter-spacing:2px;margin-bottom:.5rem;}
+.contact-section p{font-size:.8rem;color:#5a7a9a;margin-bottom:1.5rem;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:.4rem;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:.7rem;color:#7090b0;letter-spacing:1px;}
+input,select,textarea{background:#050514;border:1px solid var(--border);border-radius:4px;padding:.65rem .9rem;color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:.8rem;transition:border-color .2s;width:100%;}
+input:focus,select,textarea:focus{outline:none;border-color:var(--cyan);}
+select{color:#7090b0;cursor:pointer;}
+textarea{resize:vertical;min-height:90px;}
+.form-submit{margin-top:1rem;padding:.9rem 2rem;background:var(--cyan);color:var(--dim);border:none;border-radius:4px;font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;}
+.form-submit:hover{box-shadow:0 0 20px rgba(0,255,247,.4);}
+.form-note{font-size:.7rem;color:#3a5a7a;margin-top:.8rem;}
+#form-success{display:none;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);border-radius:4px;padding:1rem;text-align:center;color:var(--green);font-size:.82rem;margin-top:1rem;}
+
+@media(max-width:800px){.plans{grid-template-columns:1fr;}.faq-grid{grid-template-columns:1fr;}.form-grid{grid-template-columns:1fr;}.form-group.full{grid-column:1;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">LOOSE<span>ARROWS</span> // SUPPLY LOGISTICS</div>
+  <nav class="topbar-nav">
+    <a href="/demo">OVERVIEW</a>
+    <a href="/pricing" class="active">PRICING</a>
+    <a href="/guide">USER GUIDE</a>
+    <a href="/legal">LEGAL</a>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">// ACCESS PLANS — DIVISIONS ENGINE v2.0</div>
+  <h1>READY TO OPERATE.</h1>
+  <p>Purpose-built for government logistics contractors. Choose the access level that fits your operation — from read-only visibility to full autonomous intelligence.</p>
+</div>
+
+<div class="container">
+
+  <!-- ── PLANS ── -->
+  <div class="plans">
+
+    <!-- OBSERVER -->
+    <div class="plan obs">
+      <div class="plan-tier">// TIER 1</div>
+      <h2>OBSERVER</h2>
+      <div class="plan-sub">Read-only visibility into your full pipeline. Perfect for stakeholders, reviewers, and auditors who need to see — not touch.</div>
+      <div class="price">
+        <div class="price-amount">$99</div>
+        <div class="price-per">per seat / month</div>
+      </div>
+      <ul class="features">
+        <li><span class="icon check">✓</span> View all contracts &amp; CLINs</li>
+        <li><span class="icon check">✓</span> View all vendor records</li>
+        <li><span class="icon check">✓</span> View full bid pipeline &amp; quotes</li>
+        <li><span class="icon check">✓</span> View pricing &amp; catalog data</li>
+        <li><span class="icon check">✓</span> System health dashboard</li>
+        <li><span class="icon check">✓</span> Secure API key access</li>
+        <li><span class="icon cross">✗</span> Cannot create or modify data</li>
+        <li><span class="icon cross">✗</span> No bot / intelligence access</li>
+      </ul>
+      <a href="#request" class="cta cta-obs">REQUEST ACCESS</a>
+    </div>
+
+    <!-- OPERATOR -->
+    <div class="plan opr featured">
+      <div class="plan-tier">// TIER 2</div>
+      <h2>OPERATOR</h2>
+      <div class="plan-sub">Full pipeline control for your team. Run bids, manage vendors, submit quotes, and operate across all 9 active divisions.</div>
+      <div class="price">
+        <div class="price-amount">$399</div>
+        <div class="price-per">per seat / month</div>
+      </div>
+      <ul class="features">
+        <li><span class="icon check">✓</span> Everything in Observer</li>
+        <li><span class="icon check">✓</span> Create &amp; manage contracts</li>
+        <li><span class="icon check">✓</span> Register &amp; manage vendors</li>
+        <li><span class="icon check">✓</span> Build bids &amp; set pricing</li>
+        <li><span class="icon check">✓</span> Generate quotes &amp; submit bids</li>
+        <li><span class="icon check">✓</span> Print-ready capability statements</li>
+        <li><span class="icon check">✓</span> Full Division 1–9 access</li>
+        <li><span class="icon dash">—</span> Bot commands (Architect only)</li>
+      </ul>
+      <a href="#request" class="cta cta-opr">GET STARTED</a>
+    </div>
+
+    <!-- ARCHITECT -->
+    <div class="plan arc">
+      <div class="plan-tier">// TIER 3</div>
+      <h2>ARCHITECT</h2>
+      <div class="plan-sub">Full system access including the DIV10-BOT-001 autonomous intelligence engine. For power users and technical administrators.</div>
+      <div class="price">
+        <div class="price-amount">CUSTOM</div>
+        <div class="price-per">enterprise pricing — contact us</div>
+      </div>
+      <ul class="features">
+        <li><span class="icon check">✓</span> Everything in Operator</li>
+        <li><span class="icon check">✓</span> DIV10-BOT-001 bot commands</li>
+        <li><span class="icon check">✓</span> Autonomous contract intelligence</li>
+        <li><span class="icon check">✓</span> Opportunity discovery &amp; analysis</li>
+        <li><span class="icon check">✓</span> Architect Command Layer</li>
+        <li><span class="icon check">✓</span> System-level administration</li>
+        <li><span class="icon check">✓</span> Priority support</li>
+        <li><span class="icon check">✓</span> Custom onboarding</li>
+      </ul>
+      <a href="#request" class="cta cta-arc">CONTACT US</a>
+    </div>
+
+  </div>
+
+  <!-- ── WHAT YOU GET ── -->
+  <div class="section-title">// WHAT'S INCLUDED</div>
+  <div class="section-sub">Every plan gives you production-grade access to a platform built specifically for government logistics contractors.</div>
+  <div class="what-grid">
+    <div class="what-card">
+      <div class="what-icon">🏛️</div>
+      <h4>GOV CONTRACT ENGINE</h4>
+      <p>Track BPAs, IDIQs, and open market solicitations. Register CLINs, manage period of performance, and keep your pipeline organized.</p>
+    </div>
+    <div class="what-card">
+      <div class="what-icon">📋</div>
+      <h4>BID PIPELINE</h4>
+      <p>Go from solicitation to submitted bid in one system. Create bids, set pricing, generate quotes, and produce print-ready capability statements.</p>
+    </div>
+    <div class="what-card">
+      <div class="what-icon">🤝</div>
+      <h4>VENDOR REGISTRY</h4>
+      <p>Register SDVOSBs, FSS vendors, and all supply partners. Track capabilities, certifications, and performance in one place.</p>
+    </div>
+    <div class="what-card">
+      <div class="what-icon">🔐</div>
+      <h4>TIERED SECURITY</h4>
+      <p>API key access control with Observer, Operator, and Architect tiers. Every key is individually managed, audited, and revocable in seconds.</p>
+    </div>
+    <div class="what-card">
+      <div class="what-icon">📊</div>
+      <h4>LIVE DASHBOARDS</h4>
+      <p>Vendor cockpit and operator control room dashboards give your team real-time visibility without needing to touch the API.</p>
+    </div>
+    <div class="what-card">
+      <div class="what-icon">🤖</div>
+      <h4>AUTONOMOUS BOT</h4>
+      <p>DIV10-BOT-001 scans for contract opportunities, analyzes solicitations, and feeds intelligence directly into your bid pipeline. (Architect tier)</p>
+    </div>
+    <div class="what-card">
+      <div class="what-icon">📦</div>
+      <h4>10-DIVISION ENGINE</h4>
+      <p>Product intake, inventory, logistics, compliance, financials, agency management — all connected and visible through one API.</p>
+    </div>
+    <div class="what-card">
+      <div class="what-icon">🛡️</div>
+      <h4>PERSISTENT DATABASE</h4>
+      <p>All your data lives in a production PostgreSQL database. Survives every restart and redeployment. No data loss. Ever.</p>
+    </div>
+  </div>
+
+  <!-- ── WHO IS THIS FOR ── -->
+  <div class="section-title">// WHO USES THIS</div>
+  <div class="section-sub">Built for people who operate in the federal government supply chain.</div>
+  <div class="use-cases">
+    <div class="use-card y">
+      <h3>SDVOSB &amp; VOSB CONTRACTORS</h3>
+      <p>Manage your GSA and agency-direct opportunities in one place. Track CLINs, build price proposals, and submit clean capability statements fast.</p>
+    </div>
+    <div class="use-card m">
+      <h3>MEDICAL &amp; LOGISTICS SUPPLIERS</h3>
+      <p>IHS, VA, DoD medical supply? This was built for exactly that. Register your products, manage BPA line items, and track bids across multiple agencies.</p>
+    </div>
+    <div class="use-card g">
+      <h3>PROCUREMENT TEAMS</h3>
+      <p>Give reviewers read-only Observer access to see the full pipeline. Give operators Operator keys to run submissions. No more emailing spreadsheets.</p>
+    </div>
+    <div class="use-card o">
+      <h3>SUBCONTRACTORS &amp; PRIMES</h3>
+      <p>Prime contractors can give subcontractors limited access to see opportunities and submit pricing without exposing the full system.</p>
+    </div>
+  </div>
+
+  <!-- ── FAQ ── -->
+  <div class="section-title">// COMMON QUESTIONS</div>
+  <div class="section-sub">Answers to what people ask before they sign up.</div>
+  <div class="faq-grid">
+    <div class="faq-item">
+      <div class="faq-q">Is there a free trial?</div>
+      <div class="faq-a">Yes. Contact us and we'll set you up with a 14-day Observer key at no cost so you can explore the full system before committing.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I actually access the platform?</div>
+      <div class="faq-a">You get an API key sent to you after signup. Add it as a header in your API client or integrate it into your code. The User Guide walks you through it step by step.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can my whole team use one key?</div>
+      <div class="faq-a">You can, but we recommend individual keys per person. Each key is separately tracked and can be revoked independently — better security for your operation.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is my data safe?</div>
+      <div class="faq-a">All data is stored in an encrypted PostgreSQL database. Connections are TLS-secured. Every key is individually managed. Access logs are maintained.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Does this guarantee I'll win contracts?</div>
+      <div class="faq-a">No platform can guarantee award — that's the CO's decision. What we do is make your pipeline cleaner, your submissions faster, and your data organized so you can submit more bids with less effort.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's included in enterprise/Architect pricing?</div>
+      <div class="faq-a">Custom onboarding, dedicated support, the full DIV10-BOT intelligence engine, and system-level access. Contact us to discuss your operation's needs.</div>
+    </div>
+  </div>
+
+  <!-- ── REQUEST ACCESS FORM ── -->
+  <div class="contact-section" id="request">
+    <h2>REQUEST ACCESS</h2>
+    <p>Tell us about your operation and which tier you're looking at. We'll get back to you within 1 business day.</p>
+    <form id="access-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>YOUR NAME</label>
+          <input type="text" id="f-name" placeholder="First Last" required />
+        </div>
+        <div class="form-group">
+          <label>EMAIL ADDRESS</label>
+          <input type="email" id="f-email" placeholder="you@company.com" required />
+        </div>
+        <div class="form-group">
+          <label>COMPANY / ORGANIZATION</label>
+          <input type="text" id="f-org" placeholder="Acme Supply LLC" />
+        </div>
+        <div class="form-group">
+          <label>ACCESS TIER REQUESTED</label>
+          <select id="f-tier">
+            <option value="">— Select Tier —</option>
+            <option value="OBSERVER">Observer — $99/mo (read-only)</option>
+            <option value="OPERATOR">Operator — $399/mo (full pipeline)</option>
+            <option value="ARCHITECT">Architect — Enterprise (contact us)</option>
+            <option value="TRIAL">14-Day Free Trial (Observer)</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>TELL US ABOUT YOUR OPERATION</label>
+          <textarea id="f-notes" placeholder="What agencies do you work with? What are you trying to accomplish?"></textarea>
+        </div>
+      </div>
+      <button type="submit" class="form-submit">SUBMIT REQUEST →</button>
+      <div class="form-note">We don't spam. Your info is used only to process your access request. See our <a href="/legal#privacy" style="color:var(--cyan);">Privacy Policy</a>.</div>
+      <div id="form-success">
+        ✓ REQUEST RECEIVED — We'll be in touch within 1 business day. Check your email.
+      </div>
+    </form>
+  </div>
+
+  <!-- ── BOTTOM CTA ── -->
+  <div class="cta-banner">
+    <h2>READY TO SEE IT LIVE?</h2>
+    <p>The demo page shows everything in action — no key required. Then come back here when you're ready to operate.</p>
+    <a href="/demo" class="cta-big">VIEW SYSTEM DEMO</a>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>© 2026 Loose Arrows Supply &amp; Logistics — All Rights Reserved</p>
+  <p style="margin-top:.5rem;">
+    <a href="/demo">Overview</a> &nbsp;·&nbsp;
+    <a href="/pricing">Pricing</a> &nbsp;·&nbsp;
+    <a href="/guide">User Guide</a> &nbsp;·&nbsp;
+    <a href="/legal">Legal</a>
+  </p>
+</div>
+
+<script>
+document.getElementById('access-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name  = document.getElementById('f-name').value;
+  const email = document.getElementById('f-email').value;
+  const org   = document.getElementById('f-org').value;
+  const tier  = document.getElementById('f-tier').value;
+  const notes = document.getElementById('f-notes').value;
+  if (!name || !email) return;
+  const subject = encodeURIComponent(`[ACCESS REQUEST] ${tier || 'Tier TBD'} — ${org || name}`);
+  const body = encodeURIComponent(
+    `Name: ${name}\nEmail: ${email}\nCompany: ${org}\nTier Requested: ${tier}\n\nAbout their operation:\n${notes}`
+  );
+  window.location.href = `mailto:access@loosearrows.com?subject=${subject}&body=${body}`;
+  document.getElementById('form-success').style.display = 'block';
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LOOSE ARROWS — User Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+:root {
+  --cyan:#00fff7; --magenta:#ff00c8; --yellow:#ffe600; --green:#00ff88;
+  --red:#ff2244; --orange:#ff9900; --purple:#cc44ff;
+  --dim:#06061a; --panel:#0d0d2b; --panel2:#10102e; --border:#1a1a4a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--dim);color:#c8d8e8;font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,247,.012) 2px,rgba(0,255,247,.012) 4px);pointer-events:none;z-index:9999;}
+.topbar{background:var(--panel);border-bottom:2px solid var(--cyan);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 0 30px rgba(0,255,247,.15);}
+.brand{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.9rem;color:var(--cyan);text-shadow:0 0 20px var(--cyan);letter-spacing:4px;}
+.brand span{color:var(--magenta);}
+.topbar-nav{display:flex;gap:1.5rem;align-items:center;}
+.topbar-nav a{color:#7090b0;text-decoration:none;font-size:.75rem;letter-spacing:2px;transition:color .2s;}
+.topbar-nav a:hover{color:var(--cyan);}
+.topbar-nav .active{color:var(--yellow);}
+.hero{background:linear-gradient(135deg,var(--panel) 0%,#0a0a1e 100%);border-bottom:1px solid var(--border);padding:3rem 2rem 2rem;text-align:center;}
+.hero-tag{font-size:.7rem;letter-spacing:4px;color:var(--green);margin-bottom:1rem;opacity:.8;}
+.hero h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:2rem;color:var(--cyan);text-shadow:0 0 30px rgba(0,255,247,.4);margin-bottom:.5rem;}
+.hero p{color:#7090b0;font-size:.8rem;letter-spacing:1px;}
+.container{max-width:960px;margin:0 auto;padding:2rem;}
+.toc{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:4px;padding:1.5rem;margin-bottom:2.5rem;}
+.toc-title{font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--green);letter-spacing:3px;margin-bottom:1rem;}
+.toc ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.3rem;}
+.toc a{color:#7090b0;text-decoration:none;font-size:.75rem;transition:color .2s;}
+.toc a:hover{color:var(--green);}
+.section{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:2rem;margin-bottom:1.5rem;position:relative;}
+.section::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.section.cyan::before{background:var(--cyan);}
+.section.green::before{background:var(--green);}
+.section.yellow::before{background:var(--yellow);}
+.section.magenta::before{background:var(--magenta);}
+.section.orange::before{background:var(--orange);}
+.section.purple::before{background:var(--purple);}
+.section-tag{font-size:.65rem;letter-spacing:3px;opacity:.6;margin-bottom:.5rem;}
+.section h2{font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:1.2rem;}
+.section.cyan h2{color:var(--cyan);}
+.section.green h2{color:var(--green);}
+.section.yellow h2{color:var(--yellow);}
+.section.magenta h2{color:var(--magenta);}
+.section.orange h2{color:var(--orange);}
+.section.purple h2{color:var(--purple);}
+.section h3{font-family:'Orbitron',sans-serif;font-size:.8rem;color:#a0c0d8;letter-spacing:1px;margin:1.4rem 0 .6rem;}
+p{font-size:.82rem;color:#9ab0c8;margin-bottom:.9rem;}
+ul,ol{padding-left:1.4rem;margin-bottom:.9rem;}
+li{font-size:.82rem;color:#9ab0c8;margin-bottom:.35rem;}
+code,.code{background:rgba(0,255,247,.07);border:1px solid rgba(0,255,247,.15);border-radius:3px;padding:.15rem .4rem;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--cyan);}
+.code-block{background:#050514;border:1px solid var(--border);border-left:3px solid var(--cyan);border-radius:4px;padding:1rem 1.2rem;margin:1rem 0;font-size:.78rem;line-height:1.8;overflow-x:auto;white-space:pre;}
+.code-block .comment{color:#3a5a7a;}
+.code-block .key{color:var(--yellow);}
+.code-block .val{color:var(--green);}
+.code-block .method{color:var(--magenta);}
+.code-block .url{color:var(--cyan);}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1rem 0;}
+.step-card{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:1.2rem;position:relative;}
+.step-num{font-family:'Orbitron',sans-serif;font-size:1.4rem;color:rgba(0,255,247,.2);font-weight:900;line-height:1;margin-bottom:.5rem;}
+.step-card h4{font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--cyan);letter-spacing:1px;margin-bottom:.5rem;}
+.step-card p{font-size:.75rem;color:#7090b0;margin:0;}
+.tier-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:1rem 0;}
+.tier-card{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:1.2rem;text-align:center;}
+.tier-name{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:.5rem;}
+.tier-card .obs{color:var(--yellow);}
+.tier-card .opr{color:var(--cyan);}
+.tier-card .arc{color:var(--magenta);}
+.tier-card ul{list-style:none;padding:0;text-align:left;}
+.tier-card li{font-size:.72rem;color:#7090b0;margin-bottom:.25rem;padding-left:.8rem;position:relative;}
+.tier-card li::before{content:'›';position:absolute;left:0;color:inherit;}
+.error-table{width:100%;border-collapse:collapse;font-size:.78rem;margin:1rem 0;}
+.error-table th{background:rgba(0,255,247,.08);color:var(--cyan);padding:.6rem 1rem;text-align:left;border-bottom:1px solid var(--border);font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:1px;}
+.error-table td{padding:.6rem 1rem;border-bottom:1px solid rgba(26,26,74,.6);color:#9ab0c8;vertical-align:top;}
+.error-table tr:hover td{background:rgba(0,255,247,.03);}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:3px;font-size:.7rem;font-weight:700;font-family:'Orbitron',sans-serif;}
+.b-401{background:rgba(255,34,68,.15);color:var(--red);border:1px solid rgba(255,34,68,.3);}
+.b-403{background:rgba(255,153,0,.15);color:var(--orange);border:1px solid rgba(255,153,0,.3);}
+.b-404{background:rgba(255,230,0,.15);color:var(--yellow);border:1px solid rgba(255,230,0,.3);}
+.b-400{background:rgba(204,68,255,.15);color:var(--purple);border:1px solid rgba(204,68,255,.3);}
+.b-200{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3);}
+.b-201{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3);}
+.tip-box{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:4px;padding:1rem 1.2rem;margin:1rem 0;}
+.tip-box p{color:#7abcaa;margin:0;font-size:.8rem;}
+.tip-box strong{color:var(--green);}
+.warn-box{background:rgba(255,153,0,.06);border:1px solid rgba(255,153,0,.25);border-radius:4px;padding:1rem 1.2rem;margin:1rem 0;}
+.warn-box p{color:#cc9060;margin:0;font-size:.8rem;}
+.warn-box strong{color:var(--orange);}
+.faq-item{margin-bottom:1.2rem;border-bottom:1px solid var(--border);padding-bottom:1.2rem;}
+.faq-q{font-size:.82rem;color:var(--yellow);margin-bottom:.4rem;font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:1px;}
+.faq-a{font-size:.8rem;color:#9ab0c8;}
+.nav-dots{display:flex;gap:.5rem;justify-content:center;margin:2rem 0 1rem;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.footer{text-align:center;padding:2rem;border-top:1px solid var(--border);font-size:.7rem;color:#3a4a5a;margin-top:2rem;}
+.footer a{color:#5a7a9a;text-decoration:none;}
+.footer a:hover{color:var(--cyan);}
+@media(max-width:700px){.tier-grid{grid-template-columns:1fr;}.toc ul{grid-template-columns:1fr;}.hero h1{font-size:1.4rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">LOOSE<span>ARROWS</span> // SUPPLY LOGISTICS</div>
+  <nav class="topbar-nav">
+    <a href="/demo">OVERVIEW</a>
+    <a href="/guide" class="active">USER GUIDE</a>
+    <a href="/legal">LEGAL</a>
+    <a href="/api">API DOCS</a>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">// OPERATOR KNOWLEDGE BASE</div>
+  <h1>USER GUIDE &amp; REFERENCE</h1>
+  <p>Everything you need to operate the Divisions Engine from day one</p>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <div class="toc-title">// CONTENTS</div>
+    <ul>
+      <li><a href="#quickstart">01 — Quick Start</a></li>
+      <li><a href="#tiers">02 — Access Tiers</a></li>
+      <li><a href="#api-basics">03 — Using Your API Key</a></li>
+      <li><a href="#pipeline">04 — Bid Pipeline Walkthrough</a></li>
+      <li><a href="#vendors">05 — Vendor Management</a></li>
+      <li><a href="#contracts">06 — Contract Registry</a></li>
+      <li><a href="#bids">07 — Bids &amp; Quotes</a></li>
+      <li><a href="#bot">08 — Division 10 Bot</a></li>
+      <li><a href="#dashboards">09 — Dashboards</a></li>
+      <li><a href="#errors">10 — Error Reference</a></li>
+      <li><a href="#security">11 — Security Best Practices</a></li>
+      <li><a href="#faq">12 — FAQ</a></li>
+    </ul>
+  </div>
+
+  <!-- 01 QUICK START -->
+  <div class="section green" id="quickstart">
+    <div class="section-tag">// 01</div>
+    <h2>QUICK START</h2>
+    <p>Welcome to the Loose Arrows Divisions Engine. Here's how to go from zero to operational in four steps:</p>
+
+    <div class="step-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h4>Get Your Key</h4>
+        <p>Contact your system administrator to receive an API key. They'll assign you the right access tier for your role.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h4>Test Your Key</h4>
+        <p>Make a GET request to <code>/division/10/system/health</code> first (no key needed), then to <code>/division/7/vendors</code> with your key header to confirm access.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h4>Set Up Data</h4>
+        <p>Create your first contract (Division 2), register your vendors (Division 7), then build your bid pipeline (Division 3).</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <h4>Run the Pipeline</h4>
+        <p>Create a bid → add line items → generate a quote → submit. Your submission document is ready to print.</p>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <p><strong>TIP:</strong> The public demo at <code>/demo</code> shows a live view of the system — no key needed. Great for showing stakeholders what the platform does.</p>
+    </div>
+  </div>
+
+  <!-- 02 TIERS -->
+  <div class="section yellow" id="tiers">
+    <div class="section-tag">// 02</div>
+    <h2>ACCESS TIERS EXPLAINED</h2>
+    <p>Every API key has a tier. Your tier determines what you can see and do. The system enforces this automatically — no trust model required.</p>
+
+    <div class="tier-grid">
+      <div class="tier-card">
+        <div class="tier-name obs">OBSERVER</div>
+        <div style="font-size:.65rem;color:#5a7a6a;margin-bottom:.8rem;">Read-only access</div>
+        <ul>
+          <li class="obs">View all contracts</li>
+          <li class="obs">View all vendors</li>
+          <li class="obs">View bids &amp; pipeline</li>
+          <li class="obs">View catalog &amp; pricing</li>
+          <li style="color:#3a4a5a;">Cannot create anything</li>
+          <li style="color:#3a4a5a;">Cannot modify anything</li>
+          <li style="color:#3a4a5a;">No bot access</li>
+        </ul>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name opr">OPERATOR</div>
+        <div style="font-size:.65rem;color:#3a6a7a;margin-bottom:.8rem;">Full pipeline access</div>
+        <ul>
+          <li class="opr">Everything Observer can do</li>
+          <li class="opr">Create &amp; edit contracts</li>
+          <li class="opr">Register &amp; manage vendors</li>
+          <li class="opr">Create bids, quotes, submit</li>
+          <li class="opr">Manage inventory &amp; orders</li>
+          <li class="opr">Division 1–9 full access</li>
+          <li style="color:#3a4a5a;">No bot commands (Div 10)</li>
+        </ul>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name arc">ARCHITECT</div>
+        <div style="font-size:.65rem;color:#6a3a7a;margin-bottom:.8rem;">Full system access</div>
+        <ul>
+          <li class="arc">Everything Operator can do</li>
+          <li class="arc">Division 10 bot commands</li>
+          <li class="arc">Autonomous intelligence</li>
+          <li class="arc">Contract discovery &amp; analysis</li>
+          <li class="arc">System-level commands</li>
+          <li class="arc">Architect Command Layer</li>
+          <li class="arc">Admin key management</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>NOTE:</strong> Tier upgrades must be requested through your administrator. The system cannot self-upgrade tiers.</p>
+    </div>
+  </div>
+
+  <!-- 03 API BASICS -->
+  <div class="section cyan" id="api-basics">
+    <div class="section-tag">// 03</div>
+    <h2>USING YOUR API KEY</h2>
+
+    <h3>The Rule: One Header, Every Request</h3>
+    <p>Add your key as <code>X-API-Key</code> in every request to a <code>/division/*</code> endpoint. That's it. No sessions, no cookies, no login flow.</p>
+
+    <div class="code-block"><span class="comment"># cURL example</span>
+<span class="method">GET</span> <span class="url">https://your-app.replit.app/division/7/vendors</span>
+<span class="key">X-API-Key:</span> <span class="val">la-opr-your-key-here</span></div>
+
+    <div class="code-block"><span class="comment"># POST example — create a vendor</span>
+<span class="method">POST</span> <span class="url">https://your-app.replit.app/division/7/vendors</span>
+<span class="key">X-API-Key:</span> <span class="val">la-opr-your-key-here</span>
+<span class="key">Content-Type:</span> <span class="val">application/json</span>
+
+{
+  "name": "Acme Medical Supply",
+  "categories": ["wound-care", "surgical"],
+  "contactEmail": "orders@acme.com",
+  "status": "active"
+}</div>
+
+    <h3>Using Postman</h3>
+    <ol>
+      <li>Open Postman → select your request → go to the <strong>Headers</strong> tab</li>
+      <li>Add key: <code>X-API-Key</code> / Value: your key string</li>
+      <li>For POST/PATCH requests, set <code>Content-Type: application/json</code> in Headers and put your JSON in the Body tab → raw → JSON</li>
+    </ol>
+
+    <h3>Using a Browser (Observer only)</h3>
+    <p>Browsers can't easily send custom headers for regular page loads. For read-only browsing, use the dashboard pages at <code>/vendor/dashboard</code> or <code>/operator/dashboard</code>. For API calls from the browser, use the browser console with fetch():</p>
+    <div class="code-block"><span class="comment">// Browser console</span>
+fetch('<span class="url">/division/3/bids</span>', {
+  headers: { '<span class="key">X-API-Key</span>': '<span class="val">la-obs-your-key</span>' }
+}).then(r => r.json()).then(console.log)</div>
+
+    <h3>Key Format Reference</h3>
+    <ul>
+      <li>Observer keys start with: <code>la-obs-</code></li>
+      <li>Operator keys start with: <code>la-opr-</code></li>
+      <li>Architect keys start with: <code>la-arc-</code></li>
+    </ul>
+
+    <div class="tip-box">
+      <p><strong>NO KEY NEEDED</strong> for: <code>/demo</code>, <code>/guide</code>, <code>/legal</code>, <code>/api</code>, <code>/division/10/system/health</code>, and all dashboard HTML pages.</p>
+    </div>
+  </div>
+
+  <!-- 04 PIPELINE -->
+  <div class="section magenta" id="pipeline">
+    <div class="section-tag">// 04</div>
+    <h2>BID PIPELINE — FULL WALKTHROUGH</h2>
+    <p>The core workflow of the Divisions Engine. Here's the complete path from a government solicitation to a submitted bid with a generated capability statement.</p>
+
+    <h3>Step 1 — Register the Contract Opportunity</h3>
+    <p>Every bid needs a contract record (Division 2). This represents the government solicitation you're responding to.</p>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/2/contracts</span>
+<span class="key">X-API-Key:</span> <span class="val">la-opr-...</span>
+
+{
+  "contractName": "Gallup IHS Medical BPA",
+  "agency": "HHS/IHS — Navajo Area",
+  "naics": "339113",
+  "contractRef": "NOIFCGIMCBPA26003",
+  "periodOfPerformance": "Base + 4 Options",
+  "status": "active"
+}
+
+<span class="comment">→ Returns: { contractId: "cmXXX...", ... }</span></div>
+
+    <h3>Step 2 — Add CLINs to the Contract</h3>
+    <p>Add each Contract Line Item Number (CLIN) with its pricing. These auto-populate into bids.</p>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/2/contracts/{contractId}/products</span>
+
+{
+  "sku": "ETH2960G",
+  "clin": "CLIN-001",
+  "contractPrice": 85.00,
+  "notes": "Sutures — per box"
+}
+
+<span class="comment">→ Repeat for each CLIN</span></div>
+
+    <h3>Step 3 — Register Your Vendor</h3>
+    <p>The vendor represents your company or a supplier submitting the bid (Division 7).</p>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/7/vendors</span>
+
+{
+  "name": "Loose Arrows Supply & Logistics",
+  "categories": ["medical", "surgical"],
+  "contactEmail": "bids@loosearrows.com",
+  "status": "active"
+}
+
+<span class="comment">→ Returns: { id: "cmXXX...", ... }</span></div>
+
+    <h3>Step 4 — Create the Bid</h3>
+    <p>Link the contract and vendor. Line items auto-populate from the contract CLINs, or you can provide them manually.</p>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/3/bids</span>
+
+{
+  "contractId": "cmXXX...",
+  "vendorId": "cmXXX...",
+  "vendorName": "Loose Arrows Supply & Logistics",
+  "notes": "IHS Gallup BPA — Base Year Pricing"
+}
+
+<span class="comment">→ Returns: { bidId: "cmXXX...", bidRef: "BID-001", status: "DRAFT", ... }</span></div>
+
+    <h3>Step 5 — Adjust Pricing (Optional)</h3>
+    <p>If you need to change unit prices before submission:</p>
+    <div class="code-block"><span class="method">PATCH</span> <span class="url">/division/3/bids/{bidId}/pricing</span>
+
+{
+  "prices": [
+    { "sku": "ETH2960G", "unitPrice": 82.50, "quantity": 15 }
+  ]
+}</div>
+
+    <h3>Step 6 — Submit the Bid</h3>
+    <p>This changes status from DRAFT → SUBMITTED and generates a quote reference automatically.</p>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/3/bids/{bidId}/submit</span>
+
+<span class="comment">→ Returns: { status: "SUBMITTED", quoteRef: "QUOTE-001", submittedAt: "...", ... }</span></div>
+
+    <h3>Step 7 — Get Your Submission Document</h3>
+    <p>This returns a print-ready HTML capability statement and price list for the solicitation.</p>
+    <div class="code-block"><span class="method">GET</span> <span class="url">/division/3/bids/{bidId}/submission</span>
+
+<span class="comment">→ Returns: Full HTML document (Ctrl+P to print or save as PDF)</span></div>
+
+    <div class="tip-box">
+      <p><strong>TIP:</strong> The submission document automatically includes your vendor info, all CLINs, pricing table, terms &amp; conditions, and a signature block — ready to send to the contracting officer.</p>
+    </div>
+  </div>
+
+  <!-- 05 VENDORS -->
+  <div class="section green" id="vendors">
+    <div class="section-tag">// 05</div>
+    <h2>VENDOR MANAGEMENT (DIVISION 7)</h2>
+
+    <h3>List All Vendors</h3>
+    <div class="code-block"><span class="method">GET</span> <span class="url">/division/7/vendors</span>
+<span class="comment">→ Returns array of all vendor records</span></div>
+
+    <h3>Create a Vendor</h3>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/7/vendors</span>
+{
+  "name": "Vendor Name",
+  "categories": ["medical", "surgical"],
+  "capabilities": ["drop-ship", "bulk-order"],
+  "contactEmail": "contact@vendor.com",
+  "performanceNotes": "SDVOSB certified, FSS approved",
+  "status": "active"
+}</div>
+
+    <h3>Update a Vendor</h3>
+    <div class="code-block"><span class="method">PUT</span> <span class="url">/division/7/vendors/{id}</span>
+{ "status": "inactive", "performanceNotes": "Contract ended FY25" }</div>
+
+    <h3>Link a Vendor to a Contract</h3>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/7/vendors/{id}/attach</span>
+{ "type": "contract", "referenceId": "{contractId}" }</div>
+
+    <p>Vendor categories can be anything relevant: <code>medical</code>, <code>surgical</code>, <code>wound-care</code>, <code>office-supplies</code>, <code>it-equipment</code>, etc.</p>
+  </div>
+
+  <!-- 06 CONTRACTS -->
+  <div class="section cyan" id="contracts">
+    <div class="section-tag">// 06</div>
+    <h2>CONTRACT REGISTRY (DIVISION 2)</h2>
+
+    <h3>Contract Statuses</h3>
+    <ul>
+      <li><code>draft</code> — Being set up, not yet open for bids</li>
+      <li><code>active</code> — Open for bidding, shows in the bid pipeline</li>
+      <li><code>expired</code> — Period of performance ended</li>
+      <li><code>cancelled</code> — Solicitation withdrawn</li>
+    </ul>
+
+    <h3>Key Endpoints</h3>
+    <div class="code-block"><span class="method">GET</span>   <span class="url">/division/2/contracts</span>          <span class="comment"># list all</span>
+<span class="method">GET</span>   <span class="url">/division/2/contracts/{id}</span>       <span class="comment"># single contract + CLINs</span>
+<span class="method">POST</span>  <span class="url">/division/2/contracts</span>          <span class="comment"># create new</span>
+<span class="method">POST</span>  <span class="url">/division/2/contracts/{id}/products</span>  <span class="comment"># add CLIN</span>
+<span class="method">PATCH</span> <span class="url">/division/2/contracts/{id}</span>      <span class="comment"># update status/details</span>
+<span class="method">GET</span>   <span class="url">/division/2/contracts/{id}/catalog</span>  <span class="comment"># view CLIN catalog</span></div>
+
+    <div class="tip-box">
+      <p><strong>TIP:</strong> You can look up a contract by its <code>contractRef</code> (e.g. "NOIFCGIMCBPA26003") instead of the internal ID in most endpoints. Both work.</p>
+    </div>
+  </div>
+
+  <!-- 07 BIDS -->
+  <div class="section orange" id="bids">
+    <div class="section-tag">// 07</div>
+    <h2>BIDS &amp; QUOTES (DIVISION 3)</h2>
+
+    <h3>Bid Statuses &amp; What They Mean</h3>
+    <ul>
+      <li><code>DRAFT</code> — Being built. Line items and pricing can still be edited.</li>
+      <li><code>SUBMITTED</code> — Finalized and submitted. No more edits.</li>
+      <li><code>UNDER_REVIEW</code> — Government is evaluating the bid.</li>
+      <li><code>AWARDED</code> — You won. Contract awarded.</li>
+      <li><code>LOST</code> — Another vendor was selected.</li>
+      <li><code>WITHDRAWN</code> — You pulled the bid before award.</li>
+    </ul>
+
+    <h3>Key Endpoints</h3>
+    <div class="code-block"><span class="method">GET</span>   <span class="url">/division/3/bid-pipeline</span>       <span class="comment"># active contracts open for bidding</span>
+<span class="method">GET</span>   <span class="url">/division/3/bids</span>               <span class="comment"># all bids</span>
+<span class="method">GET</span>   <span class="url">/division/3/bids?status=DRAFT</span>  <span class="comment"># filter by status</span>
+<span class="method">POST</span>  <span class="url">/division/3/bids</span>               <span class="comment"># create bid</span>
+<span class="method">POST</span>  <span class="url">/division/3/bids/{id}/line-items</span>  <span class="comment"># replace line items (DRAFT only)</span>
+<span class="method">PATCH</span> <span class="url">/division/3/bids/{id}/pricing</span>  <span class="comment"># update prices (pre-award)</span>
+<span class="method">POST</span>  <span class="url">/division/3/bids/{id}/quote</span>    <span class="comment"># generate quote reference</span>
+<span class="method">POST</span>  <span class="url">/division/3/bids/{id}/submit</span>   <span class="comment"># DRAFT → SUBMITTED</span>
+<span class="method">PATCH</span> <span class="url">/division/3/bids/{id}/status</span>   <span class="comment"># update outcome status</span>
+<span class="method">GET</span>   <span class="url">/division/3/bids/{id}/submission</span>  <span class="comment"># printable capability statement</span></div>
+
+    <h3>Manual Line Items</h3>
+    <p>If you want to set line items manually instead of auto-populating from the contract catalog:</p>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/3/bids/{id}/line-items</span>
+{
+  "lineItems": [
+    { "sku": "ETH2960G", "clin": "CLIN-001", "description": "Sutures", "quantity": 15, "unitPrice": 85.00 },
+    { "sku": "KCI-T-VAC", "clin": "CLIN-004", "description": "VAC Therapy Kit", "quantity": 3, "unitPrice": 619.50 }
+  ]
+}</div>
+  </div>
+
+  <!-- 08 BOT -->
+  <div class="section purple" id="bot">
+    <div class="section-tag">// 08 — ARCHITECT TIER ONLY</div>
+    <h2>DIVISION 10 — AUTONOMOUS BOT</h2>
+
+    <div class="warn-box">
+      <p><strong>ARCHITECT TIER REQUIRED.</strong> All Division 10 bot commands require an Architect-level API key. Observer and Operator keys will be rejected.</p>
+    </div>
+
+    <h3>What the Bot Does</h3>
+    <p>DIV10-BOT-001 is the autonomous contract intelligence system. It can scan SAM.gov-style feeds for matching solicitations, analyze contract opportunities, and feed intelligence into your bid pipeline — all on command or on a schedule.</p>
+
+    <h3>Key Bot Endpoints</h3>
+    <div class="code-block"><span class="method">GET</span>  <span class="url">/division/10/bot/status</span>         <span class="comment"># current bot state (IDLE/RUNNING)</span>
+<span class="method">POST</span> <span class="url">/division/10/bot/run</span>            <span class="comment"># trigger a full intelligence cycle</span>
+<span class="method">GET</span>  <span class="url">/division/10/bot/intel</span>          <span class="comment"># view all discovered intelligence</span>
+<span class="method">GET</span>  <span class="url">/division/10/system/health</span>      <span class="comment"># system health (public, no key needed)</span></div>
+
+    <h3>Architect Command Layer</h3>
+    <p>The Architect Command Layer allows you to issue high-level directives to the bot:</p>
+    <div class="code-block"><span class="method">POST</span> <span class="url">/division/10/bot/command</span>
+{
+  "command": "SCAN_OPPORTUNITIES",
+  "naics": "339113",
+  "agency": "IHS"
+}</div>
+
+    <div class="tip-box">
+      <p><strong>TIP:</strong> Check <code>/division/10/system/health</code> first — it shows all division record counts and confirms the system is operational. No key needed for this one.</p>
+    </div>
+  </div>
+
+  <!-- 09 DASHBOARDS -->
+  <div class="section cyan" id="dashboards">
+    <div class="section-tag">// 09</div>
+    <h2>DASHBOARDS</h2>
+    <p>Three browser-accessible dashboards give you visual command interfaces. All dashboard HTML pages are public — they load without a key. Live data inside them uses your API key.</p>
+
+    <ul>
+      <li><a href="/demo" style="color:var(--cyan);">/demo</a> — Platform overview &amp; pitch page. Share this URL with anyone.</li>
+      <li><a href="/vendor/dashboard" style="color:var(--cyan);">/vendor/dashboard</a> — Vendor-facing cockpit. Shows opportunities, workflow status, and compliance.</li>
+      <li><a href="/operator/dashboard" style="color:var(--cyan);">/operator/dashboard</a> — Operator control room. Full system view with tasks, vendors, and performance data.</li>
+    </ul>
+
+    <h3>Division 10 Cockpit</h3>
+    <p>The Division 10 intelligence cockpit is accessible at <code>/division/10/dashboard</code>. It provides a real-time view of the bot's intelligence feed, contract discovery, and system status. Architect access recommended for full functionality.</p>
+  </div>
+
+  <!-- 10 ERRORS -->
+  <div class="section yellow" id="errors">
+    <div class="section-tag">// 10</div>
+    <h2>ERROR REFERENCE</h2>
+
+    <table class="error-table">
+      <thead>
+        <tr><th>Status</th><th>Meaning</th><th>Fix</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge b-401">401</span></td>
+          <td>API key missing or invalid</td>
+          <td>Add <code>X-API-Key: your-key</code> header. Check key is active and correctly typed.</td>
+        </tr>
+        <tr>
+          <td><span class="badge b-403">403</span></td>
+          <td>Access denied for your tier</td>
+          <td>Observer trying to write? Operator trying to use bot? Request a tier upgrade from your admin.</td>
+        </tr>
+        <tr>
+          <td><span class="badge b-400">400</span></td>
+          <td>Bad request — missing or invalid data</td>
+          <td>Check the error message. Usually a required field is missing from your JSON body (e.g. <code>contractName</code>, <code>vendorId</code>).</td>
+        </tr>
+        <tr>
+          <td><span class="badge b-404">404</span></td>
+          <td>Resource not found</td>
+          <td>The ID you used doesn't exist. Use the list endpoint to find valid IDs.</td>
+        </tr>
+        <tr>
+          <td><span class="badge b-200">200</span></td>
+          <td>Success (GET/PATCH)</td>
+          <td>All good. Data returned in response body.</td>
+        </tr>
+        <tr>
+          <td><span class="badge b-201">201</span></td>
+          <td>Created (POST)</td>
+          <td>Record created. Response contains the new record including its ID.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Common Error Messages</h3>
+    <ul>
+      <li><code>"contractId and vendorId are required"</code> — You're missing one or both when creating a bid.</li>
+      <li><code>"Cannot edit line items on a SUBMITTED bid"</code> — Bid is locked. Only DRAFT bids can be edited.</li>
+      <li><code>"Contract not found"</code> — The contractId or contractRef you passed doesn't match any record.</li>
+      <li><code>"Observer tier is read-only"</code> — You need an Operator key to write data.</li>
+      <li><code>"Architect tier required for this endpoint"</code> — You need an Architect key for bot/system commands.</li>
+    </ul>
+  </div>
+
+  <!-- 11 SECURITY -->
+  <div class="section magenta" id="security">
+    <div class="section-tag">// 11</div>
+    <h2>SECURITY BEST PRACTICES</h2>
+
+    <h3>Protect Your Key Like a Password</h3>
+    <ul>
+      <li>Never paste your API key into a public chat, email, or GitHub repository</li>
+      <li>Don't share your key with teammates — request individual keys from the admin</li>
+      <li>Store your key in a password manager or secure vault, not in a text file</li>
+      <li>If you suspect your key was exposed, contact your admin immediately to revoke it</li>
+    </ul>
+
+    <h3>Using Your Key in Code</h3>
+    <p>Never hardcode your key directly in source code. Use environment variables:</p>
+    <div class="code-block"><span class="comment"># In your .env file (never commit this file)</span>
+<span class="key">LA_API_KEY</span>=<span class="val">la-opr-your-key-here</span>
+
+<span class="comment"># In your code</span>
+const key = process.env.LA_API_KEY;</div>
+
+    <h3>What Happens If Your Key Is Compromised</h3>
+    <ol>
+      <li>Contact your admin immediately</li>
+      <li>Admin deactivates your key in seconds via <code>PATCH /admin/keys/{id}/toggle</code></li>
+      <li>Admin issues you a new key</li>
+      <li>You update your environment variables with the new key</li>
+    </ol>
+    <p>Deactivation is instant — the old key stops working the moment it's toggled off.</p>
+
+    <h3>HTTPS Only in Production</h3>
+    <p>Always use <code>https://</code> URLs in production to ensure your API key is encrypted in transit. Never make API calls over HTTP in a production environment.</p>
+  </div>
+
+  <!-- 12 FAQ -->
+  <div class="section green" id="faq">
+    <div class="section-tag">// 12</div>
+    <h2>FREQUENTLY ASKED QUESTIONS</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: How do I get an API key?</div>
+      <div class="faq-a">Contact the system administrator (Loose Arrows Supply &amp; Logistics). They will ask for your name, email, and intended use, then issue you a key at the appropriate access tier.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: My key stopped working — what happened?</div>
+      <div class="faq-a">Your key may have been deactivated by the admin (due to inactivity, security concern, or account change). Contact your admin to check the status or get a new key issued.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: Can I use this from Postman / Insomnia / curl?</div>
+      <div class="faq-a">Yes. Add <code>X-API-Key: your-key</code> as a header in any HTTP client. There's no special SDK required.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: Does my data disappear when the server restarts?</div>
+      <div class="faq-a">No. As of April 2026, all contracts, vendors, bids, and work requests are stored in PostgreSQL and fully persist across restarts and redeployments.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: Can I submit a bid to the government directly from this system?</div>
+      <div class="faq-a">The system generates a print-ready capability statement and price list (<code>GET /division/3/bids/{id}/submission</code>). You then submit that document to the contracting officer via email or the relevant submission portal (e.g. SAM.gov). The system does not submit directly to government agencies.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: Is this platform FAR/DFARS compliant?</div>
+      <div class="faq-a">The platform helps you manage procurement workflows. Compliance with FAR, DFARS, and applicable regulations is your responsibility. See the <a href="/legal#gov-procurement" style="color:var(--cyan);">Government Procurement Notice</a> in our legal documentation.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: I need access to the bot / Division 10. How?</div>
+      <div class="faq-a">Division 10 bot commands require an Architect-level key. Contact your admin and explain your use case. Architect keys are reserved for authorized personnel only.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: Can multiple people use the same API key?</div>
+      <div class="faq-a">Technically yes, but strongly discouraged. If one person's environment is compromised, the key must be revoked for everyone. Request individual keys for each person — the system has no limit on how many keys can be issued.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: What does the Vendor Cockpit show?</div>
+      <div class="faq-a">The Vendor Cockpit (<code>/vendor/dashboard</code>) is a vendor-facing interface showing available contract opportunities, workflow status, documentation requirements, and compliance status.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q: How do I report a bug or problem?</div>
+      <div class="faq-a">Contact the system administrator directly. Include the endpoint you were calling, the request body you sent, and the error response you received. Screenshots are helpful.</div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>© 2026 Loose Arrows Supply &amp; Logistics — All Rights Reserved</p>
+  <p style="margin-top:.5rem;">
+    <a href="/demo">Overview</a> &nbsp;·&nbsp;
+    <a href="/guide">User Guide</a> &nbsp;·&nbsp;
+    <a href="/legal">Legal</a> &nbsp;·&nbsp;
+    <a href="/api">API</a> &nbsp;·&nbsp;
+    <a href="/division/10/system/health">System Health</a>
+  </p>
+  <p style="margin-top:.5rem;font-size:.65rem;color:#2a3a4a;">For access requests, contact your designated system administrator. This guide is updated as the platform evolves.</p>
+</div>
+
+</body>
+</html>

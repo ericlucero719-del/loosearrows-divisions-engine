@@ -1,1 +1,0 @@
-{"version":3,"file":"division3.types.d.ts","sourceRoot":"","sources":["../../src/division3/division3.types.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,gBAAgB;IAC/B,UAAU,EAAE,MAAM,CAAC;IACnB,OAAO,EAAE,GAAG,CAAC;CACd;AAED,MAAM,WAAW,iBAAiB;IAChC,MAAM,EAAE,SAAS,GAAG,OAAO,CAAC;IAC5B,IAAI,CAAC,EAAE,GAAG,CAAC;IACX,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB"}

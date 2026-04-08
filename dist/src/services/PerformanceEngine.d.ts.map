@@ -1,0 +1,1 @@
+{"version":3,"file":"PerformanceEngine.d.ts","sourceRoot":"","sources":["../../../src/services/PerformanceEngine.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,kBAAkB,EAAE,MAAM,8BAA8B,CAAC;AAClE,OAAO,EAAE,4BAA4B,EAAE,MAAM,gCAAgC,CAAC;AAE9E,qBAAa,iBAAiB;IAChB,OAAO,CAAC,eAAe;gBAAf,eAAe,EAAE,4BAA4B;IAE3D,QAAQ,CAAC,KAAK,EAAE,kBAAkB;IAgBxC,OAAO,CAAC,iBAAiB;IAazB,OAAO,CAAC,WAAW;CAKpB"}

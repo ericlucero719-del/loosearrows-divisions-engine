@@ -1,0 +1,38 @@
+import { Request, Response } from "express";
+export declare const division10Controller: {
+    getSystemSummary(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getActions(req: Request, res: Response): Response<any, Record<string, any>>;
+    getSystemHealth(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    getRelics(_req: Request, res: Response): Response<any, Record<string, any>>;
+    createRelic(req: Request, res: Response): Response<any, Record<string, any>>;
+    getOperatorInfo(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getFinancials(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getInventory(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getOperators(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getContracts(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getAlerts(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getFullReport(_req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    getMargins(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getSupply(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getPipeline(_req: Request, res: Response): Response<any, Record<string, any>>;
+    getAssessment(_req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetStatus(_req: Request, res: Response): Response<any, Record<string, any>>;
+    botRunCycle(_req: Request, res: Response): Response<any, Record<string, any>>;
+    botListOpportunities(req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetOpportunity(req: Request, res: Response): Response<any, Record<string, any>>;
+    botIngestOpportunity(req: Request, res: Response): Response<any, Record<string, any>>;
+    botAnalyzeOpportunity(req: Request, res: Response): Response<any, Record<string, any>>;
+    botMatchSuppliers(req: Request, res: Response): Response<any, Record<string, any>>;
+    botPrepDraft(req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetRelics(req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetAlerts(req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetDailySummary(_req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetWeeklyReport(_req: Request, res: Response): Response<any, Record<string, any>>;
+    botAcknowledgeAlert(req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetEscalation(req: Request, res: Response): Response<any, Record<string, any>>;
+    botArchitectCommand(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    botGetCommandLog(req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetArchitectAuthority(_req: Request, res: Response): Response<any, Record<string, any>>;
+    botGetCycles(req: Request, res: Response): Response<any, Record<string, any>>;
+};
+//# sourceMappingURL=division10.controller.d.ts.map
