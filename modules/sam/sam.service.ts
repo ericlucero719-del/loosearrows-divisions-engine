@@ -11,6 +11,16 @@ const SAM_BASE = "https://api.sam.gov/opportunities/v2/search";
 
 // ─── SAM.gov API fetch ─────────────────────────────────────────────────────────
 
+// SAM.gov requires PostedFrom + PostedTo (mm/dd/yyyy). Default: last 180 days → today.
+function defaultDateRange(): { postedFrom: string; postedTo: string } {
+  const fmt = (d: Date) =>
+    `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+  const to   = new Date();
+  const from = new Date(to);
+  from.setDate(from.getDate() - 180);
+  return { postedFrom: fmt(from), postedTo: fmt(to) };
+}
+
 async function samSearch(params: Record<string, string>): Promise<any> {
   if (!SAM_KEY) {
     throw new Error(
@@ -18,16 +28,24 @@ async function samSearch(params: Record<string, string>): Promise<any> {
       "then add it as the SAM_GOV_API_KEY environment variable."
     );
   }
+  const { postedFrom, postedTo } = defaultDateRange();
   const qs = new URLSearchParams({
-    limit: "25",
-    offset: "0",
+    limit:      "25",
+    offset:     "0",
+    postedFrom,
+    postedTo,
     ...params,
     api_key: SAM_KEY,
   });
   const url = `${SAM_BASE}?${qs}`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res  = await fetch(url, { headers: { Accept: "application/json" } });
   const text = await res.text();
-  if (!res.ok || !text) throw new Error(`SAM.gov API error ${res.status}. Verify your API key is active.`);
+  if (!res.ok) {
+    let detail = text;
+    try { detail = JSON.stringify(JSON.parse(text)); } catch { /* keep raw */ }
+    throw new Error(`SAM.gov API error ${res.status}: ${detail}`);
+  }
+  if (!text) throw new Error("SAM.gov returned an empty response.");
   return JSON.parse(text);
 }
 
@@ -57,8 +75,8 @@ export const samService = {
       limit:  String(opts.limit  ?? 25),
       offset: String(opts.offset ?? 0),
     };
-    if (opts.keyword) params.q = opts.keyword;
-    if (opts.naics)   params.ncode = opts.naics;
+    if (opts.keyword) params.q         = opts.keyword;
+    if (opts.naics)   params.naicsCode = opts.naics;
 
     const data = await samSearch(params);
     const opps = (data.opportunitiesData ?? []).map(mapOpportunity);
