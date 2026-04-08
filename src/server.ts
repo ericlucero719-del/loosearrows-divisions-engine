@@ -15,8 +15,15 @@ import adminRouter       from "./routes/admin";
 // ── Master API Router (consolidated) ─────────────────────────────────────────
 import apiRouter from "./api/index";
 
+// ── DIV10-BOT-001 + SAM.gov Bridge ────────────────────────────────────────────
+import { botService } from "../modules/division10/division10.bot.service";
+import { runSamBridge } from "../modules/division10/division10.sam.bridge";
+
 // ── Dashboards (public HTML pages) ───────────────────────────────────────────
 import dashboardsRouter from "../modules/dashboards/dashboards.routes";
+
+// ── Vendor Portal ─────────────────────────────────────────────────────────────
+import vendorPortalRouter from "../modules/vendor-portal/vendor-portal.routes";
 
 // ── Backward-compat aliases (legacy routes stay alive, no integration breaks) ─
 import { division1Routes }  from "./divisions/division1";
@@ -71,6 +78,9 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 
 // ── Public HTML pages (dashboards, client guide, etc.) ────────────────────────
 app.use("/", dashboardsRouter);
+
+// ── Vendor Portal (HTML page is public, data endpoints require API key) ───────
+app.use("/vendor-portal", vendorPortalRouter);
 
 // ── Admin key management (X-Admin-Secret, no API key required) ────────────────
 app.use("/admin", adminRouter);
@@ -156,10 +166,38 @@ async function seedInitialKey() {
   }
 }
 
+// ── DIV10-BOT-001 Scheduler ───────────────────────────────────────────────────
+// Runs the SAM.gov bridge then the bot cycle on a 4-hour interval.
+// First run happens 45 seconds after boot (gives DB/network time to settle).
+const BOT_INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 hours
+
+type BotCycleType = "hourly" | "6h" | "daily" | "weekly" | "manual";
+
+async function runBotCycle(cycleType: BotCycleType) {
+  try {
+    console.log(`[BOT] ${cycleType} — scanning SAM.gov...`);
+    const bridge = await runSamBridge();
+    console.log(`[BOT] SAM bridge loaded ${bridge.total} new opportunities across 10 divisions`);
+    const cycle  = botService.runCycle(cycleType);
+    console.log(`[BOT] Cycle complete — ${cycle.opportunitiesDiscovered} discovered, ${cycle.alertsRaised} alerts, ${cycle.escalations.length} escalations`);
+  } catch (e: any) {
+    console.error("[BOT] Cycle error:", e?.message ?? e);
+  }
+}
+
+function startBotScheduler() {
+  // First run 45 s after boot
+  setTimeout(() => runBotCycle("daily"), 45_000);
+  // Then every 4 hours
+  setInterval(() => runBotCycle("6h"), BOT_INTERVAL_MS);
+  console.log("[BOT] DIV10-BOT-001 scheduler active — first run in 45s, then every 4h");
+}
+
 if (require.main === module) {
   seedInitialKey().then(() => {
     app.listen(Number(port), "0.0.0.0", () => {
       console.log(`Server running on port ${port}`);
+      startBotScheduler();
     });
   });
 }

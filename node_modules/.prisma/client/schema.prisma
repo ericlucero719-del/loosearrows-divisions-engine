@@ -430,6 +430,8 @@ model TikTokOrder {
   itemsJson     String   @default("[]")
   skuMatchJson  String   @default("[]")
   profitUsd     Float    @default(0)
+  feeRate       Float    @default(0.0075)
+  feeAmountUsd  Float    @default(0)
   vendorId      String?
   vendorName    String?
   poId          String?

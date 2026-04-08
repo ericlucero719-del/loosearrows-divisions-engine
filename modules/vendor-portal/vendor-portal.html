@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vendor Portal — Loose Arrows Supply &amp; Logistics™</title>
+<style>
+  :root {
+    --bg:       #050a0e;
+    --surface:  #0b1520;
+    --card:     #0f1e2d;
+    --border:   #1a3a5c;
+    --cyan:     #00e5ff;
+    --green:    #00ff9d;
+    --orange:   #ff8c00;
+    --red:      #ff3355;
+    --gold:     #ffd700;
+    --muted:    #4a7090;
+    --text:     #c8dae8;
+    --radius:   6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; }
+
+  /* ── scanline overlay ── */
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,229,255,.015) 3px, rgba(0,229,255,.015) 4px);
+    pointer-events: none; z-index: 9999;
+  }
+
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--cyan);
+    padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { color: var(--cyan); font-size: 1.15rem; letter-spacing: 2px; text-transform: uppercase; }
+  header span { color: var(--muted); font-size: .75rem; }
+
+  .nav-home { color: var(--muted); text-decoration: none; font-size: .8rem; letter-spacing: 1px; }
+  .nav-home:hover { color: var(--cyan); }
+
+  /* ── login gate ── */
+  #login-gate {
+    max-width: 500px; margin: 80px auto; padding: 32px;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  #login-gate h2 { color: var(--cyan); margin-bottom: 20px; font-size: 1rem; letter-spacing: 2px; text-align: center; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; color: var(--muted); font-size: .75rem; letter-spacing: 1px; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 12px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--cyan); font-family: inherit; font-size: .85rem;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 8px rgba(0,229,255,.25); }
+  .btn {
+    padding: 10px 24px; border: 1px solid var(--cyan); border-radius: var(--radius);
+    background: transparent; color: var(--cyan); font-family: inherit; font-size: .85rem;
+    letter-spacing: 1px; cursor: pointer; transition: background .2s, color .2s;
+  }
+  .btn:hover { background: var(--cyan); color: var(--bg); }
+  .btn-green { border-color: var(--green); color: var(--green); }
+  .btn-green:hover { background: var(--green); color: var(--bg); }
+  .btn-orange { border-color: var(--orange); color: var(--orange); }
+  .btn-orange:hover { background: var(--orange); color: var(--bg); }
+  .btn-red { border-color: var(--red); color: var(--red); font-size: .75rem; padding: 6px 14px; }
+  .btn-red:hover { background: var(--red); color: var(--bg); }
+  .btn-full { width: 100%; margin-top: 8px; }
+  #login-error { color: var(--red); font-size: .8rem; margin-top: 12px; text-align: center; display: none; }
+
+  /* ── main dashboard ── */
+  #dashboard { display: none; padding: 24px 28px; max-width: 1200px; margin: 0 auto; }
+
+  .vendor-banner {
+    background: var(--card); border: 1px solid var(--cyan); border-radius: var(--radius);
+    padding: 18px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .vendor-banner .vname { color: var(--cyan); font-size: 1.1rem; letter-spacing: 2px; }
+  .vendor-banner .vmeta { color: var(--muted); font-size: .78rem; margin-top: 4px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: .7rem; letter-spacing: 1px; }
+  .badge-green { background: rgba(0,255,157,.12); color: var(--green); border: 1px solid var(--green); }
+  .badge-red   { background: rgba(255,51,85,.12);  color: var(--red);   border: 1px solid var(--red);   }
+  .badge-orange{ background: rgba(255,140,0,.12);  color: var(--orange);border: 1px solid var(--orange); }
+  .badge-cyan  { background: rgba(0,229,255,.1);   color: var(--cyan);  border: 1px solid var(--cyan);  }
+
+  /* ── stat cards ── */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; text-align: center;
+  }
+  .stat-card .val { font-size: 1.6rem; font-weight: 700; }
+  .stat-card .lbl { color: var(--muted); font-size: .7rem; letter-spacing: 1px; margin-top: 4px; }
+  .cyan-val  { color: var(--cyan); }
+  .green-val { color: var(--green); }
+  .orange-val{ color: var(--orange); }
+  .gold-val  { color: var(--gold); }
+
+  /* ── tabs ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .tab {
+    padding: 10px 20px; cursor: pointer; font-size: .8rem; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .2s;
+  }
+  .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+  .tab:hover:not(.active) { color: var(--text); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── tables ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  th { color: var(--muted); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); letter-spacing: 1px; font-size: .72rem; }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(26,58,92,.5); vertical-align: middle; }
+  tr:hover td { background: rgba(0,229,255,.03); }
+  .empty-msg { text-align: center; color: var(--muted); padding: 40px; font-size: .85rem; }
+
+  /* ── shipment update form ── */
+  .update-row { display: flex; gap: 8px; align-items: center; }
+  .update-row select {
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: inherit; font-size: .75rem; padding: 5px 8px;
+  }
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--card); border: 1px solid var(--green); border-radius: var(--radius);
+    color: var(--green); padding: 12px 20px; font-size: .82rem; letter-spacing: 1px;
+    opacity: 0; transform: translateY(20px); transition: opacity .3s, transform .3s; z-index: 10000;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── loading spinner ── */
+  .spinner { text-align: center; padding: 60px; color: var(--cyan); font-size: .9rem; letter-spacing: 2px; }
+  .spinner::after { content: '...'; animation: dots 1.2s steps(3,end) infinite; }
+  @keyframes dots { 0%,33%{content:'.'} 34%,66%{content:'..'} 67%,100%{content:'...'} }
+
+  /* ── items expansion ── */
+  .line-items { font-size: .72rem; color: var(--muted); padding-left: 12px; }
+  .line-items li { margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⬡ Vendor Portal</h1>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <span id="session-vendor" style="color:var(--cyan);font-size:.8rem;"></span>
+    <a href="/" class="nav-home">← Home</a>
+    <button class="btn btn-red" id="logout-btn" style="display:none" onclick="logout()">LOG OUT</button>
+  </div>
+</header>
+
+<!-- LOGIN GATE -->
+<div id="login-gate">
+  <h2>⬡ Vendor Access</h2>
+  <p style="color:var(--muted);font-size:.78rem;text-align:center;margin-bottom:20px;">Enter your API key and vendor name to access your portal</p>
+
+  <div class="field">
+    <label>API KEY</label>
+    <input type="password" id="api-key-input" placeholder="la-opr-xxxx or la-arc-xxxx" />
+  </div>
+  <div class="field">
+    <label>VENDOR NAME (or Vendor ID)</label>
+    <input type="text" id="vendor-input" placeholder="e.g. TacOps Industrial Supply" />
+  </div>
+  <button class="btn btn-full" onclick="login()">ACCESS PORTAL</button>
+  <div id="login-error"></div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="dashboard">
+  <div id="loading" class="spinner">LOADING VENDOR DATA</div>
+  <div id="content" style="display:none">
+
+    <div class="vendor-banner">
+      <div>
+        <div class="vname" id="v-name"></div>
+        <div class="vmeta" id="v-meta"></div>
+      </div>
+      <div style="text-align:right">
+        <span class="badge badge-green" id="v-status"></span>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="val cyan-val"  id="st-pos">0</div><div class="lbl">PURCHASE ORDERS</div></div>
+      <div class="stat-card"><div class="val green-val" id="st-pov">$0</div><div class="lbl">TOTAL PO VALUE</div></div>
+      <div class="stat-card"><div class="val orange-val" id="st-shp">0</div><div class="lbl">SHIPMENTS</div></div>
+      <div class="stat-card"><div class="val gold-val"  id="st-inv">$0</div><div class="lbl">TOTAL INVOICED</div></div>
+      <div class="stat-card"><div class="val green-val" id="st-paid">$0</div><div class="lbl">PAID</div></div>
+      <div class="stat-card"><div class="val" id="st-out" style="color:var(--red)">$0</div><div class="lbl">OUTSTANDING</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('pos')">Purchase Orders</div>
+      <div class="tab" onclick="switchTab('shipments')">Shipments</div>
+      <div class="tab" onclick="switchTab('invoices')">Invoices</div>
+    </div>
+
+    <!-- POs Tab -->
+    <div id="tab-pos" class="tab-panel active">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>PO REF</th>
+              <th>AGENCY</th>
+              <th>STATUS</th>
+              <th>TOTAL VALUE</th>
+              <th>LINE ITEMS</th>
+              <th>CREATED</th>
+            </tr>
+          </thead>
+          <tbody id="pos-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Shipments Tab -->
+    <div id="tab-shipments" class="tab-panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>SHIP REF</th>
+              <th>PO</th>
+              <th>CARRIER</th>
+              <th>TRACKING</th>
+              <th>ETA</th>
+              <th>STATUS</th>
+              <th>UPDATE</th>
+            </tr>
+          </thead>
+          <tbody id="shipments-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Invoices Tab -->
+    <div id="tab-invoices" class="tab-panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>INVOICE REF</th>
+              <th>PO</th>
+              <th>AGENCY</th>
+              <th>STATUS</th>
+              <th>TOTAL</th>
+              <th>PAID</th>
+              <th>DUE DATE</th>
+            </tr>
+          </thead>
+          <tbody id="invoices-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /dashboard -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let gApiKey = '', gVendor = '';
+
+  const SHIP_STATUSES = ['PENDING','IN_TRANSIT','DELIVERED','DELAYED','RETURNED','CANCELLED'];
+
+  function fmt(n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmtDate(s) { if (!s) return '—'; try { return new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch { return s; } }
+
+  function statusBadge(s) {
+    const map = {
+      DRAFT:'badge-cyan', PENDING:'badge-orange', IN_TRANSIT:'badge-orange',
+      DELIVERED:'badge-green', FULFILLED:'badge-green', PAID:'badge-green',
+      ACTIVE:'badge-green', active:'badge-green',
+      DELAYED:'badge-red', CANCELLED:'badge-red', RETURNED:'badge-red',
+      OVERDUE:'badge-red', RECEIVED:'badge-cyan',
+    };
+    const cls = map[s] || 'badge-cyan';
+    return `<span class="badge ${cls}">${s}</span>`;
+  }
+
+  async function login() {
+    const key    = document.getElementById('api-key-input').value.trim();
+    const vendor = document.getElementById('vendor-input').value.trim();
+    const errEl  = document.getElementById('login-error');
+    errEl.style.display = 'none';
+
+    if (!key || !vendor) { showErr('Both API key and vendor name are required.'); return; }
+
+    // Quick validation: try to fetch vendor data
+    try {
+      const r = await fetch(`/vendor-portal/data?vendor=${encodeURIComponent(vendor)}`, {
+        headers: { 'X-API-Key': key }
+      });
+      if (r.status === 401) { showErr('Invalid API key.'); return; }
+      if (r.status === 404) { showErr('Vendor not found. Check name and try again.'); return; }
+      if (!r.ok) { const d = await r.json(); showErr(d.error || 'Access denied.'); return; }
+
+      const data = await r.json();
+      gApiKey = key; gVendor = vendor;
+      document.getElementById('login-gate').style.display  = 'none';
+      document.getElementById('dashboard').style.display   = 'block';
+      document.getElementById('logout-btn').style.display  = 'inline-block';
+      document.getElementById('session-vendor').textContent = vendor.toUpperCase();
+      renderDashboard(data);
+    } catch (e) {
+      showErr('Network error: ' + e.message);
+    }
+  }
+
+  function showErr(msg) {
+    const el = document.getElementById('login-error');
+    el.textContent = msg; el.style.display = 'block';
+  }
+
+  function logout() {
+    gApiKey = ''; gVendor = '';
+    document.getElementById('login-gate').style.display  = 'block';
+    document.getElementById('dashboard').style.display   = 'none';
+    document.getElementById('logout-btn').style.display  = 'none';
+    document.getElementById('session-vendor').textContent = '';
+    document.getElementById('content').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('api-key-input').value = '';
+    document.getElementById('vendor-input').value  = '';
+    document.getElementById('login-error').style.display = 'none';
+  }
+
+  function renderDashboard(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    const v = data.vendor;
+    const s = data.summary;
+
+    document.getElementById('v-name').textContent   = v.name;
+    document.getElementById('v-meta').textContent   = (v.contactEmail || '') + (v.categories.length ? ' | ' + v.categories.join(', ') : '');
+    document.getElementById('v-status').textContent = (v.status || 'active').toUpperCase();
+
+    document.getElementById('st-pos').textContent  = s.totalPos;
+    document.getElementById('st-pov').textContent  = fmt(s.totalPoValue);
+    document.getElementById('st-shp').textContent  = s.totalShipments;
+    document.getElementById('st-inv').textContent  = fmt(s.totalInvoiced);
+    document.getElementById('st-paid').textContent = fmt(s.totalPaid);
+    document.getElementById('st-out').textContent  = fmt(s.totalOutstanding);
+
+    renderPos(data.pos);
+    renderShipments(data.shipments);
+    renderInvoices(data.invoices);
+  }
+
+  function renderPos(pos) {
+    const tbody = document.getElementById('pos-tbody');
+    if (!pos.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">No purchase orders found for this vendor</td></tr>'; return; }
+    tbody.innerHTML = pos.map(p => {
+      const lines = (p.lineItems || []).map(l => `<li>${l.quantity}× ${l.sku} @ $${l.unitPrice} — ${l.description || ''}</li>`).join('');
+      return `<tr>
+        <td style="color:var(--cyan)">${p.poRef}</td>
+        <td>${p.agencyName || '—'}</td>
+        <td>${statusBadge(p.status)}</td>
+        <td style="color:var(--gold)">${fmt(p.totalValue)}</td>
+        <td><ul class="line-items">${lines || '<li style="color:var(--muted)">No line items</li>'}</ul></td>
+        <td style="color:var(--muted)">${fmtDate(p.createdAt)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderShipments(shipments) {
+    const tbody = document.getElementById('shipments-tbody');
+    if (!shipments.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">No shipments found for this vendor</td></tr>'; return; }
+    tbody.innerHTML = shipments.map(s => {
+      const opts = SHIP_STATUSES.map(st => `<option value="${st}" ${st===s.status?'selected':''}>${st}</option>`).join('');
+      return `<tr>
+        <td style="color:var(--cyan)">${s.shipRef}</td>
+        <td style="color:var(--muted)">${s.poId ? s.poId.slice(0,10)+'…' : '—'}</td>
+        <td>${s.carrier || '—'}</td>
+        <td>${s.trackingNumber ? `<span style="color:var(--green)">${s.trackingNumber}</span>` : '—'}</td>
+        <td style="color:var(--muted)">${s.expectedDelivery || '—'}</td>
+        <td id="status-${s.shipmentId}">${statusBadge(s.status)}</td>
+        <td>
+          <div class="update-row">
+            <select id="sel-${s.shipmentId}">${opts}</select>
+            <button class="btn btn-green" style="font-size:.7rem;padding:5px 10px" onclick="updateShipment('${s.shipmentId}')">UPDATE</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderInvoices(invoices) {
+    const tbody = document.getElementById('invoices-tbody');
+    if (!invoices.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">No invoices found for this vendor</td></tr>'; return; }
+    tbody.innerHTML = invoices.map(i => `<tr>
+      <td style="color:var(--cyan)">${i.invoiceRef}</td>
+      <td style="color:var(--muted)">${i.poId ? i.poId.slice(0,10)+'…' : '—'}</td>
+      <td>${i.agencyName || '—'}</td>
+      <td>${statusBadge(i.status)}</td>
+      <td style="color:var(--gold)">${fmt(i.totalAmount)}</td>
+      <td style="color:var(--green)">${fmt(i.paidAmount)}</td>
+      <td style="color:var(--muted)">${i.dueDate || '—'}</td>
+    </tr>`).join('');
+  }
+
+  async function updateShipment(shipmentId) {
+    const status = document.getElementById(`sel-${shipmentId}`).value;
+    try {
+      const r = await fetch(`/vendor-portal/shipments/${shipmentId}`, {
+        method: 'PATCH',
+        headers: { 'X-API-Key': gApiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!r.ok) throw new Error((await r.json()).error);
+      document.getElementById(`status-${shipmentId}`).innerHTML = statusBadge(status);
+      showToast(`Shipment updated → ${status}`);
+    } catch (e) {
+      showToast('Error: ' + e.message, true);
+    }
+  }
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      const names = ['pos','shipments','invoices'];
+      t.classList.toggle('active', names[i] === name);
+    });
+    ['pos','shipments','invoices'].forEach(n => {
+      document.getElementById(`tab-${n}`).classList.toggle('active', n === name);
+    });
+  }
+
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.borderColor = isError ? 'var(--red)' : 'var(--green)';
+    el.style.color = isError ? 'var(--red)' : 'var(--green)';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  // Allow Enter key in login form
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('login-gate').style.display !== 'none') login();
+  });
+</script>
+</body>
+</html>

@@ -25,7 +25,7 @@
 // *    /api/tiktok              → TikTok Sales Automation Layer
 // *    /api/field               → Rapid Response Field Operations
 
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, json as expressJson } from "express";
 import { requireApiKey }  from "../middleware/apiKey";
 import { tierLimiter }    from "../middleware/rateLimiter";
 import pdfRouter          from "../../modules/pdf/pdf.routes";
@@ -48,6 +48,7 @@ import youtubeRouter    from "../../modules/youtube/youtube.routes";
 import amazonRouter     from "../../modules/amazon/amazon.routes";
 import { CommerceService }  from "../../modules/commerce/commerce.service";
 import shopifyRouter        from "../../modules/shopify/shopify.routes";
+import { shopifyController } from "../../modules/shopify/shopify.controller";
 import samRouter            from "../../modules/sam/sam.routes";
 import billingRouter        from "../../modules/billing/billing.routes";
 
@@ -133,6 +134,15 @@ apiRouter.get("/health", (_req: Request, res: Response) => {
 
 // ── 2. Admin endpoints — X-Admin-Secret (no API key needed) ──────────────────
 apiRouter.use("/admin", div0Router);
+
+// ── 2b. Shopify Webhook — public, verified via HMAC (no API key) ─────────────
+// Must be mounted here (before requireApiKey) so Shopify can reach it.
+// The raw body parser + HMAC verification live inside the controller.
+apiRouter.post(
+  "/shopify/webhook",
+  expressJson({ verify: (req: any, _res, buf) => { req.rawBody = buf; } }),
+  shopifyController.webhook,
+);
 
 // ── 3. API key gate — applied once for everything below ───────────────────────
 apiRouter.use(requireApiKey);

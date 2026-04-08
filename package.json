@@ -27,7 +27,7 @@
   },
   "scripts": {
     "dev": "ts-node-dev --respawn src/server.ts",
-    "build": "npx prisma generate && npx tsc && cp -r public dist/ && mkdir -p dist/modules/dashboards && cp modules/dashboards/*.html dist/modules/dashboards/ && mkdir -p dist/src/routes && cp src/routes/*.js dist/src/routes/",
+    "build": "npx prisma generate && npx tsc && cp -r public dist/ && mkdir -p dist/modules/dashboards && cp modules/dashboards/*.html dist/modules/dashboards/ && mkdir -p dist/modules/vendor-portal && cp modules/vendor-portal/*.html dist/modules/vendor-portal/ && mkdir -p dist/src/routes && cp src/routes/*.js dist/src/routes/",
     "start": "node dist/src/server.js",
     "test": "jest --runInBand",
     "shopify:sync": "ts-node scripts/buildShopifyDivisionCatalogs.ts",

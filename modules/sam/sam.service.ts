@@ -90,13 +90,13 @@ export const samService = {
   // Search and auto-match against your Division 8 agency NAICS codes
   async matchToAgencies() {
     const agencies = await (prisma as any).govAgency.findMany({
-      select: { id: true, name: true, naicsCodesJson: true },
+      select: { agencyId: true, name: true, naicsJson: true },
     });
 
     const results: Array<{ agency: string; naics: string; matches: any[] }> = [];
 
     for (const agency of agencies) {
-      const codes: string[] = JSON.parse(agency.naicsCodesJson || "[]");
+      const codes: string[] = JSON.parse(agency.naicsJson || "[]");
       for (const naics of codes.slice(0, 3)) { // limit API calls
         try {
           const data = await samSearch({ ncode: naics, limit: "5" });
