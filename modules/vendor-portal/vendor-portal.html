@@ -196,6 +196,7 @@
       <div class="tab active" onclick="switchTab('pos')">Purchase Orders</div>
       <div class="tab" onclick="switchTab('shipments')">Shipments</div>
       <div class="tab" onclick="switchTab('invoices')">Invoices</div>
+      <div class="tab" onclick="switchTab('earnings')">My Earnings</div>
     </div>
 
     <!-- POs Tab -->
@@ -256,6 +257,13 @@
           </thead>
           <tbody id="invoices-tbody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Earnings Tab -->
+    <div id="tab-earnings" class="tab-panel">
+      <div id="earnings-result">
+        <div style="color:var(--muted);font-size:.85rem;padding:20px 0;">Select this tab after logging in to see your earnings, tier status, and payout history.</div>
       </div>
     </div>
 
@@ -441,13 +449,93 @@
   }
 
   function switchTab(name) {
+    const names = ['pos','shipments','invoices','earnings'];
     document.querySelectorAll('.tab').forEach((t, i) => {
-      const names = ['pos','shipments','invoices'];
       t.classList.toggle('active', names[i] === name);
     });
-    ['pos','shipments','invoices'].forEach(n => {
+    names.forEach(n => {
       document.getElementById(`tab-${n}`).classList.toggle('active', n === name);
     });
+    if (name === 'earnings') loadEarnings();
+  }
+
+  async function loadEarnings() {
+    const el = document.getElementById('earnings-result');
+    el.innerHTML = `<div style="color:var(--muted);font-size:.8rem;padding:12px 0;">▶ LOADING EARNINGS...</div>`;
+    try {
+      const r = await fetch(`/api/resellers?status=ACTIVE`, { headers: { 'X-API-Key': gApiKey } });
+      const allResellers = await r.json();
+      const mine = allResellers.find(rs => rs.email?.toLowerCase() === gVendor?.toLowerCase()
+        || rs.name?.toLowerCase() === gVendor?.toLowerCase());
+
+      if (!mine) {
+        el.innerHTML = `<div style="color:var(--muted);font-size:.85rem;padding:20px 0;">
+          You are not currently registered as a reseller in the network.
+          Contact your platform manager to get onboarded and start earning.
+        </div>`;
+        return;
+      }
+
+      const er = await fetch(`/api/resellers/${mine.id}/earnings`, { headers: { 'X-API-Key': gApiKey } });
+      const data = await er.json();
+      const { tier, earnings } = data;
+
+      const tierColor = { STARTER:'#c8c0f0', STANDARD:'#00ffc8', PROFESSIONAL:'#00fff7', ELITE:'#ffd700' }[tier.current] || '#c8c0f0';
+      const payoutRows = (data.payoutHistory || []).map(p => `
+        <tr>
+          <td>${p.createdAt?.slice(0,10)}</td>
+          <td>$${p.amount?.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+          <td>${p.method}</td>
+          <td>${p.status}</td>
+          <td style="color:var(--muted)">${p.reference || '—'}</td>
+        </tr>`).join('') || `<tr><td colspan="5" style="color:var(--muted);text-align:center;">No payouts processed yet</td></tr>`;
+
+      el.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+          <div class="stat-card">
+            <div class="val" style="color:${tierColor}">${tier.label}</div>
+            <div class="lbl">YOUR TIER</div>
+          </div>
+          <div class="stat-card">
+            <div class="val" style="color:var(--cyan)">${tier.feeRate}</div>
+            <div class="lbl">PLATFORM FEE</div>
+          </div>
+          <div class="stat-card">
+            <div class="val" style="color:var(--green)">$${earnings.pendingPayout?.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+            <div class="lbl">PENDING PAYOUT</div>
+          </div>
+          <div class="stat-card">
+            <div class="val" style="color:var(--gold)">$${earnings.lifetimeNet?.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+            <div class="lbl">LIFETIME EARNINGS</div>
+          </div>
+        </div>
+
+        ${tier.nextTier ? `<div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:16px;font-size:.8rem;">
+          <span style="color:var(--muted)">TIER PROGRESS → </span>
+          <span style="color:${tierColor}">${tier.label}</span>
+          <span style="color:var(--muted)"> ▶ </span>
+          <span style="color:#ffd700">${tier.nextTier}</span>
+          <span style="color:var(--muted)"> — $${tier.gmvToNextTier?.toLocaleString()} more GMV needed to upgrade and unlock a lower fee rate</span>
+        </div>` : `<div style="background:rgba(255,215,0,.08);border:1px solid #ffd700;border-radius:4px;padding:12px;margin-bottom:16px;font-size:.8rem;color:#ffd700;">
+          ★ ELITE RESELLER — You have reached the top tier. Lowest platform fee rate active.
+        </div>`}
+
+        <div style="margin-bottom:10px;color:var(--muted);font-size:.75rem;letter-spacing:1px;">PAYOUT HISTORY</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>DATE</th><th>AMOUNT</th><th>METHOD</th><th>STATUS</th><th>REFERENCE</th></tr></thead>
+            <tbody>${payoutRows}</tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:16px;font-size:.75rem;color:var(--muted);">
+          Lifetime GMV processed: $${earnings.lifetimeGmv?.toLocaleString('en-US',{minimumFractionDigits:2})} |
+          Total platform fees: $${earnings.lifetimeFees?.toLocaleString('en-US',{minimumFractionDigits:2})} |
+          Effective rate: ${earnings.effectiveFeeRate}
+        </div>`;
+    } catch (e) {
+      el.innerHTML = `<div style="color:var(--red);font-size:.8rem;">${e.message}</div>`;
+    }
   }
 
   function showToast(msg, isError = false) {

@@ -52,6 +52,7 @@ import { shopifyController } from "../../modules/shopify/shopify.controller";
 import samRouter            from "../../modules/sam/sam.routes";
 import billingRouter        from "../../modules/billing/billing.routes";
 import cryptoRouter         from "../../modules/crypto/crypto.routes";
+import resellerRouter       from "../../modules/reseller/reseller.routes";
 
 // ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -188,6 +189,9 @@ apiRouter.use("/billing", billingRouter);
 
 // ── 9b. Bitcoin & Crypto Profit Engine ───────────────────────────────────────
 apiRouter.use("/crypto", cryptoRouter);
+
+// ── 9c. Reseller Network Engine ───────────────────────────────────────────────
+apiRouter.use("/resellers", resellerRouter);
 
 // ── 9. Rapid Response Field Operations ───────────────────────────────────────
 apiRouter.use("/field/rapid-response",        rrDispatch);

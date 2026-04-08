@@ -335,6 +335,94 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </div>
   </div>
 
+  <!-- RESELLER NETWORK ENGINE PANEL -->
+  <div style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🏪 Reseller Network <span>TikTok / Instagram / Shopify</span></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge" id="rsl-status-badge" style="background:rgba(0,255,200,.1);color:#00ffc8;border:1px solid #00ffc8;">LOADING...</span>
+          <button class="btn btn-orange btn-sm" onclick="loadResellers()">↻ REFRESH</button>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <!-- PLATFORM STATS ROW -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;" id="rsl-stats-row">
+          <div class="stat"><div class="stat-val" id="rsl-count" style="color:#00ffc8;">—</div><div class="stat-lbl">Total Resellers</div></div>
+          <div class="stat"><div class="stat-val" id="rsl-gmv" style="color:#00fff7;">—</div><div class="stat-lbl">Platform GMV</div></div>
+          <div class="stat"><div class="stat-val" id="rsl-fees" style="color:#ffd700;">—</div><div class="stat-lbl">Platform Fees Earned</div></div>
+          <div class="stat"><div class="stat-val" id="rsl-pending" style="color:#ff9900;">—</div><div class="stat-lbl">Pending Payouts</div></div>
+          <div class="stat"><div class="stat-val" id="rsl-btc" style="color:#ff9900;">—</div><div class="stat-lbl">Fees as BTC/mo</div></div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tab-row">
+          <div class="tab active" onclick="switchTab(this,'rsl-tab-resellers')">Resellers</div>
+          <div class="tab" onclick="switchTab(this,'rsl-tab-tiers')">Tier Config</div>
+          <div class="tab" onclick="switchTab(this,'rsl-tab-simulate')">Revenue Simulator</div>
+          <div class="tab" onclick="switchTab(this,'rsl-tab-register')">+ Onboard Reseller</div>
+        </div>
+
+        <!-- RESELLERS TABLE -->
+        <div class="tab-content active" id="rsl-tab-resellers">
+          <div id="rsl-list-result"><div class="loading-row">▶ LOADING RESELLERS...</div></div>
+        </div>
+
+        <!-- TIER CONFIG -->
+        <div class="tab-content" id="rsl-tab-tiers">
+          <div id="rsl-tiers-result"><div class="loading-row">▶ LOADING TIERS...</div></div>
+        </div>
+
+        <!-- REVENUE SIMULATOR -->
+        <div class="tab-content" id="rsl-tab-simulate">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">RESELLER COUNT</div>
+              <input type="number" id="sim-count" value="20000" min="1"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">AVG MONTHLY GMV / RESELLER ($)</div>
+              <input type="number" id="sim-gmv" value="1000" min="1"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+          </div>
+          <button class="btn btn-orange btn-sm" onclick="runSimulation()">▶ RUN SIMULATION</button>
+          <div id="rsl-sim-result" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- ONBOARD FORM -->
+        <div class="tab-content" id="rsl-tab-register">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">FULL NAME</div>
+              <input type="text" id="rsl-reg-name" placeholder="Reseller name"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">EMAIL</div>
+              <input type="email" id="rsl-reg-email" placeholder="reseller@email.com"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">PLATFORM</div>
+              <select id="rsl-reg-platform"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;">
+                <option value="TIKTOK">TikTok</option>
+                <option value="INSTAGRAM">Instagram</option>
+                <option value="SHOPIFY">Shopify</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-orange btn-sm" onclick="registerReseller()">ONBOARD RESELLER</button>
+          <div id="rsl-reg-result" style="margin-top:10px;font-size:11px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- DIV10-BOT-001 STATUS PANEL -->
   <div style="margin-bottom:16px;">
     <div class="card">
@@ -439,6 +527,7 @@ function loadAll() {
   loadOrders();
   loadBilling();
   loadCrypto();
+  loadResellers();
   loadBot();
   loadDocuments();
 }
@@ -739,6 +828,147 @@ async function collectFeeInCrypto() {
     const d = await API('/api/crypto/fee/collect', { method:'POST', body: JSON.stringify({ asset, feeAmountUsd, sourceRef }) });
     el.innerHTML = `<span style="color:var(--green)">✔ Collected $${feeAmountUsd} as ${Number(d.amountCrypto).toFixed(6)} ${asset}</span>`;
     loadCrypto();
+  } catch(e) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
+}
+
+// ── RESELLER NETWORK ENGINE ──────────────────────────────────
+
+const TIER_COLOR = { STARTER:'#c8c0f0', STANDARD:'#00ffc8', PROFESSIONAL:'#00fff7', ELITE:'#ffd700' };
+
+async function loadResellers() {
+  try {
+    const d = await API('/api/resellers/summary');
+    document.getElementById('rsl-count').textContent = d.totalResellers;
+    document.getElementById('rsl-gmv').textContent   = '$' + (d.financials.totalGmvProcessed||0).toLocaleString('en-US',{minimumFractionDigits:0});
+    document.getElementById('rsl-fees').textContent  = '$' + (d.financials.totalPlatformFees||0).toLocaleString('en-US',{minimumFractionDigits:2});
+    document.getElementById('rsl-pending').textContent = '$' + (d.financials.totalPendingPayouts||0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+    // BTC projection based on current fee revenue monthly estimate
+    const btcPrice = parseFloat(document.getElementById('p-btc')?.textContent?.replace(/[$,]/g,'')) || 71000;
+    const estMonthlyFees = d.financials.totalPlatformFees;
+    document.getElementById('rsl-btc').textContent = '~' + (estMonthlyFees / btcPrice).toFixed(4) + ' BTC';
+
+    document.getElementById('rsl-status-badge').textContent = d.activeResellers + ' ACTIVE';
+
+    // Populate resellers table
+    const rows = (d.topResellers || []).map(r => `
+      <tr>
+        <td style="color:${TIER_COLOR[r.tier]||'#c8c0f0'}">${r.ref}</td>
+        <td>${r.name}</td>
+        <td style="color:#888">${r.platform}</td>
+        <td><span style="background:rgba(255,255,255,.05);padding:2px 8px;border-radius:3px;font-size:10px;color:${TIER_COLOR[r.tier]||'#c8c0f0'}">${r.tier}</span></td>
+        <td style="color:var(--green)">$${(r.totalGmv||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+        <td style="color:#ffd700">$${(r.feesGenerated||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+      </tr>`).join('') || '<tr><td colspan="6" style="color:var(--dim);text-align:center">No resellers yet. Onboard your first reseller above.</td></tr>';
+
+    document.getElementById('rsl-list-result').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;font-size:11px;">
+        ${Object.entries(d.byTier||{}).map(([t,n]) =>
+          `<div style="background:rgba(255,255,255,.04);padding:8px 12px;border-radius:4px;text-align:center">
+            <div style="color:${TIER_COLOR[t]||'#c8c0f0'};font-weight:700;font-size:16px">${n}</div>
+            <div style="color:var(--dim)">${t}</div>
+          </div>`).join('')}
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="color:var(--dim);font-size:10px;letter-spacing:1px;">
+          <th style="text-align:left;padding:6px 8px">REF</th>
+          <th style="text-align:left;padding:6px 8px">NAME</th>
+          <th style="text-align:left;padding:6px 8px">PLATFORM</th>
+          <th style="text-align:left;padding:6px 8px">TIER</th>
+          <th style="text-align:right;padding:6px 8px">GMV</th>
+          <th style="text-align:right;padding:6px 8px">FEES TO PLATFORM</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    // Load tiers
+    const tiers = await API('/api/resellers/tiers');
+    document.getElementById('rsl-tiers-result').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="color:var(--dim);font-size:10px;letter-spacing:1px;">
+          <th style="text-align:left;padding:6px 8px">TIER</th>
+          <th style="text-align:right;padding:6px 8px">MIN MONTHLY GMV</th>
+          <th style="text-align:right;padding:6px 8px">MAX MONTHLY GMV</th>
+          <th style="text-align:right;padding:6px 8px">PLATFORM FEE</th>
+          <th style="text-align:right;padding:6px 8px">MONTHLY SUBSCRIPTION</th>
+        </tr></thead>
+        <tbody>${Object.entries(tiers).map(([key, t]) => `
+          <tr>
+            <td style="padding:7px 8px;color:${TIER_COLOR[key]||'#c8c0f0'};font-weight:700">${key}</td>
+            <td style="text-align:right;padding:7px 8px">$${t.minMonthlyGmv.toLocaleString()}</td>
+            <td style="text-align:right;padding:7px 8px;color:var(--dim)">${t.maxMonthlyGmv ? '$'+t.maxMonthlyGmv.toLocaleString() : 'UNLIMITED'}</td>
+            <td style="text-align:right;padding:7px 8px;color:#ffd700">${(t.feeRate*100).toFixed(2)}%</td>
+            <td style="text-align:right;padding:7px 8px;color:var(--green)">${t.subscriptionUsd > 0 ? '$'+t.subscriptionUsd+'/mo' : 'FREE'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:10px;font-size:10px;color:var(--dim)">
+        Fee rate automatically reduces as reseller GMV crosses tier thresholds. Subscription fee is charged monthly on top of per-transaction fees.
+      </div>`;
+  } catch(e) {
+    document.getElementById('rsl-status-badge').textContent = 'ERROR';
+    document.getElementById('rsl-list-result').innerHTML = `<span style="color:var(--red)">${e.message}</span>`;
+  }
+}
+
+async function runSimulation() {
+  const count = parseInt(document.getElementById('sim-count').value) || 20000;
+  const gmv   = parseFloat(document.getElementById('sim-gmv').value)  || 1000;
+  const el    = document.getElementById('rsl-sim-result');
+  el.innerHTML = `<div class="loading-row">▶ CALCULATING...</div>`;
+  try {
+    const d = await API(`/api/resellers/simulate?resellers=${count}&gmv=${gmv}`);
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:4px;">
+        <div style="background:rgba(0,255,200,.05);border:1px solid rgba(0,255,200,.2);border-radius:4px;padding:16px;">
+          <div style="color:var(--dim);font-size:10px;letter-spacing:1px;margin-bottom:10px">MONTHLY</div>
+          <div style="display:grid;gap:8px;font-size:12px;">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--dim)">Gross GMV</span><span style="color:var(--text)">$${d.monthly.grossMerchandiseVolume.toLocaleString()}</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--dim)">Transaction Fees</span><span style="color:#ffd700">$${d.monthly.transactionFeeRevenue.toLocaleString()}</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--dim)">Subscriptions</span><span style="color:#ffd700">$${d.monthly.subscriptionRevenue.toLocaleString()}</span></div>
+            <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px"><span style="color:var(--text);font-weight:700">TOTAL REVENUE</span><span style="color:#00ffc8;font-size:16px;font-weight:700">$${d.monthly.totalPlatformRevenue.toLocaleString()}</span></div>
+          </div>
+        </div>
+        <div style="background:rgba(255,153,0,.05);border:1px solid rgba(255,153,0,.2);border-radius:4px;padding:16px;">
+          <div style="color:var(--dim);font-size:10px;letter-spacing:1px;margin-bottom:10px">ANNUAL</div>
+          <div style="display:grid;gap:8px;font-size:12px;">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--dim)">Gross GMV</span><span style="color:var(--text)">$${d.annual.grossMerchandiseVolume.toLocaleString()}</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--dim)">Transaction Fees</span><span style="color:#ffd700">$${d.annual.transactionFeeRevenue.toLocaleString()}</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--dim)">Subscriptions</span><span style="color:#ffd700">$${d.annual.subscriptionRevenue.toLocaleString()}</span></div>
+            <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px"><span style="color:var(--text);font-weight:700">TOTAL REVENUE</span><span style="color:#ff9900;font-size:16px;font-weight:700">$${d.annual.totalPlatformRevenue.toLocaleString()}</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:rgba(255,165,0,.06);border:1px solid rgba(255,165,0,.2);border-radius:4px;padding:12px;font-size:11px;">
+        <span style="color:#ff9900">₿ BTC Treasury:</span>
+        <span style="color:var(--text);margin-left:8px">${d.btcTreasury.monthlyFeesInBtc}</span>
+        <span style="color:var(--dim);margin:0 8px">|</span>
+        <span style="color:var(--text)">${d.btcTreasury.annualFeesInBtc}</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--dim);">
+        Tier mix assumed: ${d.tierBreakdown.STARTER} Starter · ${d.tierBreakdown.STANDARD} Standard · ${d.tierBreakdown.PROFESSIONAL} Professional · ${d.tierBreakdown.ELITE} Elite
+      </div>`;
+  } catch(e) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
+}
+
+async function registerReseller() {
+  const name     = document.getElementById('rsl-reg-name').value.trim();
+  const email    = document.getElementById('rsl-reg-email').value.trim();
+  const platform = document.getElementById('rsl-reg-platform').value;
+  const el       = document.getElementById('rsl-reg-result');
+  if (!name || !email) { el.innerHTML = `<span style="color:var(--red)">Name and email required.</span>`; return; }
+  try {
+    const d = await API('/api/resellers/register', { method:'POST', body: JSON.stringify({ name, email, platform }) });
+    el.innerHTML = `
+      <div style="background:rgba(0,255,200,.07);border:1px solid rgba(0,255,200,.3);border-radius:4px;padding:12px;">
+        <div style="color:#00ffc8;margin-bottom:6px">✓ ${d.name} registered as ${d.resellerRef}</div>
+        <div style="color:var(--dim);font-size:10px;margin-bottom:4px">API KEY (shown once — copy now):</div>
+        <div style="font-family:monospace;font-size:11px;color:#ffd700;word-break:break-all;padding:6px;background:#080718;border-radius:3px">${d.apiKey}</div>
+        <div style="margin-top:6px;font-size:10px;color:var(--dim)">Tier: ${d.tier?.label} · Fee rate: ${((d.feeRate||.015)*100).toFixed(2)}%</div>
+      </div>`;
+    document.getElementById('rsl-reg-name').value  = '';
+    document.getElementById('rsl-reg-email').value = '';
+    setTimeout(() => loadResellers(), 800);
   } catch(e) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
 }
 

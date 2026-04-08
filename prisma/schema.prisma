@@ -542,3 +542,41 @@ model CryptoPayment {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+// ── Reseller Network ──────────────────────────────────────────────────────────
+
+model Reseller {
+  id              String   @id @default(cuid())
+  resellerRef     String   @unique                  // RSL-001, RSL-002 ...
+  name            String
+  email           String   @unique
+  platform        String   @default("TIKTOK")       // TIKTOK | INSTAGRAM | SHOPIFY
+  apiKey          String   @unique                  // auto-generated la-rsl-...
+  tier            String   @default("STARTER")      // STARTER | STANDARD | PROFESSIONAL | ELITE
+  feeRate         Float    @default(0.015)           // tier-based fee rate
+  status          String   @default("ACTIVE")        // ACTIVE | SUSPENDED | PENDING
+  totalGmv        Float    @default(0)              // lifetime gross GMV
+  totalFeesPaid   Float    @default(0)              // lifetime fees paid to platform
+  totalEarnings   Float    @default(0)              // lifetime net earnings
+  pendingPayout   Float    @default(0)              // unpaid balance
+  monthlyGmv      Float    @default(0)              // rolling 30-day GMV (for tier calc)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  payouts         ResellerPayout[]
+}
+
+model ResellerPayout {
+  id           String   @id @default(cuid())
+  resellerId   String
+  reseller     Reseller @relation(fields: [resellerId], references: [id])
+  amount       Float                              // USD paid out
+  method       String   @default("ACH")           // ACH | CRYPTO_USDC | CRYPTO_BTC | CHECK
+  status       String   @default("PENDING")       // PENDING | PROCESSING | PAID | FAILED
+  reference    String?                            // bank ref, tx hash, check number
+  periodStart  String?
+  periodEnd    String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
