@@ -245,6 +245,46 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
   </div>
 
+  <!-- DIV10-BOT-001 STATUS PANEL -->
+  <div style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">DIV10-BOT-001 <span>Autonomous Intelligence</span></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge" id="bot-state-badge" style="background:rgba(0,255,136,.1);color:#00ff88;border:1px solid #00ff88;">LOADING...</span>
+          <button class="btn btn-orange btn-sm" onclick="forceBot()" id="bot-force-btn" style="display:none;">⚡ FORCE CYCLE</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- BOT IDENTITY ROW -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;" id="bot-identity-row">
+          <div class="stat"><div class="stat-val" id="b-opps" style="color:#00fff7;">—</div><div class="stat-lbl">Opps Discovered</div></div>
+          <div class="stat"><div class="stat-val" id="b-alerts" style="color:#ff9900;">—</div><div class="stat-lbl">Alerts Raised</div></div>
+          <div class="stat"><div class="stat-val" id="b-esc" style="color:#ff2244;">—</div><div class="stat-lbl">Escalations</div></div>
+          <div class="stat"><div class="stat-val" id="b-cycles" style="color:#c8c0f0;">—</div><div class="stat-lbl">Total Cycles</div></div>
+          <div class="stat"><div class="stat-val" id="b-last" style="color:#00ff88;font-size:11px;">—</div><div class="stat-lbl">Last Cycle</div></div>
+        </div>
+
+        <!-- TABS: ALERTS / CYCLES -->
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'bot-tab-alerts')">Alerts</div>
+          <div class="tab" onclick="switchTab(this,'bot-tab-cycles')">Cycle History</div>
+          <div class="tab" onclick="switchTab(this,'bot-tab-rules')">Hard Rules</div>
+        </div>
+
+        <div class="tab-content active" id="bot-tab-alerts">
+          <div id="bot-alerts-result"><div class="loading-row">▶ LOADING BOT ALERTS...</div></div>
+        </div>
+        <div class="tab-content" id="bot-tab-cycles">
+          <div id="bot-cycles-result"><div class="loading-row">▶ LOADING CYCLE HISTORY...</div></div>
+        </div>
+        <div class="tab-content" id="bot-tab-rules">
+          <div id="bot-rules-result"><div class="loading-row">▶ LOADING HARD RULES...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -290,6 +330,7 @@ function loadAll() {
   loadWatchlist();
   loadOrders();
   loadBilling();
+  loadBot();
 }
 
 // ── SAM.GOV ─────────────────────────────────────────────────
@@ -444,9 +485,168 @@ async function estimateFee() {
   if (!amt) return;
   const d = await API(`/api/billing/estimate?amount=${amt}`);
   const el = document.getElementById('fee-est-result');
-  if (d.fee !== undefined) {
-    el.innerHTML = `Fee: <span style="color:var(--orange);font-weight:700;">$${Number(d.fee).toFixed(2)}</span> &nbsp;|&nbsp; Net: <span style="color:var(--green)">$${Number(d.net||amt-d.fee).toFixed(2)}</span>`;
+  const fee = d.feeAmountUsd ?? d.fee;
+  const net = d.netToVendor   ?? d.net;
+  if (fee !== undefined) {
+    el.innerHTML = `Fee: <span style="color:var(--orange);font-weight:700;">$${Number(fee).toFixed(2)}</span> &nbsp;|&nbsp; Net: <span style="color:var(--green)">$${Number(net ?? amt-fee).toFixed(2)}</span> &nbsp;|&nbsp; <span style="color:var(--dim)">${d.feeRate||''}</span>`;
   } else { el.innerHTML = `<span style="color:var(--red)">${d.error||'Error'}</span>`; }
+}
+
+// ── DIV10-BOT-001 ───────────────────────────────────────────
+const ALERT_LEVEL_COLOR = { CRITICAL:'#ff2244', HIGH:'#ff9900', MEDIUM:'#ffdd00', LOW:'#00fff7', INFO:'#c8c0f0' };
+
+async function loadBot() {
+  try {
+    const [status, cyclesResp] = await Promise.all([
+      API('/api/division/10/bot/status'),
+      API('/api/division/10/bot/cycles'),
+    ]);
+    const state  = status.status || 'UNKNOWN';
+    const cycles = Array.isArray(cyclesResp) ? cyclesResp : (cyclesResp.cycles || []);
+
+    // badge
+    const badge  = document.getElementById('bot-state-badge');
+    const stateColors = { ACTIVE:'#00ff88', SCANNING:'#00fff7', IDLE:'#ff9900', SUSPENDED:'#ff2244', UNKNOWN:'#5a5580' };
+    badge.textContent = state;
+    badge.style.color = stateColors[state] || '#c8c0f0';
+    badge.style.borderColor = stateColors[state] || '#c8c0f0';
+    badge.style.background  = (stateColors[state] || '#5a5580')+'18';
+
+    // show force-cycle button for ARCHITECT keys only
+    if (getKey().startsWith('la-arc')) {
+      document.getElementById('bot-force-btn').style.display = 'inline-block';
+    }
+
+    // counters — field names from live API
+    document.getElementById('b-opps').textContent   = (status.totalOpportunitiesTracked ?? 0).toLocaleString();
+    document.getElementById('b-alerts').textContent  = (status.totalAlertsRaised ?? 0).toLocaleString();
+    const lastSum = status.lastCycleSummary || {};
+    document.getElementById('b-esc').textContent     = (lastSum.escalations || []).length.toLocaleString();
+    document.getElementById('b-cycles').textContent  = cycles.length.toLocaleString();
+
+    // last cycle time
+    const lastCycle = status.lastCycleAt;
+    document.getElementById('b-last').textContent = lastCycle
+      ? new Date(lastCycle).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})
+      : 'Never';
+
+    // render cycles inline so we don't double-fetch
+    renderBotCycles(cycles);
+
+  } catch(e) {
+    document.getElementById('bot-state-badge').textContent = 'UNAVAILABLE';
+  }
+
+  loadBotAlerts();
+  loadBotRules();
+}
+
+async function loadBotAlerts() {
+  const el = document.getElementById('bot-alerts-result');
+  try {
+    const alerts = await API('/api/division/10/bot/alerts?unacknowledged=true');
+    const list   = Array.isArray(alerts) ? alerts : (alerts.alerts || []);
+    if (!list.length) {
+      el.innerHTML = '<div class="empty" style="color:#00ff88;">✓ No unacknowledged alerts — bot is clear</div>';
+      return;
+    }
+    const key = getKey();
+    const isArch = key.startsWith('la-arc');
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>Level</th><th>Alert ID</th><th>Message</th><th>Raised</th>${isArch?'<th>ACK</th>':''}</tr></thead>
+        <tbody>${list.map(a => {
+          const color = ALERT_LEVEL_COLOR[a.level] || '#c8c0f0';
+          const ackBtn = isArch
+            ? `<td><button class="btn btn-ghost btn-sm" onclick="ackAlert('${a.alertId||a.id}')">ACK</button></td>`
+            : '';
+          return `<tr>
+            <td><span class="badge" style="color:${color};border-color:${color};background:${color}18;">${esc(a.level||'INFO')}</span></td>
+            <td style="color:#5a5580;font-size:10px;">${esc((a.alertId||a.id||'—').slice(0,14)+'…')}</td>
+            <td class="td-title">${esc(a.message||a.summary||'—')}</td>
+            <td class="td-date">${fmt(a.raisedAt||a.createdAt)}</td>
+            ${ackBtn}
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    el.innerHTML = `<div class="empty" style="color:var(--red)">Could not load alerts: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderBotCycles(list) {
+  const el = document.getElementById('bot-cycles-result');
+  if (!list || !list.length) {
+    el.innerHTML = '<div class="empty">No cycles recorded yet. First cycle runs 45s after server boot.</div>';
+    return;
+  }
+  el.innerHTML = `
+    <table>
+      <thead><tr><th>Cycle ID</th><th>Type</th><th>Scanned</th><th>Discovered</th><th>Alerts</th><th>Escalations</th><th>Ran At</th></tr></thead>
+      <tbody>${list.slice(0,15).map(c=>`
+        <tr>
+          <td style="color:#5a5580;font-size:10px;">${esc((c.cycleId||'—').slice(0,10)+'…')}</td>
+          <td><span class="badge badge-cyan">${esc(c.cycleType||'—')}</span></td>
+          <td style="color:var(--dim);">${c.contractsScanned ?? '—'}</td>
+          <td style="color:#00fff7;">${c.opportunitiesDiscovered ?? '—'}</td>
+          <td style="color:#ff9900;">${c.alertsRaised ?? '—'}</td>
+          <td style="color:${(c.escalations||[]).length?'#ff2244':'#5a5580'}">${(c.escalations||[]).length}</td>
+          <td class="td-date">${fmt(c.ranAt||c.createdAt)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function loadBotRules() {
+  const el = document.getElementById('bot-rules-result');
+  try {
+    const status = await API('/api/division/10/bot/status');
+    const rules  = status.hardRules || status.rules || [];
+    if (!rules.length) {
+      el.innerHTML = '<div class="empty">No hard rules exposed via API.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead><tr><th>#</th><th>Hard Rule</th></tr></thead>
+        <tbody>${rules.map((r,i)=>`
+          <tr>
+            <td style="color:#5a5580;font-size:10px;">${i+1}</td>
+            <td style="color:#c8c0f0;">${esc(typeof r === 'string' ? r : r.rule || JSON.stringify(r))}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    el.innerHTML = `<div class="empty" style="color:var(--red)">Could not load hard rules.</div>`;
+  }
+}
+
+async function ackAlert(alertId) {
+  try {
+    const d = await API(`/api/division/10/bot/alerts/${alertId}/acknowledge`, { method:'POST' });
+    if (d.error) throw new Error(d.error);
+    loadBotAlerts();
+    showAlert('wl-alert', `Alert ${alertId.slice(0,10)}… acknowledged`, 'ok');
+  } catch(e) {
+    showAlert('wl-alert', 'Ack error: '+e.message, 'err');
+  }
+}
+
+async function forceBot() {
+  const btn = document.getElementById('bot-force-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ RUNNING...';
+  try {
+    const d = await API('/api/division/10/bot/run', { method:'POST' });
+    if (d.error) throw new Error(d.error);
+    setTimeout(() => { loadBot(); }, 3000);
+    showAlert('wl-alert','Bot cycle triggered — results loading in 3s','ok');
+  } catch(e) {
+    showAlert('wl-alert','Trigger error: '+e.message,'err');
+  } finally {
+    setTimeout(() => { btn.disabled=false; btn.textContent='⚡ FORCE CYCLE'; }, 4000);
+  }
 }
 
 // ── UTILS ────────────────────────────────────────────────────
