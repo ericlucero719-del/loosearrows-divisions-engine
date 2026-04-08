@@ -423,6 +423,107 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </div>
   </div>
 
+  <!-- LIGHTNING NETWORK + BTC CREDIT LINES PANEL -->
+  <div style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">⚡ Lightning Network <span>+ BTC-Backed Credit Lines</span></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge" id="ln-status-badge" style="background:rgba(255,215,0,.1);color:#ffd700;border:1px solid #ffd700;">LOADING...</span>
+          <button class="btn btn-orange btn-sm" onclick="loadLightning()">↻ REFRESH</button>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <!-- STATS ROW -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;">
+          <div class="stat"><div class="stat-val" id="ln-count" style="color:#ffd700;">—</div><div class="stat-lbl">Lightning Invoices</div></div>
+          <div class="stat"><div class="stat-val" id="ln-paid" style="color:#00ffc8;">—</div><div class="stat-lbl">Paid / Settled</div></div>
+          <div class="stat"><div class="stat-val" id="cl-collateral" style="color:#ff9900;">—</div><div class="stat-lbl">BTC Collateral Locked</div></div>
+          <div class="stat"><div class="stat-val" id="cl-drawn" style="color:#00fff7;">—</div><div class="stat-lbl">Capital Drawn</div></div>
+          <div class="stat"><div class="stat-val" id="cl-btc-value" style="color:#c8c0f0;">—</div><div class="stat-lbl">Collateral Value Now</div></div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tab-row">
+          <div class="tab active" onclick="switchTab(this,'ln-tab-lightning')">⚡ Lightning Invoices</div>
+          <div class="tab" onclick="switchTab(this,'ln-tab-credit')">🏦 Credit Lines</div>
+          <div class="tab" onclick="switchTab(this,'ln-tab-new-ln')">+ New Lightning Invoice</div>
+          <div class="tab" onclick="switchTab(this,'ln-tab-new-cl')">+ Open Credit Line</div>
+        </div>
+
+        <!-- LIGHTNING INVOICES -->
+        <div class="tab-content active" id="ln-tab-lightning">
+          <div id="ln-list-result"><div class="loading-row">▶ LOADING LIGHTNING INVOICES...</div></div>
+        </div>
+
+        <!-- CREDIT LINES -->
+        <div class="tab-content" id="ln-tab-credit">
+          <div id="cl-list-result"><div class="loading-row">▶ LOADING CREDIT LINES...</div></div>
+        </div>
+
+        <!-- NEW LIGHTNING INVOICE FORM -->
+        <div class="tab-content" id="ln-tab-new-ln">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">AMOUNT (USD)</div>
+              <input type="number" id="ln-amount-usd" placeholder="e.g. 5000" step="any"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">DESCRIPTION</div>
+              <input type="text" id="ln-desc" placeholder="Contract / invoice reference"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">EXPIRES (MINUTES)</div>
+              <input type="number" id="ln-expires" value="60" min="1"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+          </div>
+          <button class="btn btn-orange btn-sm" onclick="createLightningInvoice()">⚡ GENERATE LIGHTNING INVOICE</button>
+          <div id="ln-create-result" style="margin-top:12px;font-size:11px;"></div>
+        </div>
+
+        <!-- OPEN CREDIT LINE FORM -->
+        <div class="tab-content" id="ln-tab-new-cl">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">PURPOSE</div>
+              <input type="text" id="cl-purpose" placeholder="Supplier advance / contract ref"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">BTC COLLATERAL</div>
+              <input type="number" id="cl-btc" placeholder="e.g. 0.5" step="any"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">LTV RATIO (0.5 = 50%)</div>
+              <input type="number" id="cl-ltv" value="0.5" step="0.05" min="0.1" max="0.8"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">LENDER</div>
+              <input type="text" id="cl-lender" placeholder="Unchained Capital / Nexo / etc"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+            <div>
+              <div style="color:var(--dim);font-size:10px;margin-bottom:4px;">ANNUAL INTEREST RATE %</div>
+              <input type="number" id="cl-rate" value="8.0" step="0.5"
+                style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            </div>
+          </div>
+          <button class="btn btn-orange btn-sm" onclick="openCreditLine()">🏦 OPEN CREDIT LINE</button>
+          <div id="cl-create-result" style="margin-top:12px;font-size:11px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- DIV10-BOT-001 STATUS PANEL -->
   <div style="margin-bottom:16px;">
     <div class="card">
@@ -528,6 +629,7 @@ function loadAll() {
   loadBilling();
   loadCrypto();
   loadResellers();
+  loadLightning();
   loadBot();
   loadDocuments();
 }
@@ -970,6 +1072,143 @@ async function registerReseller() {
     document.getElementById('rsl-reg-email').value = '';
     setTimeout(() => loadResellers(), 800);
   } catch(e) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
+}
+
+// ── LIGHTNING NETWORK + BTC CREDIT LINES ─────────────────────
+
+const LN_STATUS_COLOR = { PAID:'#00ffc8', PENDING:'#ffd700', EXPIRED:'#888', CANCELLED:'#ff3355' };
+const CL_RISK_COLOR   = { LOW:'#00ffc8', MEDIUM:'#ffdd00', HIGH:'#ff3355' };
+
+async function loadLightning() {
+  try {
+    const [invoices, creditSummary] = await Promise.all([
+      API('/api/crypto/lightning'),
+      API('/api/crypto/credit/summary'),
+    ]);
+
+    const paid = invoices.filter((i: any) => i.status === 'PAID').length;
+    document.getElementById('ln-count').textContent = invoices.length;
+    document.getElementById('ln-paid').textContent  = paid + ' paid';
+    document.getElementById('ln-status-badge').textContent =
+      `${invoices.length} LN · ${creditSummary.summary.openLines} CL OPEN`;
+
+    const cs = creditSummary.summary;
+    document.getElementById('cl-collateral').textContent = (cs.totalCollateralBtc || 0).toFixed(4) + ' BTC';
+    document.getElementById('cl-drawn').textContent      = '$' + (cs.totalDrawnUsd || 0).toLocaleString();
+    document.getElementById('cl-btc-value').textContent  = '$' + (cs.totalCollateralUsd || 0).toLocaleString();
+
+    // Lightning invoices table
+    const lnRows = invoices.slice(0, 20).map((i: any) => `
+      <tr>
+        <td style="color:#ffd700">${i.invoiceRef}</td>
+        <td style="color:var(--text)">${i.amountUsd?.toLocaleString('en-US',{style:'currency',currency:'USD'})}</td>
+        <td style="color:#888">${i.amountSats?.toLocaleString()} sats</td>
+        <td style="color:#888">${i.description || '—'}</td>
+        <td><span style="color:${LN_STATUS_COLOR[i.status]||'#888'}">${i.status}</span></td>
+        <td style="color:var(--dim)">${i.paidAt ? i.paidAt.slice(0,10) : i.createdAt?.slice(0,10)}</td>
+        ${i.status==='PENDING' ? `<td><button class="btn btn-orange btn-sm" onclick="markLnPaid('${i.id}')">✓ PAID</button></td>` : '<td></td>'}
+      </tr>`).join('') || '<tr><td colspan="7" style="color:var(--dim);text-align:center">No Lightning invoices. Create one above.</td></tr>';
+
+    document.getElementById('ln-list-result').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="color:var(--dim);font-size:10px;letter-spacing:1px;">
+          <th style="text-align:left;padding:6px 8px">REF</th>
+          <th style="text-align:left;padding:6px 8px">AMOUNT USD</th>
+          <th style="text-align:left;padding:6px 8px">SATS</th>
+          <th style="text-align:left;padding:6px 8px">DESCRIPTION</th>
+          <th style="text-align:left;padding:6px 8px">STATUS</th>
+          <th style="text-align:left;padding:6px 8px">DATE</th>
+          <th style="text-align:left;padding:6px 8px">ACTION</th>
+        </tr></thead>
+        <tbody>${lnRows}</tbody>
+      </table>`;
+
+    // Credit lines table
+    const clRows = (creditSummary.lines || []).map((l: any) => `
+      <tr>
+        <td style="color:#ff9900">${l.creditRef}</td>
+        <td style="font-size:10px">${l.purpose}</td>
+        <td style="color:#ff9900">${l.btcCollateral} BTC</td>
+        <td>$${(l.collateralUsd||0).toLocaleString()}</td>
+        <td style="color:#00fff7">$${(l.drawnUsd||0).toLocaleString()}</td>
+        <td style="color:#888">$${(l.outstandingUsd||0).toLocaleString()}</td>
+        <td><span style="color:${CL_RISK_COLOR[l.liquidationRisk]||'#888'}">${l.liquidationRisk||'—'} RISK</span></td>
+        <td><span style="color:${l.collateralGainUsd>=0?'#00ffc8':'#ff3355'}">${l.collateralGainUsd>=0?'+':''}$${(l.collateralGainUsd||0).toFixed(0)}</span></td>
+        <td>${l.lender||'—'}</td>
+      </tr>`).join('') || '<tr><td colspan="9" style="color:var(--dim);text-align:center">No credit lines open. Deposit BTC collateral to unlock capital.</td></tr>';
+
+    document.getElementById('cl-list-result').innerHTML = `
+      ${cs.totalDrawnUsd > 0 ? `<div style="background:rgba(0,255,200,.06);border:1px solid rgba(0,255,200,.2);border-radius:4px;padding:10px 14px;margin-bottom:12px;font-size:11px;">
+        <span style="color:#00ffc8">₿ KEY INSIGHT:</span>
+        <span style="color:var(--text)"> You have deployed $${cs.totalDrawnUsd.toLocaleString()} in working capital while your BTC collateral ($${cs.totalCollateralUsd.toLocaleString()}) continues to appreciate. Your Bitcoin is doing double duty.</span>
+      </div>` : ''}
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="color:var(--dim);font-size:10px;letter-spacing:1px;">
+          <th style="text-align:left;padding:6px 8px">REF</th>
+          <th style="text-align:left;padding:6px 8px">PURPOSE</th>
+          <th style="text-align:left;padding:6px 8px">COLLATERAL</th>
+          <th style="text-align:left;padding:6px 8px">COLLATERAL USD</th>
+          <th style="text-align:left;padding:6px 8px">DRAWN</th>
+          <th style="text-align:left;padding:6px 8px">OUTSTANDING</th>
+          <th style="text-align:left;padding:6px 8px">LTV RISK</th>
+          <th style="text-align:left;padding:6px 8px">BTC GAIN</th>
+          <th style="text-align:left;padding:6px 8px">LENDER</th>
+        </tr></thead>
+        <tbody>${clRows}</tbody>
+      </table>`;
+
+  } catch(e: any) {
+    document.getElementById('ln-status-badge').textContent = 'ERROR';
+    document.getElementById('ln-list-result').innerHTML = `<span style="color:var(--red)">${e.message}</span>`;
+  }
+}
+
+async function markLnPaid(id: string) {
+  try {
+    await API(`/api/crypto/lightning/${id}/paid`, { method:'POST', body: JSON.stringify({}) });
+    loadLightning();
+  } catch(e: any) { alert(e.message); }
+}
+
+async function createLightningInvoice() {
+  const amountUsd        = parseFloat((document.getElementById('ln-amount-usd') as HTMLInputElement).value);
+  const description      = (document.getElementById('ln-desc') as HTMLInputElement).value.trim();
+  const expiresInMinutes = parseInt((document.getElementById('ln-expires') as HTMLInputElement).value) || 60;
+  const el               = document.getElementById('ln-create-result')!;
+  if (!amountUsd) { el.innerHTML = `<span style="color:var(--red)">Amount required.</span>`; return; }
+  try {
+    const d = await API('/api/crypto/lightning', { method:'POST', body: JSON.stringify({ amountUsd, description, expiresInMinutes }) });
+    el.innerHTML = `
+      <div style="background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.3);border-radius:4px;padding:12px;">
+        <div style="color:#ffd700;margin-bottom:8px">⚡ ${d.invoiceRef} — $${d.amountUsd?.toLocaleString()} = ${d.amountSats?.toLocaleString()} sats</div>
+        <div style="color:var(--dim);font-size:10px;margin-bottom:4px">BOLT11 INVOICE (paste into any Lightning wallet):</div>
+        <div style="font-family:monospace;font-size:10px;color:var(--text);word-break:break-all;padding:8px;background:#080718;border-radius:3px;border:1px solid var(--border)">${d.bolt11}</div>
+        <div style="margin-top:8px;font-size:10px;color:var(--dim)">Expires: ${d.expiresAt?.slice(0,19)?.replace('T',' ')} · Settles in seconds via Lightning Network</div>
+      </div>`;
+    setTimeout(() => loadLightning(), 800);
+  } catch(e: any) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
+}
+
+async function openCreditLine() {
+  const purpose      = (document.getElementById('cl-purpose') as HTMLInputElement).value.trim();
+  const btcCollateral= parseFloat((document.getElementById('cl-btc') as HTMLInputElement).value);
+  const ltvRatio     = parseFloat((document.getElementById('cl-ltv') as HTMLInputElement).value);
+  const lender       = (document.getElementById('cl-lender') as HTMLInputElement).value.trim();
+  const interestRatePct = parseFloat((document.getElementById('cl-rate') as HTMLInputElement).value);
+  const el           = document.getElementById('cl-create-result')!;
+  if (!purpose || !btcCollateral) { el.innerHTML = `<span style="color:var(--red)">Purpose and BTC collateral required.</span>`; return; }
+  try {
+    const d = await API('/api/crypto/credit', { method:'POST', body: JSON.stringify({ purpose, btcCollateral, ltvRatio, lender, interestRatePct }) });
+    el.innerHTML = `
+      <div style="background:rgba(255,153,0,.07);border:1px solid rgba(255,153,0,.3);border-radius:4px;padding:12px;">
+        <div style="color:#ff9900;margin-bottom:6px">🏦 ${d.creditRef} — ${d.btcCollateral} BTC collateral → $${d.creditLimitUsd?.toLocaleString()} credit line</div>
+        <div style="color:var(--dim);font-size:10px">Lender: ${d.lender || 'Unspecified'} · Rate: ${d.interestRatePct}% APR · LTV: ${((d.ltvRatio||0.5)*100).toFixed(0)}%</div>
+        <div style="margin-top:6px;font-size:10px;color:#00ffc8">Your BTC is still yours — it just unlocked $${d.creditLimitUsd?.toLocaleString()} in working capital.</div>
+      </div>`;
+    document.getElementById('cl-purpose')!.value = '';
+    document.getElementById('cl-btc')!.value = '';
+    setTimeout(() => loadLightning(), 800);
+  } catch(e: any) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
 }
 
 // ── DIV10-BOT-001 ───────────────────────────────────────────

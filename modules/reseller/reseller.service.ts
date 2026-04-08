@@ -107,13 +107,15 @@ export async function recordSale(resellerId: string, grossSaleUsd: number) {
   const newTier       = assignTier(newMonthlyGmv);
   const newFeeRate    = TIERS[newTier].feeRate;
 
+  const newPendingPayout = Math.round((reseller.pendingPayout + netEarned) * 100) / 100;
+
   await (prisma as any).reseller.update({
     where: { id: resellerId },
     data: {
       totalGmv:     { increment: grossSaleUsd },
       totalFeesPaid:{ increment: feeAmount },
       totalEarnings:{ increment: netEarned },
-      pendingPayout:{ increment: netEarned },
+      pendingPayout: newPendingPayout,
       monthlyGmv:   { increment: grossSaleUsd },
       tier:         newTier,
       feeRate:      newFeeRate,

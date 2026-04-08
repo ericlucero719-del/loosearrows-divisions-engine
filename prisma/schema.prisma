@@ -560,6 +560,7 @@ model Reseller {
   totalEarnings   Float    @default(0)              // lifetime net earnings
   pendingPayout   Float    @default(0)              // unpaid balance
   monthlyGmv      Float    @default(0)              // rolling 30-day GMV (for tier calc)
+  btcWalletAddress String?                          // for BTC payouts
   notes           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -579,4 +580,63 @@ model ResellerPayout {
   notes        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// ── Lightning Network Payments ────────────────────────────────────────────────
+
+model LightningInvoice {
+  id            String   @id @default(cuid())
+  invoiceRef    String   @unique             // LN-0001 ...
+  amountSats    Int                          // satoshis
+  amountUsd     Float                        // USD equivalent at creation
+  btcPriceAtCreation Float
+  description   String?
+  paymentHash   String?                      // BOLT11 payment_hash
+  bolt11        String?                      // full BOLT11 invoice string
+  status        String   @default("PENDING") // PENDING | PAID | EXPIRED | CANCELLED
+  linkedRef     String?                      // contract/PO/reseller ref
+  linkedType    String?                      // INVOICE | PO | RESELLER | GENERAL
+  paidAt        DateTime?
+  expiresAt     DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ── BTC-Backed Credit Lines ───────────────────────────────────────────────────
+
+model BtcCreditLine {
+  id                String   @id @default(cuid())
+  creditRef         String   @unique            // CL-0001 ...
+  purpose           String                      // "Supplier payment for contract X", etc
+  btcCollateral     Float                       // BTC deposited as collateral
+  btcPriceAtOpen    Float                       // BTC price when line opened
+  collateralUsd     Float                       // btcCollateral × btcPriceAtOpen
+  ltvRatio          Float    @default(0.5)      // loan-to-value (50% = conservative)
+  creditLimitUsd    Float                       // collateralUsd × ltvRatio
+  drawnUsd          Float    @default(0)        // amount actually borrowed
+  repaidUsd         Float    @default(0)        // amount repaid
+  outstandingUsd    Float    @default(0)        // drawn - repaid
+  interestRatePct   Float    @default(8.0)      // annual interest rate %
+  accruedInterestUsd Float   @default(0)
+  status            String   @default("OPEN")   // OPEN | REPAID | LIQUIDATED | CLOSED
+  lender            String?                     // BlockFi, Nexo, Unchained, etc
+  linkedContractRef String?
+  openedAt          DateTime @default(now())
+  closedAt          DateTime?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  repayments        CreditRepayment[]
+}
+
+model CreditRepayment {
+  id           String        @id @default(cuid())
+  creditLineId String
+  creditLine   BtcCreditLine @relation(fields: [creditLineId], references: [id])
+  amountUsd    Float
+  type         String        @default("PRINCIPAL") // PRINCIPAL | INTEREST | FULL
+  reference    String?
+  notes        String?
+  createdAt    DateTime      @default(now())
 }
