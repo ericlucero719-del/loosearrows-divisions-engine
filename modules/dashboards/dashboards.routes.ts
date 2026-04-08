@@ -55,6 +55,14 @@ router.get("/command-center", (_req, res) => {
   res.sendFile(path.join(__dirname, "command-center.html"));
 });
 
+// ── Reseller Signup ────────────────────────────────────────────────────────────
+router.get("/join", (_req, res) => {
+  res.sendFile(path.join(__dirname, "join.html"));
+});
+router.get("/join/success", (_req, res) => {
+  res.sendFile(path.join(__dirname, "join-success.html"));
+});
+
 // ── Quick navigation index ─────────────────────────────────────────────────────
 router.get("/dashboards", (_req, res) => {
   res.json({

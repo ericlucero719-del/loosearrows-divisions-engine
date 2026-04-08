@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Join the Reseller Network — Loose Arrows Supply &amp; Logistics</title>
+<style>
+  :root {
+    --green:  #00ff88;
+    --cyan:   #00e5ff;
+    --yellow: #ffd700;
+    --red:    #ff3c3c;
+    --dark:   #040b0e;
+    --mid:    #0a1a20;
+    --border: rgba(0,255,136,.18);
+    --glow:   0 0 14px rgba(0,255,136,.45);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    color: #c8e8d0;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* scan-lines overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px);
+    pointer-events: none;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0 22px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-icon { width: 42px; height: 42px; border: 2px solid var(--green); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--glow); }
+  .logo-text { font-size: 13px; color: var(--green); letter-spacing: .08em; }
+  .logo-sub  { font-size: 10px; color: #4a8a5a; letter-spacing: .12em; }
+  .nav-links { display: flex; gap: 20px; }
+  .nav-links a { color: #4a8a5a; text-decoration: none; font-size: 11px; letter-spacing: .1em; transition: color .2s; }
+  .nav-links a:hover { color: var(--green); }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 72px 0 48px;
+  }
+  .hero-badge {
+    display: inline-block;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-size: 10px;
+    letter-spacing: .18em;
+    padding: 5px 16px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+    box-shadow: var(--glow);
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    color: #fff;
+    letter-spacing: -.01em;
+    line-height: 1.12;
+    margin-bottom: 18px;
+  }
+  h1 span { color: var(--green); }
+  .hero-sub {
+    font-size: 16px;
+    color: #6aaa7a;
+    max-width: 600px;
+    margin: 0 auto 48px;
+    line-height: 1.65;
+  }
+
+  /* ── TIER CARDS ── */
+  .tiers-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+  .tier-card {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 18px;
+    text-align: center;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .tier-card:hover { border-color: var(--green); box-shadow: var(--glow); }
+  .tier-name  { font-size: 11px; letter-spacing: .14em; color: var(--green); margin-bottom: 8px; }
+  .tier-price { font-size: 28px; color: #fff; font-weight: 700; }
+  .tier-price span { font-size: 13px; color: #4a8a5a; }
+  .tier-fee   { font-size: 11px; color: #4a8a5a; margin: 4px 0 12px; }
+  .tier-gmv   { font-size: 11px; color: #3a6a4a; }
+  .tier-free  { font-size: 12px; color: var(--yellow); letter-spacing: .08em; font-weight: 700; }
+
+  /* ── FORM CONTAINER ── */
+  .form-wrap {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 40px;
+    align-items: start;
+  }
+  @media(max-width: 840px) { .form-wrap { grid-template-columns: 1fr; } }
+
+  .info-col h2 { font-size: 22px; color: var(--green); margin-bottom: 18px; }
+  .benefit-list { list-style: none; }
+  .benefit-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: #8abaa0;
+    line-height: 1.5;
+  }
+  .benefit-list li:last-child { border-bottom: none; }
+  .benefit-list .ico { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+  .stat-box {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num { font-size: 24px; color: var(--cyan); font-weight: 700; }
+  .stat-lbl { font-size: 10px; color: #4a7a5a; letter-spacing: .1em; margin-top: 4px; }
+
+  /* ── SIGNUP FORM ── */
+  .signup-form {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 36px 32px;
+  }
+  .form-title {
+    font-size: 16px; color: var(--green);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px; margin-bottom: 24px;
+    letter-spacing: .08em;
+  }
+  label { display: block; font-size: 10px; color: #4a8a5a; letter-spacing: .12em; margin-bottom: 6px; }
+  input, select {
+    width: 100%;
+    background: #060f13;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--green);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 10px 13px;
+    margin-bottom: 18px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input:focus, select:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 8px rgba(0,255,136,.25);
+  }
+  input::placeholder { color: #2a4a3a; }
+  select option { background: #060f13; }
+
+  .terms-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-bottom: 24px;
+    font-size: 11px; color: #4a8a5a; line-height: 1.5;
+  }
+  .terms-row input[type=checkbox] {
+    width: 16px; height: 16px; flex-shrink: 0;
+    margin-bottom: 0; margin-top: 2px;
+    accent-color: var(--green);
+  }
+  .terms-row a { color: var(--cyan); }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--green);
+    color: #040b0e;
+    border: none;
+    border-radius: 4px;
+    padding: 13px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    cursor: pointer;
+    transition: background .2s, box-shadow .2s;
+    text-transform: uppercase;
+  }
+  .btn-submit:hover { background: #00e87a; box-shadow: 0 0 16px rgba(0,255,136,.5); }
+  .btn-submit:disabled { background: #2a4a3a; color: #1a3a2a; cursor: not-allowed; box-shadow: none; }
+
+  /* ── SUCCESS PANEL ── */
+  .success-panel {
+    display: none;
+    background: #020c0a;
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    padding: 28px;
+    margin-top: 20px;
+    box-shadow: var(--glow);
+  }
+  .success-panel h3 { color: var(--green); font-size: 15px; margin-bottom: 16px; letter-spacing: .1em; }
+  .key-display {
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--yellow);
+    word-break: break-all;
+    margin-bottom: 10px;
+    letter-spacing: .05em;
+  }
+  .btn-copy {
+    background: transparent;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: inherit;
+    font-size: 11px;
+    padding: 7px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: .1em;
+    transition: background .2s;
+  }
+  .btn-copy:hover { background: rgba(0,255,136,.1); }
+  .warning-tag { font-size: 10px; color: var(--red); margin-top: 8px; letter-spacing: .06em; }
+  .ref-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .ref-badge {
+    background: rgba(0,255,136,.07);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 11px;
+    color: var(--cyan);
+  }
+  .ref-badge span { color: var(--green); font-weight: 700; }
+  .stripe-section { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
+  .stripe-section h4 { color: var(--cyan); font-size: 12px; letter-spacing: .1em; margin-bottom: 14px; }
+  .plan-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .plan-card {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .plan-card:hover { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,229,255,.25); }
+  .plan-card .pname { font-size: 10px; color: var(--cyan); letter-spacing: .12em; margin-bottom: 6px; }
+  .plan-card .pprice { font-size: 20px; color: #fff; font-weight: 700; }
+  .plan-card .pprice span { font-size: 11px; color: #4a8a5a; }
+  .plan-card .pfee { font-size: 10px; color: #3a6a4a; margin-top: 4px; }
+
+  /* ── ERROR ── */
+  .error-msg {
+    display: none;
+    background: rgba(255,60,60,.1);
+    border: 1px solid rgba(255,60,60,.4);
+    border-radius: 4px;
+    color: var(--red);
+    font-size: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 28px 0;
+    font-size: 11px;
+    color: #2a4a3a;
+    letter-spacing: .06em;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header>
+    <a class="logo" href="/">
+      <div class="logo-icon">⬡</div>
+      <div>
+        <div class="logo-text">LOOSE ARROWS SUPPLY &amp; LOGISTICS</div>
+        <div class="logo-sub">GOVERNMENT PROCUREMENT ENGINE™</div>
+      </div>
+    </a>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+      <a href="/command-center">Command Center</a>
+      <a href="/vendor-portal">Vendor Portal</a>
+      <a href="/pricing">Pricing</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">★ Reseller Network — Now Open</div>
+    <h1>Join the <span>20,000-Reseller</span><br>Logistics Network</h1>
+    <p class="hero-sub">
+      Earn recurring commissions on every government procurement order routed through your network.
+      Start free — no upfront cost, no inventory, no risk. Scale to ELITE and unlock 0.35% platform fees.
+    </p>
+  </div>
+
+  <!-- TIER CARDS -->
+  <div class="tiers-row">
+    <div class="tier-card">
+      <div class="tier-name">STARTER</div>
+      <div class="tier-free">FREE</div>
+      <div class="tier-fee">1.50% platform fee</div>
+      <div class="tier-gmv">Up to $5K/month GMV</div>
+    </div>
+    <div class="tier-card">
+      <div class="tier-name">STANDARD</div>
+      <div class="tier-price">$49<span>/mo</span></div>
+      <div class="tier-fee">0.75% platform fee</div>
+      <div class="tier-gmv">Up to $25K/month GMV</div>
+    </div>
+    <div class="tier-card">
+      <div class="tier-name">PROFESSIONAL</div>
+      <div class="tier-price">$149<span>/mo</span></div>
+      <div class="tier-fee">0.50% platform fee</div>
+      <div class="tier-gmv">Up to $100K/month GMV</div>
+    </div>
+    <div class="tier-card">
+      <div class="tier-name">ELITE</div>
+      <div class="tier-price">$499<span>/mo</span></div>
+      <div class="tier-fee">0.35% platform fee</div>
+      <div class="tier-gmv">Unlimited GMV · BTC payouts</div>
+    </div>
+  </div>
+
+  <!-- FORM + INFO -->
+  <div class="form-wrap">
+    <!-- LEFT: Benefits -->
+    <div class="info-col">
+      <h2>// WHY RESELL WITH US</h2>
+      <ul class="benefit-list">
+        <li><span class="ico">◆</span><span>Direct pipeline into $6T+ annual U.S. government procurement market via our 11-division engine</span></li>
+        <li><span class="ico">◆</span><span>Instant API key on signup — plug into your TikTok, Instagram, Shopify, and Amazon storefronts immediately</span></li>
+        <li><span class="ico">◆</span><span>Automated payout engine — USD wire or Bitcoin Lightning Network (ELITE tier)</span></li>
+        <li><span class="ico">◆</span><span>DIV10-BOT-001 scans SAM.gov daily and surfaces matching opportunities to your reseller dashboard</span></li>
+        <li><span class="ico">◆</span><span>Tier-based fee reduction: hit $100K GMV and unlock ELITE at 0.35% — the lowest rate on the platform</span></li>
+        <li><span class="ico">◆</span><span>Real-time earnings dashboard, payout history, and BTC credit line access for ELITE members</span></li>
+        <li><span class="ico">◆</span><span>White-label support: sell under your own brand, route orders through our fulfillment engine</span></li>
+      </ul>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-num">20K</div>
+          <div class="stat-lbl">RESELLER TARGET</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">$6T+</div>
+          <div class="stat-lbl">GOV MARKET SIZE</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">0.35%</div>
+          <div class="stat-lbl">ELITE FEE RATE</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">11</div>
+          <div class="stat-lbl">DIVISIONS ACTIVE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Signup Form -->
+    <div>
+      <div class="signup-form" id="signupForm">
+        <div class="form-title">// CREATE RESELLER ACCOUNT</div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <label for="name">FULL NAME *</label>
+        <input type="text" id="name" placeholder="John Reyes" autocomplete="name" />
+
+        <label for="email">EMAIL ADDRESS *</label>
+        <input type="email" id="email" placeholder="john@yourstore.com" autocomplete="email" />
+
+        <label for="businessName">BUSINESS / STORE NAME</label>
+        <input type="text" id="businessName" placeholder="Reyes Tactical Supply" />
+
+        <label for="platform">PRIMARY SALES PLATFORM</label>
+        <select id="platform">
+          <option value="MULTI">Multi-Platform</option>
+          <option value="TIKTOK">TikTok Shop</option>
+          <option value="INSTAGRAM">Instagram Commerce</option>
+          <option value="SHOPIFY">Shopify Store</option>
+          <option value="AMAZON">Amazon Marketplace</option>
+          <option value="YOUTUBE">YouTube Commerce</option>
+        </select>
+
+        <label for="referralCode">REFERRAL CODE (optional)</label>
+        <input type="text" id="referralCode" placeholder="REF-XXXXXX" />
+
+        <div class="terms-row">
+          <input type="checkbox" id="terms" />
+          <label for="terms" style="font-size:11px; color:#4a8a5a; letter-spacing:.08em; margin-bottom:0;">
+            I agree to the <a href="/legal" target="_blank">Reseller Terms of Service</a> and understand that platform fees apply to all processed orders.
+          </label>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="submitSignup()">
+          ACTIVATE RESELLER ACCOUNT →
+        </button>
+      </div>
+
+      <!-- SUCCESS PANEL -->
+      <div class="success-panel" id="successPanel">
+        <h3>✓ ACCOUNT ACTIVATED</h3>
+
+        <div style="font-size:11px;color:#4a8a5a;margin-bottom:12px;letter-spacing:.08em;">YOUR API KEY (shown once — save it now)</div>
+        <div class="key-display" id="apiKeyDisplay">—</div>
+        <button class="btn-copy" onclick="copyKey()">⧉ COPY KEY</button>
+        <div class="warning-tag">⚠ This key will not be shown again. Store it securely.</div>
+
+        <div class="ref-row" id="refRow"></div>
+
+        <div class="stripe-section">
+          <h4>// UPGRADE YOUR TIER — UNLOCK LOWER FEES</h4>
+          <div class="plan-cards" id="planCards">
+            <div style="color:#4a8a5a;font-size:11px;">Loading plans...</div>
+          </div>
+          <div style="font-size:10px;color:#2a4a3a;margin-top:10px;">STARTER tier is active. Upgrade anytime to reduce your platform fee.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  &copy; 2026 Loose Arrows Supply &amp; Logistics™ — All rights reserved. Government Procurement Engine v2.0
+</footer>
+
+<script>
+let signupData = null;
+
+async function submitSignup() {
+  const name         = document.getElementById('name').value.trim();
+  const email        = document.getElementById('email').value.trim();
+  const businessName = document.getElementById('businessName').value.trim();
+  const platform     = document.getElementById('platform').value;
+  const referralCode = document.getElementById('referralCode').value.trim();
+  const terms        = document.getElementById('terms').checked;
+
+  const errEl = document.getElementById('errorMsg');
+  errEl.style.display = 'none';
+
+  if (!name || !email) { showError('Name and email are required.'); return; }
+  if (!terms)           { showError('You must agree to the Terms of Service.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'ACTIVATING...';
+
+  try {
+    const res = await fetch('/api/resellers/signup', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ name, email, businessName, platform, referralCode }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showError(data.error || 'Signup failed. Please try again.'); btn.disabled = false; btn.textContent = 'ACTIVATE RESELLER ACCOUNT →'; return; }
+
+    signupData = data;
+    showSuccess(data);
+    loadPlans(data.resellerId, data.apiKey);
+
+  } catch (e) {
+    showError('Network error — please try again.');
+    btn.disabled = false;
+    btn.textContent = 'ACTIVATE RESELLER ACCOUNT →';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function showSuccess(data) {
+  document.getElementById('signupForm').style.display = 'none';
+  const panel = document.getElementById('successPanel');
+  panel.style.display = 'block';
+
+  document.getElementById('apiKeyDisplay').textContent = data.apiKey;
+
+  const refRow = document.getElementById('refRow');
+  refRow.innerHTML = `
+    <div class="ref-badge">REF: <span>${data.resellerRef}</span></div>
+    <div class="ref-badge">TIER: <span>${data.tier}</span></div>
+    <div class="ref-badge">FEE: <span>${(data.feeRate * 100).toFixed(2)}%</span></div>
+  `;
+}
+
+function copyKey() {
+  const key = document.getElementById('apiKeyDisplay').textContent;
+  navigator.clipboard.writeText(key).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✓ COPIED';
+    setTimeout(() => { btn.textContent = '⧉ COPY KEY'; }, 2000);
+  });
+}
+
+async function loadPlans(resellerId, apiKey) {
+  try {
+    const res   = await fetch('/api/stripe/plans');
+    const plans = await res.json();
+    const cards = document.getElementById('planCards');
+
+    if (!plans.length) {
+      cards.innerHTML = '<div style="color:#4a8a5a;font-size:11px;grid-column:1/-1;">Subscription plans loading — check back shortly.</div>';
+      return;
+    }
+
+    cards.innerHTML = '';
+    for (const p of plans) {
+      const meta    = p.metadata || {};
+      const dollars = ((p.unit_amount || 0) / 100).toFixed(0);
+      const tier    = meta.tier || p.name.replace('Reseller ', '').toUpperCase();
+      const feeRate = meta.feeRate ? (parseFloat(meta.feeRate) * 100).toFixed(2) + '%' : '';
+
+      const card = document.createElement('div');
+      card.className = 'plan-card';
+      card.innerHTML = `
+        <div class="pname">${tier}</div>
+        <div class="pprice">$${dollars}<span>/mo</span></div>
+        ${feeRate ? `<div class="pfee">${feeRate} fee rate</div>` : ''}
+      `;
+      card.onclick = () => startCheckout(p.price_id, resellerId);
+      cards.appendChild(card);
+    }
+  } catch (e) {
+    document.getElementById('planCards').innerHTML = '<div style="color:#4a8a5a;font-size:11px;">Plans unavailable.</div>';
+  }
+}
+
+async function startCheckout(priceId, resellerId) {
+  const email = signupData?.email || '';
+  try {
+    const res  = await fetch('/api/stripe/subscribe', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, priceId, resellerId }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else alert('Checkout error: ' + (data.error || 'Unknown error'));
+  } catch (e) {
+    alert('Checkout failed — please try again.');
+  }
+}
+
+// Pre-fill referral code from URL param
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('ref')) document.getElementById('referralCode').value = params.get('ref');
+  if (params.get('cancelled')) {
+    showError('Subscription checkout was cancelled. Your STARTER account is still active — upgrade anytime.');
+    // re-show the form isn't needed — if they already signed up success would show
+  }
+});
+</script>
+</body>
+</html>

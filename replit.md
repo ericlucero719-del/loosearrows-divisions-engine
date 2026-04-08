@@ -51,7 +51,7 @@ prisma/
 - **ADMIN_SECRET**: stored in Replit Secrets
 
 ## Public Routes (no key required)
-`/`, `/demo`, `/pricing`, `/guide`, `/legal`, `/api`, `/vendor/dashboard`, `/operator/dashboard`, `/division/10/system/health`, static assets
+`/`, `/demo`, `/pricing`, `/guide`, `/legal`, `/join`, `/join/success`, `/api`, `/vendor/dashboard`, `/operator/dashboard`, `/division/10/system/health`, `/api/stripe/plans`, `/api/stripe/publishable-key`, `/api/stripe/subscribe`, `/api/resellers/signup`, `/api/shopify/webhook`, static assets
 
 ## ARCHITECT-only routes
 `/division/10/bot/*`, `/division/10/system/architect/*`
@@ -101,16 +101,68 @@ prisma/
 - `getSystemHealth()` and `getFullReport()` are now async — always await them
 - API key middleware uses `req.originalUrl.split('?')[0]` not `req.path`
 
-## Dashboards
+## Dashboards & Public Pages
 | URL | Description |
 |-----|-------------|
 | `/demo` | Public marketing page |
 | `/pricing` | Plans + access request form |
 | `/guide` | Self-help user guide |
 | `/legal` | Legal & compliance |
+| `/join` | Public reseller signup page (no key) — auto-issues API key |
+| `/join/success` | Post-Stripe-checkout success page |
 | `/vendor/dashboard` | Vendor cockpit |
 | `/operator/dashboard` | Operator control room |
+| `/command-center` | Operator Command Center |
+| `/vendor-portal` | Vendor portal HTML dashboard |
 | `/division/10/dashboard` | Division 10 intelligence cockpit |
+
+## Shopify Connector (T001)
+- `GET  /api/shopify/store` — Shopify store info
+- `POST /api/shopify/sync` — sync recent Shopify orders (?limit=50)
+- `POST /api/shopify/sync/:id` — sync single order by Shopify ID
+- `GET  /api/shopify/orders` — list synced orders
+- `GET  /api/shopify/orders/:id` — single order detail
+- `GET  /api/shopify/summary` — revenue/profit/status breakdown
+- `POST /api/shopify/webhook` (PUBLIC, HMAC-verified) — receive Shopify order webhooks
+- Requires: `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ACCESS_TOKEN`, `SHOPIFY_APP_SHARED_SECRET`
+
+## SAM.gov Integration (T003)
+- `GET  /api/sam/search` — search live federal opportunities (?keyword=&naics=&limit=)
+- `GET  /api/sam/match` — auto-match against Division 8 NAICS codes
+- `GET  /api/sam/watchlist` — list saved opportunities (?status=)
+- `GET  /api/sam/watchlist/summary` — totals, award values, status breakdown
+- `POST /api/sam/watchlist` — add opportunity { noticeId, status?, notes? }
+- `PATCH /api/sam/watchlist/:noticeId` — update status/notes
+- `DELETE /api/sam/watchlist/:noticeId` — remove from watchlist
+- Requires: `SAM_GOV_API_KEY` env var
+
+## Billing & Transaction Fee Engine (T004)
+- `GET  /api/billing/estimate?amount=X&platform=Y` — fee calculation for a given contract value
+- `GET  /api/billing/revenue` — fee revenue across all commerce orders by platform
+- `GET  /api/billing/config` — list all platform billing configs
+- `GET  /api/billing/config/:platform` — get config for a platform
+- `POST /api/billing/config/:platform` — update fee rate + limits
+- Default: 0.75% platform fee, $25 minimum
+
+## Stripe Integration
+- Stripe Sandbox connected via Replit native integration
+- `GET  /api/stripe/publishable-key` (PUBLIC) — Stripe.js frontend key
+- `GET  /api/stripe/plans` (PUBLIC) — reseller subscription plans (STANDARD/PRO/ELITE)
+- `POST /api/stripe/subscribe` (PUBLIC) — create Checkout session { email, priceId, resellerId }
+- `POST /api/stripe/portal` (key-gated) — customer billing portal link
+- `GET  /api/stripe/status/:resellerId` (key-gated) — reseller subscription status
+- `POST /api/stripe/fee/charge` (key-gated) — collect platform fee payment intent
+- `GET  /api/stripe/revenue` (key-gated) — platform-wide Stripe revenue summary
+- `GET  /api/stripe/payments` (key-gated) — recent successful payments
+- `POST /api/stripe/webhook` — managed Stripe webhook (registered at startup)
+- Reseller plans: STANDARD $49/mo, PROFESSIONAL $149/mo, ELITE $499/mo
+- Products: `prod_UIf0NDdD4aNTHm`, `prod_UIf0QS6UhbdI8T`, `prod_UIf0pelt5YeK17`
+- Seed script: `npx tsx scripts/seed-stripe-products.ts` (idempotent)
+
+## Public Reseller Signup (T005)
+- `POST /api/resellers/signup` (PUBLIC) — { name, email, platform?, businessName?, referralCode? }
+- Returns: resellerId, resellerRef, apiKey (shown once), tier, feeRate
+- API key auto-registered in ApiKey table as OPERATOR tier
 
 ## PDF Document Generation
 | Endpoint | Output |

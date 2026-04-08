@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Subscription Active — Loose Arrows Supply &amp; Logistics</title>
+<style>
+  :root { --green:#00ff88; --cyan:#00e5ff; --yellow:#ffd700; --dark:#040b0e; --mid:#0a1a20; --border:rgba(0,255,136,.18); --glow:0 0 14px rgba(0,255,136,.45); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--dark); color:#c8e8d0; font-family:'Courier New',monospace; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px); pointer-events:none; }
+  .card { position:relative; z-index:1; background:var(--mid); border:1px solid var(--green); border-radius:12px; padding:56px 48px; text-align:center; max-width:560px; width:100%; margin:24px; box-shadow:var(--glow); }
+  .check { font-size:56px; margin-bottom:24px; display:block; }
+  h1 { font-size:26px; color:#fff; margin-bottom:12px; }
+  h1 span { color:var(--green); }
+  .sub { font-size:14px; color:#6aaa7a; line-height:1.7; margin-bottom:32px; }
+  .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:32px; }
+  .info-box { background:rgba(0,255,136,.05); border:1px solid var(--border); border-radius:6px; padding:14px; }
+  .info-lbl { font-size:10px; color:#3a6a4a; letter-spacing:.12em; margin-bottom:6px; }
+  .info-val { font-size:14px; color:var(--cyan); font-weight:700; word-break:break-all; }
+  .btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  a.btn {
+    display:inline-block; text-decoration:none; font-family:inherit; font-size:12px; letter-spacing:.1em;
+    padding:11px 22px; border-radius:4px; transition:background .2s, box-shadow .2s;
+  }
+  a.btn-primary { background:var(--green); color:#040b0e; font-weight:700; }
+  a.btn-primary:hover { background:#00e87a; box-shadow:0 0 14px rgba(0,255,136,.5); }
+  a.btn-outline { border:1px solid var(--green); color:var(--green); }
+  a.btn-outline:hover { background:rgba(0,255,136,.08); }
+  .footer-note { margin-top:28px; font-size:10px; color:#2a4a3a; letter-spacing:.06em; }
+</style>
+</head>
+<body>
+<div class="card">
+  <span class="check">✓</span>
+  <h1>Subscription <span>Active</span></h1>
+  <p class="sub">Your reseller plan is now live. Your platform fee rate has been updated and your account is ready to start routing orders through the Loose Arrows engine.</p>
+
+  <div class="info-grid" id="infoGrid">
+    <div class="info-box">
+      <div class="info-lbl">RESELLER ID</div>
+      <div class="info-val" id="resellerId">—</div>
+    </div>
+    <div class="info-box">
+      <div class="info-lbl">SESSION</div>
+      <div class="info-val" id="sessionId" style="font-size:11px;">—</div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn btn-primary" href="/vendor-portal">→ OPEN VENDOR PORTAL</a>
+    <a class="btn btn-outline" href="/command-center">COMMAND CENTER</a>
+    <a class="btn btn-outline" href="/join">BACK TO SIGNUP</a>
+  </div>
+
+  <p class="footer-note">Loose Arrows Supply &amp; Logistics™ — Government Procurement Engine v2.0</p>
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const session = params.get('session_id') || '—';
+  const reseller = params.get('reseller_id') || '—';
+  document.getElementById('sessionId').textContent = session.slice(0, 24) + (session.length > 24 ? '…' : '');
+  document.getElementById('resellerId').textContent = reseller || '—';
+});
+</script>
+</body>
+</html>

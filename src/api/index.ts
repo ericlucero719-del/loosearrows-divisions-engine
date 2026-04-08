@@ -53,6 +53,8 @@ import samRouter            from "../../modules/sam/sam.routes";
 import billingRouter        from "../../modules/billing/billing.routes";
 import cryptoRouter         from "../../modules/crypto/crypto.routes";
 import resellerRouter       from "../../modules/reseller/reseller.routes";
+import stripeRouter         from "../stripe/routes";
+import { registerReseller } from "../../modules/reseller/reseller.service";
 
 // ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -136,6 +138,39 @@ apiRouter.get("/health", (_req: Request, res: Response) => {
 
 // ── 2. Admin endpoints — X-Admin-Secret (no API key needed) ──────────────────
 apiRouter.use("/admin", div0Router);
+
+// ── 2a. Public Stripe endpoints — plans, publishable key, checkout (no API key) ──
+// Mounted here (before requireApiKey) so the signup page can access them.
+// Key-gated Stripe endpoints (revenue, portal, etc.) require API key and handle
+// auth internally via requireApiKey applied per-route inside stripeRouter.
+apiRouter.use("/stripe", stripeRouter);
+
+// ── 2a-ii. Public Reseller Signup (no API key — called from /join page) ──────
+apiRouter.post("/resellers/signup", async (req: Request, res: Response) => {
+  try {
+    const { name, email, platform, referralCode, businessName } = req.body;
+    if (!name || !email) return res.status(400).json({ error: "name and email are required" });
+    const notesParts = [];
+    if (businessName) notesParts.push(`Business: ${businessName}`);
+    if (referralCode) notesParts.push(`Referral: ${referralCode}`);
+
+    const reseller = await registerReseller({
+      name,
+      email,
+      platform: platform ?? "MULTI",
+      notes:    notesParts.length ? notesParts.join(" | ") : undefined,
+    });
+    return res.status(201).json({
+      success:     true,
+      resellerId:  reseller.id,
+      resellerRef: reseller.resellerRef,
+      apiKey:      reseller.apiKey,
+      tier:        reseller.tier,
+      feeRate:     reseller.feeRate,
+      message:     "Welcome to the Loose Arrows Reseller Network. Save your API key — it will not be shown again.",
+    });
+  } catch (e: any) { return res.status(400).json({ error: e.message }); }
+});
 
 // ── 2b. Shopify Webhook — public, verified via HMAC (no API key) ─────────────
 // Must be mounted here (before requireApiKey) so Shopify can reach it.

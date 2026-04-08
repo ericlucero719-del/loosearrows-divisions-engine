@@ -19,6 +19,11 @@ import apiRouter from "./api/index";
 import { botService } from "../modules/division10/division10.bot.service";
 import { runSamBridge } from "../modules/division10/division10.sam.bridge";
 
+// ── Stripe ────────────────────────────────────────────────────────────────────
+import { WebhookHandlers } from "./stripe/webhookHandlers";
+import { runMigrations }   from "stripe-replit-sync";
+import { getStripeSync }   from "./stripe/stripeClient";
+
 // ── Dashboards (public HTML pages) ───────────────────────────────────────────
 import dashboardsRouter from "../modules/dashboards/dashboards.routes";
 
@@ -59,6 +64,24 @@ import amazonRouter    from "../modules/amazon/amazon.routes";
 
 export const app = express();
 const port = process.env.PORT || 5000;
+
+// ── Stripe webhook — MUST be before express.json() ───────────────────────────
+// Stripe sends raw Buffer bodies; express.raw() preserves them for HMAC check.
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    if (!sig) { res.status(400).json({ error: "Missing stripe-signature" }); return; }
+    try {
+      const signature = Array.isArray(sig) ? sig[0] : sig;
+      await WebhookHandlers.processWebhook(req.body as Buffer, signature);
+      res.status(200).json({ received: true });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  },
+);
 
 app.use(express.json());
 
@@ -193,11 +216,31 @@ function startBotScheduler() {
   console.log("[BOT] DIV10-BOT-001 scheduler active — first run in 45s, then every 4h");
 }
 
+// ── Stripe initialization ─────────────────────────────────────────────────────
+async function initStripe() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) { console.warn("[Stripe] DATABASE_URL not set — skipping Stripe init"); return; }
+  try {
+    await runMigrations({ databaseUrl });
+    const stripeSync    = await getStripeSync();
+    const webhookBase   = process.env.REPLIT_DOMAINS
+      ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}`
+      : `http://localhost:${port}`;
+    await stripeSync.findOrCreateManagedWebhook(`${webhookBase}/api/stripe/webhook`);
+    await stripeSync.syncBackfill();
+    console.log("[Stripe] Initialized — migrations, webhook, and backfill complete");
+  } catch (e: any) {
+    console.warn("[Stripe] Init skipped:", e.message);
+  }
+}
+
 if (require.main === module) {
-  seedInitialKey().then(() => {
-    app.listen(Number(port), "0.0.0.0", () => {
-      console.log(`Server running on port ${port}`);
-      startBotScheduler();
+  seedInitialKey()
+    .then(() => initStripe())
+    .then(() => {
+      app.listen(Number(port), "0.0.0.0", () => {
+        console.log(`Server running on port ${port}`);
+        startBotScheduler();
+      });
     });
-  });
 }
