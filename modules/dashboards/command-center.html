@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LOOSE ARROWS // COMMAND CENTER</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+:root{--bg:#07060f;--panel:#0d0b1e;--panel2:#110e28;--border:#1e1845;--orange:#ff9900;--cyan:#00fff7;--green:#00ff88;--red:#ff2244;--dim:#5a5580;--text:#c8c0f0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;font-size:13px;}
+/* NAV */
+nav{background:#08071a;border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:0;height:48px;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'Orbitron',monospace;font-weight:900;font-size:13px;color:#fff;letter-spacing:.15em;margin-right:24px;white-space:nowrap;}
+.nav-logo span{color:var(--orange);}
+.nav-links{display:flex;gap:2px;flex:1;overflow-x:auto;}
+.nav-link{padding:6px 14px;border-radius:3px;color:var(--dim);text-decoration:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;transition:all .15s;}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,.05);}
+.nav-link.active{color:var(--orange);background:rgba(255,153,0,.08);border-bottom:2px solid var(--orange);}
+.nav-key{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.nav-key input{background:#0a0918;border:1px solid var(--border);color:var(--cyan);padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:10px;border-radius:3px;width:260px;outline:none;}
+.nav-key input:focus{border-color:var(--orange);}
+.nav-key button{background:var(--orange);color:#000;border:none;padding:5px 12px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;border-radius:3px;cursor:pointer;}
+/* LAYOUT */
+.page{padding:20px;max-width:1400px;margin:0 auto;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+/* PANELS */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.card-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:.15em;color:#fff;text-transform:uppercase;}
+.card-title span{color:var(--orange);}
+.badge{padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:.08em;}
+.badge-green{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.2);}
+.badge-orange{background:rgba(255,153,0,.1);color:var(--orange);border:1px solid rgba(255,153,0,.2);}
+.badge-red{background:rgba(255,34,68,.1);color:var(--red);border:1px solid rgba(255,34,68,.2);}
+.badge-cyan{background:rgba(0,255,247,.08);color:var(--cyan);border:1px solid rgba(0,255,247,.2);}
+.card-body{padding:16px;}
+/* STAT ROW */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+@media(max-width:700px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:14px 16px;}
+.stat-val{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--orange);line-height:1;}
+.stat-lbl{font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:8px 10px;border-bottom:1px solid var(--border);}
+td{padding:9px 10px;border-bottom:1px solid rgba(30,24,69,.5);font-size:12px;vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.td-title{color:var(--text);max-width:280px;word-break:break-word;}
+.td-agency{color:var(--dim);font-size:10px;max-width:200px;word-break:break-word;}
+.td-date{color:var(--cyan);white-space:nowrap;font-size:11px;}
+.td-amount{color:var(--green);white-space:nowrap;}
+/* SEARCH BAR */
+.search-bar{display:flex;gap:8px;margin-bottom:14px;}
+.search-bar input,.search-bar select{background:#080718;border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;border-radius:3px;outline:none;flex:1;}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--orange);}
+.btn{padding:8px 16px;border:none;border-radius:3px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;transition:all .15s;}
+.btn-orange{background:var(--orange);color:#000;}
+.btn-orange:hover{background:#ffaa22;}
+.btn-ghost{background:transparent;color:var(--orange);border:1px solid var(--orange);}
+.btn-ghost:hover{background:rgba(255,153,0,.1);}
+.btn-sm{padding:4px 10px;font-size:9px;}
+/* EMPTY / LOADING */
+.empty{color:var(--dim);font-size:11px;padding:24px;text-align:center;letter-spacing:.08em;}
+.loading-row{color:var(--cyan);font-size:11px;padding:20px;text-align:center;letter-spacing:.1em;}
+/* PIPELINE */
+.pipeline{display:flex;align-items:center;gap:0;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;}
+.pipe-step{flex:1;min-width:100px;background:var(--panel);border:1px solid var(--border);padding:12px 10px;text-align:center;position:relative;}
+.pipe-step:not(:last-child)::after{content:'▶';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--border);font-size:14px;z-index:1;}
+.pipe-step:first-child{border-radius:6px 0 0 6px;}
+.pipe-step:last-child{border-radius:0 6px 6px 0;}
+.pipe-val{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--orange);}
+.pipe-lbl{font-size:9px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:3px;}
+/* WATCHLIST FORM */
+.wl-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+@media(max-width:600px){.wl-form{grid-template-columns:1fr;}}
+.wl-form input{background:#080718;border:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;border-radius:3px;outline:none;}
+.wl-form input:focus{border-color:var(--orange);}
+/* SECTION TABS */
+.tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0;}
+.tab{padding:8px 18px;cursor:pointer;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab.active{color:var(--orange);border-bottom-color:var(--orange);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+/* KEY GATE */
+#key-gate{position:fixed;inset:0;background:rgba(7,6,15,.97);display:flex;align-items:center;justify-content:center;z-index:999;}
+.gate-box{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:40px;max-width:480px;width:90%;text-align:center;}
+.gate-logo{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:#fff;margin-bottom:6px;}
+.gate-logo span{color:var(--orange);}
+.gate-sub{color:var(--dim);font-size:11px;letter-spacing:.08em;margin-bottom:28px;}
+.gate-box input{width:100%;background:#080718;border:1px solid var(--border);color:var(--cyan);padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;border-radius:4px;outline:none;margin-bottom:12px;text-align:center;}
+.gate-box input:focus{border-color:var(--orange);}
+.gate-error{color:var(--red);font-size:11px;margin-bottom:10px;min-height:16px;}
+.gate-hint{color:var(--dim);font-size:10px;margin-top:14px;line-height:1.6;}
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:4px;font-size:11px;margin-bottom:12px;}
+.alert-ok{background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2);color:var(--green);}
+.alert-err{background:rgba(255,34,68,.07);border:1px solid rgba(255,34,68,.2);color:var(--red);}
+</style>
+</head>
+<body>
+
+<!-- KEY GATE -->
+<div id="key-gate">
+  <div class="gate-box">
+    <div class="gate-logo">LOOSE<span>ARROWS</span></div>
+    <div class="gate-sub">DIVISIONS ENGINE // COMMAND CENTER</div>
+    <input type="text" id="gate-input" placeholder="Enter your API key — la-arc-... or la-opr-..." autocomplete="off"/>
+    <div class="gate-error" id="gate-error"></div>
+    <button class="btn btn-orange" style="width:100%;padding:12px;" onclick="submitKey()">ACCESS SYSTEM</button>
+    <div class="gate-hint">
+      API key required. ARCHITECT and OPERATOR tiers have full access.<br>
+      Contact your administrator if you don't have a key.
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">LOOSE<span>ARROWS</span></div>
+  <div class="nav-links">
+    <a class="nav-link active" href="/command-center">Command Center</a>
+    <a class="nav-link" href="/operator/dashboard">Operator Room</a>
+    <a class="nav-link" href="/vendor-portal">Vendor Portal</a>
+    <a class="nav-link" href="/vendor/dashboard">Vendor Cockpit</a>
+    <a class="nav-link" href="/">Upload Contract</a>
+    <a class="nav-link" href="/pricing">Pricing</a>
+    <a class="nav-link" href="/guide">Guide</a>
+  </div>
+  <div class="nav-key">
+    <span style="font-size:10px;color:var(--dim);">KEY:</span>
+    <span id="nav-key-display" style="font-size:10px;color:var(--cyan);">—</span>
+    <button class="btn btn-ghost btn-sm" onclick="clearKey()">LOGOUT</button>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- STAT ROW -->
+  <div class="stat-row" id="stat-row">
+    <div class="stat"><div class="stat-val" id="s-opps">—</div><div class="stat-lbl">SAM.gov Opportunities</div></div>
+    <div class="stat"><div class="stat-val" id="s-watch">—</div><div class="stat-lbl">Watchlist Entries</div></div>
+    <div class="stat"><div class="stat-val" id="s-orders">—</div><div class="stat-lbl">Active Orders</div></div>
+    <div class="stat"><div class="stat-val" id="s-revenue">—</div><div class="stat-lbl">Fee Revenue (Est.)</div></div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-step"><div class="pipe-val" id="p-contracts">—</div><div class="pipe-lbl">Contracts<br>Uploaded</div></div>
+    <div class="pipe-step"><div class="pipe-val" id="p-quotes">—</div><div class="pipe-lbl">Quotes<br>Generated</div></div>
+    <div class="pipe-step"><div class="pipe-val" id="p-pos">—</div><div class="pipe-lbl">Purchase<br>Orders</div></div>
+    <div class="pipe-step"><div class="pipe-val" id="p-shipments">—</div><div class="pipe-lbl">Shipments<br>Dispatched</div></div>
+    <div class="pipe-step"><div class="pipe-val" id="p-invoices">—</div><div class="pipe-lbl">Invoices<br>Issued</div></div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid-2" style="margin-bottom:16px;">
+
+    <!-- SAM.GOV OPPORTUNITIES -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">SAM.gov <span>Live Opportunities</span></div>
+        <span class="badge badge-green" id="sam-count">LOADING...</span>
+      </div>
+      <div class="card-body">
+        <div class="search-bar">
+          <input type="text" id="sam-keyword" placeholder="Keyword (logistics, food, equipment…)" onkeydown="if(event.key==='Enter')searchSam()"/>
+          <input type="text" id="sam-naics" placeholder="NAICS" style="max-width:110px;"/>
+          <button class="btn btn-orange" onclick="searchSam()">SEARCH</button>
+        </div>
+        <div id="sam-results"><div class="loading-row">▶ LOADING LIVE FEED...</div></div>
+      </div>
+    </div>
+
+    <!-- WATCHLIST -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Contract <span>Watchlist</span></div>
+        <span class="badge badge-orange" id="wl-count">0 TRACKED</span>
+      </div>
+      <div class="card-body">
+        <div class="wl-form">
+          <input type="text" id="wl-id"     placeholder="Notice ID (e.g. W912HN-26-T-0001)"/>
+          <input type="text" id="wl-title"  placeholder="Title / Description"/>
+          <input type="text" id="wl-naics"  placeholder="NAICS Code"/>
+          <input type="text" id="wl-amount" placeholder="Award Amount ($)"/>
+        </div>
+        <button class="btn btn-orange btn-sm" onclick="addToWatchlist()" style="margin-bottom:14px;">+ ADD TO WATCHLIST</button>
+        <div id="wl-alert"></div>
+        <div id="wl-results"><div class="loading-row">▶ LOADING WATCHLIST...</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="grid-2">
+
+    <!-- ORDERS PIPELINE -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Commerce <span>Orders</span></div>
+        <span class="badge badge-cyan">ALL PLATFORMS</span>
+      </div>
+      <div class="card-body">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'orders-all')">All</div>
+          <div class="tab" onclick="switchTab(this,'orders-tiktok')">TikTok</div>
+          <div class="tab" onclick="switchTab(this,'orders-shopify')">Shopify</div>
+        </div>
+        <div class="tab-content active" id="orders-all">
+          <div id="orders-results"><div class="loading-row">▶ LOADING ORDERS...</div></div>
+        </div>
+        <div class="tab-content" id="orders-tiktok">
+          <div id="tiktok-results"><div class="empty">TikTok orders shown here.</div></div>
+        </div>
+        <div class="tab-content" id="orders-shopify">
+          <div id="shopify-results"><div class="empty">Shopify orders shown here.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BILLING + FEE ENGINE -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Billing <span>Fee Engine</span></div>
+        <span class="badge badge-orange">0.75% RATE</span>
+      </div>
+      <div class="card-body">
+        <div id="billing-results"><div class="loading-row">▶ LOADING BILLING DATA...</div></div>
+        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+          <div style="font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Quick Fee Estimate</div>
+          <div style="display:flex;gap:8px;">
+            <input type="number" id="est-amount" placeholder="Order amount ($)" style="flex:1;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            <button class="btn btn-orange btn-sm" onclick="estimateFee()">ESTIMATE</button>
+          </div>
+          <div id="fee-est-result" style="margin-top:8px;font-size:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const API = (path, opts={}) => fetch(path, { ...opts, headers: { 'X-API-Key': getKey(), 'Content-Type':'application/json', ...(opts.headers||{}) }}).then(r=>r.json());
+
+// ── KEY MANAGEMENT ─────────────────────────────────────────
+function getKey(){ return localStorage.getItem('la_key') || ''; }
+
+function submitKey() {
+  const k = document.getElementById('gate-input').value.trim();
+  if (!k) { document.getElementById('gate-error').textContent = 'Please enter your API key.'; return; }
+  document.getElementById('gate-error').textContent = '';
+  fetch('/api/sam/watchlist/summary', { headers: { 'X-API-Key': k }})
+    .then(r => {
+      if (r.status === 401) throw new Error('Invalid API key — access denied.');
+      return r.json();
+    })
+    .then(() => {
+      localStorage.setItem('la_key', k);
+      document.getElementById('key-gate').style.display = 'none';
+      document.getElementById('nav-key-display').textContent = k.slice(0,12) + '…';
+      loadAll();
+    })
+    .catch(e => { document.getElementById('gate-error').textContent = e.message; });
+}
+
+function clearKey() {
+  localStorage.removeItem('la_key');
+  location.reload();
+}
+
+// ── TABS ────────────────────────────────────────────────────
+function switchTab(el, id) {
+  el.closest('.card-body').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.closest('.card-body').querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── LOAD ALL ────────────────────────────────────────────────
+function loadAll() {
+  loadSam();
+  loadWatchlist();
+  loadOrders();
+  loadBilling();
+}
+
+// ── SAM.GOV ─────────────────────────────────────────────────
+async function searchSam(keyword, naics) {
+  document.getElementById('sam-results').innerHTML = '<div class="loading-row">▶ SEARCHING LIVE SAM.GOV...</div>';
+  document.getElementById('sam-count').textContent = 'LOADING...';
+  const kw    = keyword || document.getElementById('sam-keyword').value.trim() || 'logistics';
+  const nc    = naics  || document.getElementById('sam-naics').value.trim();
+  const qs    = new URLSearchParams({ keyword: kw, limit: '15' });
+  if (nc) qs.set('naics', nc);
+  try {
+    const d = await API(`/api/sam/search?${qs}`);
+    document.getElementById('sam-count').textContent = `${(d.total||0).toLocaleString()} RESULTS`;
+    document.getElementById('s-opps').textContent = (d.total||0).toLocaleString();
+    if (!d.opportunities || !d.opportunities.length) {
+      document.getElementById('sam-results').innerHTML = '<div class="empty">No opportunities found for that search.</div>';
+      return;
+    }
+    document.getElementById('sam-results').innerHTML = `
+      <table>
+        <thead><tr><th>Title</th><th>Agency</th><th>Posted</th><th>Deadline</th><th></th></tr></thead>
+        <tbody>${d.opportunities.map(o=>`
+          <tr>
+            <td class="td-title">${esc(o.title||'Untitled')}</td>
+            <td class="td-agency">${esc(shortAgency(o.agency))}</td>
+            <td class="td-date">${fmt(o.postedDate)}</td>
+            <td class="td-date">${o.responseDeadline ? fmt(o.responseDeadline) : '<span style="color:var(--dim)">—</span>'}</td>
+            <td><button class="btn btn-ghost btn-sm" onclick='watchThis(${JSON.stringify({noticeId:o.noticeId,title:o.title,naicsCode:o.naicsCode})})'>WATCH</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('sam-results').innerHTML = `<div class="empty" style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+function loadSam() { searchSam('logistics'); }
+
+function shortAgency(a) {
+  if (!a) return '—';
+  const parts = a.split('.');
+  return parts[parts.length-1].trim().slice(0,50);
+}
+
+async function watchThis(o) {
+  const d = await API('/api/sam/watchlist', {
+    method:'POST',
+    body: JSON.stringify({ noticeId: o.noticeId||'MANUAL-'+Date.now(), title: o.title, naicsCode: o.naicsCode, status:'WATCHING' })
+  });
+  if (d.id || d.noticeId) { loadWatchlist(); showAlert('wl-alert','Added to watchlist: '+esc(o.title),'ok'); }
+  else showAlert('wl-alert', d.error||'Error adding to watchlist','err');
+}
+
+// ── WATCHLIST ───────────────────────────────────────────────
+async function loadWatchlist() {
+  try {
+    const sum = await API('/api/sam/watchlist/summary');
+    document.getElementById('s-watch').textContent = sum.total || 0;
+    document.getElementById('wl-count').textContent = `${sum.total||0} TRACKED`;
+    const d = await API('/api/sam/watchlist?limit=20');
+    const items = Array.isArray(d) ? d : (d.items||[]);
+    if (!items.length) { document.getElementById('wl-results').innerHTML = '<div class="empty">No contracts on watchlist yet.<br>Search SAM.gov above and hit WATCH.</div>'; return; }
+    document.getElementById('wl-results').innerHTML = `
+      <table>
+        <thead><tr><th>Notice ID</th><th>Title</th><th>Status</th><th>Award $</th></tr></thead>
+        <tbody>${items.map(w=>`
+          <tr>
+            <td style="color:var(--cyan);font-size:10px;">${esc(w.noticeId||'—')}</td>
+            <td class="td-title">${esc(w.title||'Untitled')}</td>
+            <td><span class="badge badge-green">${esc(w.status||'WATCHING')}</span></td>
+            <td class="td-amount">${w.awardAmount ? '$'+Number(w.awardAmount).toLocaleString() : '—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('wl-results').innerHTML = `<div class="empty" style="color:var(--red)">Could not load watchlist.</div>`;
+  }
+}
+
+async function addToWatchlist() {
+  const noticeId   = document.getElementById('wl-id').value.trim();
+  const title      = document.getElementById('wl-title').value.trim();
+  const naicsCode  = document.getElementById('wl-naics').value.trim();
+  const awardAmount= parseFloat(document.getElementById('wl-amount').value) || undefined;
+  if (!title) { showAlert('wl-alert','Title is required','err'); return; }
+  const d = await API('/api/sam/watchlist', {
+    method:'POST',
+    body: JSON.stringify({ noticeId: noticeId||('MANUAL-'+Date.now()), title, naicsCode, awardAmount, status:'WATCHING' })
+  });
+  if (d.id||d.noticeId) {
+    ['wl-id','wl-title','wl-naics','wl-amount'].forEach(id=>{ document.getElementById(id).value=''; });
+    showAlert('wl-alert','Contract added to watchlist','ok');
+    loadWatchlist();
+  } else { showAlert('wl-alert',d.error||'Error adding entry','err'); }
+}
+
+// ── ORDERS ──────────────────────────────────────────────────
+async function loadOrders() {
+  try {
+    const d = await API('/api/tiktok/orders?limit=15');
+    const items = Array.isArray(d) ? d : (d.orders||d.items||[]);
+    document.getElementById('s-orders').textContent = items.length || 0;
+    if (!items.length) { document.getElementById('orders-results').innerHTML = '<div class="empty">No orders yet. Orders from TikTok, Shopify, Amazon will appear here.</div>'; return; }
+    document.getElementById('orders-results').innerHTML = `
+      <table>
+        <thead><tr><th>Order ID</th><th>Platform</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>${items.map(o=>`
+          <tr>
+            <td style="color:var(--cyan);font-size:10px;">${esc(o.externalOrderId||o.id||'—')}</td>
+            <td><span class="badge badge-cyan">${esc(o.platform||'TIKTOK')}</span></td>
+            <td class="td-amount">${o.totalAmount ? '$'+Number(o.totalAmount).toFixed(2) : '—'}</td>
+            <td><span class="badge badge-orange">${esc(o.status||'—')}</span></td>
+            <td class="td-date">${fmt(o.createdAt)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('orders-results').innerHTML = `<div class="empty">No order data available yet.</div>`;
+  }
+}
+
+// ── BILLING ─────────────────────────────────────────────────
+async function loadBilling() {
+  try {
+    const d = await API('/api/billing/summary');
+    document.getElementById('s-revenue').textContent = d.totalFeeRevenue ? '$'+Number(d.totalFeeRevenue).toFixed(2) : '$0.00';
+    document.getElementById('billing-results').innerHTML = `
+      <table>
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Total Orders Billed</td><td class="td-amount">${d.totalOrders||0}</td></tr>
+          <tr><td>Total Order Volume</td><td class="td-amount">${d.totalVolume ? '$'+Number(d.totalVolume).toFixed(2) : '$0.00'}</td></tr>
+          <tr><td>Fee Revenue (0.75%)</td><td class="td-amount" style="color:var(--green)">${d.totalFeeRevenue ? '$'+Number(d.totalFeeRevenue).toFixed(2) : '$0.00'}</td></tr>
+          <tr><td>Current Fee Rate</td><td style="color:var(--orange)">${d.feeRate ? (d.feeRate*100).toFixed(2)+'%' : '0.75%'}</td></tr>
+        </tbody>
+      </table>`;
+    // pipeline counts
+    if (d.pipeline) {
+      document.getElementById('p-contracts').textContent = d.pipeline.contracts||0;
+      document.getElementById('p-quotes').textContent    = d.pipeline.quotes||0;
+      document.getElementById('p-pos').textContent       = d.pipeline.pos||0;
+      document.getElementById('p-shipments').textContent = d.pipeline.shipments||0;
+      document.getElementById('p-invoices').textContent  = d.pipeline.invoices||0;
+    }
+  } catch(e) {
+    document.getElementById('billing-results').innerHTML = `<div class="empty">Billing data unavailable.</div>`;
+  }
+}
+
+async function estimateFee() {
+  const amt = parseFloat(document.getElementById('est-amount').value);
+  if (!amt) return;
+  const d = await API(`/api/billing/estimate?amount=${amt}`);
+  const el = document.getElementById('fee-est-result');
+  if (d.fee !== undefined) {
+    el.innerHTML = `Fee: <span style="color:var(--orange);font-weight:700;">$${Number(d.fee).toFixed(2)}</span> &nbsp;|&nbsp; Net: <span style="color:var(--green)">$${Number(d.net||amt-d.fee).toFixed(2)}</span>`;
+  } else { el.innerHTML = `<span style="color:var(--red)">${d.error||'Error'}</span>`; }
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function esc(s){ const d=document.createElement('div'); d.textContent=String(s||''); return d.innerHTML; }
+function fmt(s){ if(!s) return '—'; const d=new Date(s); return isNaN(d)?s:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}); }
+function showAlert(id,msg,type) {
+  const el=document.getElementById(id);
+  el.className='alert alert-'+(type==='ok'?'ok':'err');
+  el.textContent=msg;
+  setTimeout(()=>{ el.textContent=''; el.className=''; },4000);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const k = getKey();
+  if (k) {
+    document.getElementById('key-gate').style.display = 'none';
+    document.getElementById('nav-key-display').textContent = k.slice(0,12) + '…';
+    loadAll();
+  } else {
+    const saved = document.getElementById('gate-input');
+    saved.value = '';
+  }
+});
+</script>
+</body>
+</html>

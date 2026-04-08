@@ -99,4 +99,40 @@ export const billingService = {
       projectedAnnual:  Math.round(totalFeeRevenue * 12 * 100) / 100,
     };
   },
+
+  // Dashboard summary: pipeline counts + fee totals in one call
+  async summary() {
+    const [
+      contracts, bids, pos, shipments, invoices,
+      commerceOrders, tiktokOrders, cfg,
+    ] = await Promise.all([
+      (prisma as any).govContract.count(),
+      (prisma as any).govBid.count(),
+      (prisma as any).govPO.count(),
+      (prisma as any).govShipment.count(),
+      (prisma as any).govInvoice.count(),
+      (prisma as any).commerceOrder.findMany({ select: { profitUsd: true, feeAmountUsd: true } }),
+      (prisma as any).tikTokOrder.findMany({ select: { profitUsd: true } }),
+      (prisma as any).billingConfig.findUnique({ where: { platform: "DEFAULT" } }),
+    ]);
+
+    const totalVolume     = commerceOrders.reduce((s: number, o: any) => s + (Number(o.profitUsd) || 0), 0);
+    const feeRevCommerce  = commerceOrders.reduce((s: number, o: any) => s + (Number(o.feeAmountUsd) || 0), 0);
+    const feeRevTikTok    = tiktokOrders.reduce((s: number, o: any) => s + (Number(o.profitUsd) || 0) * DEFAULT_RATE, 0);
+    const totalFeeRevenue = Math.round((feeRevCommerce + feeRevTikTok) * 100) / 100;
+
+    return {
+      totalOrders:     commerceOrders.length + tiktokOrders.length,
+      totalVolume:     Math.round(totalVolume * 100) / 100,
+      totalFeeRevenue,
+      feeRate:         cfg?.feeRate ?? DEFAULT_RATE,
+      pipeline: {
+        contracts,
+        quotes:    bids,
+        pos,
+        shipments,
+        invoices,
+      },
+    };
+  },
 };

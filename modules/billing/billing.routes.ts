@@ -15,11 +15,19 @@ const router = Router();
 
 router.get("/estimate", operatorWorkflow("BILLING", "ESTIMATE"), async (req: Request, res: Response) => {
   try {
-    const contractValue = parseFloat(req.query.contractValue as string);
+    // accept both `contractValue` (legacy) and `amount` (dashboard shorthand)
+    const raw = (req.query.contractValue ?? req.query.amount) as string;
+    const contractValue = parseFloat(raw);
     if (isNaN(contractValue) || contractValue <= 0)
-      return res.status(400).json({ error: "contractValue must be a positive number" });
-    return res.json(await billingService.estimate(contractValue, req.query.platform as string));
+      return res.status(400).json({ error: "Provide a positive number via ?amount= or ?contractValue=" });
+    const result = await billingService.estimate(contractValue, req.query.platform as string);
+    return res.json({ ...result, fee: result.feeAmountUsd, net: result.netToVendor });
   } catch (e: any) { return res.status(400).json({ error: e.message }); }
+});
+
+router.get("/summary", operatorWorkflow("BILLING", "SUMMARY"), async (_req: Request, res: Response) => {
+  try { return res.json(await billingService.summary()); }
+  catch (e: any) { return res.status(500).json({ error: e.message }); }
 });
 
 router.get("/revenue", operatorWorkflow("BILLING", "REVENUE_REPORT"), async (_req: Request, res: Response) => {

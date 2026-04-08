@@ -56,9 +56,15 @@ router.get("/vendor-portal", (_req, res) => {
   res.sendFile(path.join(__dirname, "vendor-portal.html"));
 });
 
+// ── Command Center (main authenticated dashboard) ──────────────────────────────
+router.get("/command-center", (_req, res) => {
+  res.sendFile(path.join(__dirname, "command-center.html"));
+});
+
 // ── Quick navigation index ─────────────────────────────────────────────────────
 router.get("/dashboards", (_req, res) => {
   res.json({
+    commandCenter:        "/command-center",
     vendorCockpit:        "/vendor/dashboard",
     operatorControlRoom:  "/operator/dashboard",
     division10Cockpit:    "/division/10/dashboard",
