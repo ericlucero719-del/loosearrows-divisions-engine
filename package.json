@@ -34,6 +34,8 @@
     "shopify:categories": "ts-node scripts/buildShopifyCategoryCatalogs.ts",
     "shopify:build-catalogs": "ts-node scripts/buildCategoryCatalogs.ts",
     "shopify:bootstrap": "ts-node scripts/bootstrapStore.ts",
-    "master": "ts-node master.ts"
+    "master": "ts-node master.ts",
+    "seed:demo": "ts-node prisma/seeds/seed-demo.ts",
+    "seed:catalog": "ts-node prisma/seeds/seed-catalog.ts"
   }
 }
