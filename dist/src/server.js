@@ -75,6 +75,9 @@ exports.app.use("/api", index_1.default);
 // ═════════════════════════════════════════════════════════════════════════════
 // Division 0 — admin only (X-Admin-Secret), no API key
 exports.app.use("/division/0", division0_routes_1.default);
+// PUBLIC homepage-facing routes — no API key required (these are the customer
+// upload + quote endpoints shown on the landing page)
+exports.app.use("/division1", division1Upload_1.default);
 // Legacy + engine /division/* routes — keep key gate for these old paths
 exports.app.use([
     "/division/1", "/division/2", "/division/3", "/division/4", "/division/5",

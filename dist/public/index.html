@@ -656,28 +656,50 @@
   const dropZone = document.getElementById('drop-zone');
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  let selectedFile = null;
+
   dropZone.addEventListener('drop', e => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
     const file = e.dataTransfer.files[0];
-    if (file) setFileSelected(file.name);
+    if (file) { selectedFile = file; setFileSelected(file.name); }
   });
   document.getElementById('file-input').addEventListener('change', function() {
-    if (this.files[0]) setFileSelected(this.files[0].name);
+    if (this.files[0]) { selectedFile = this.files[0]; setFileSelected(this.files[0].name); }
   });
 
-  let selectedFile = null;
   function setFileSelected(name) {
-    selectedFile = document.getElementById('file-input').files[0];
     const label = dropZone.querySelector('.drop-label');
     label.innerHTML = `<span style="color:var(--orange)">${name}</span><br><span style="font-size:0.65rem;color:var(--text-dim)">Ready to deploy</span>`;
   }
 
   // ── Upload / Deploy ──────────────────────────────────────
+  function showUploadResult(isOk, html) {
+    const resultEl = document.getElementById('upload-result');
+    const bodyEl   = document.getElementById('upload-result-body');
+    resultEl.style.display  = 'block';
+    resultEl.style.borderColor = isOk ? '' : 'rgba(255,60,60,0.5)';
+    resultEl.style.background  = isOk ? '' : 'rgba(255,60,60,0.07)';
+    const titleEl = resultEl.querySelector('.res-title');
+    if (titleEl) titleEl.textContent = isOk ? '▶  EXTRACTION COMPLETE' : '▶  UPLOAD ERROR';
+    bodyEl.innerHTML = html;
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
   async function handleUpload() {
-    const fileInput = document.getElementById('file-input');
-    const file = fileInput.files[0];
-    if (!file) { alert('Please select a contract file first.'); return; }
+    const file = selectedFile || document.getElementById('file-input').files[0];
+    if (!file) { alert('Please select a contract file first (CSV, JSON, or TXT).'); return; }
+
+    const allowed = ['.csv', '.json', '.txt'];
+    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowed.includes(ext)) {
+      showUploadResult(false,
+        `<span style="color:#ff4444">Unsupported file type: <b>${ext || 'unknown'}</b>.</span><br>
+         Please use a <b>CSV</b>, <b>JSON</b>, or <b>TXT</b> file with columns:<br>
+         <code style="font-size:0.7rem">clin, sku, description, unit_price, uom</code>`
+      );
+      return;
+    }
 
     const btn = document.getElementById('deploy-btn');
     btn.disabled = true;
@@ -688,12 +710,8 @@
     formData.append('contract', file);
 
     try {
-      const res = await fetch('/division1/upload-contract', { method: 'POST', body: formData });
+      const res  = await fetch('/division1/upload-contract', { method: 'POST', body: formData });
       const data = await res.json();
-
-      const resultEl = document.getElementById('upload-result');
-      const bodyEl   = document.getElementById('upload-result-body');
-      resultEl.style.display = 'block';
 
       if (res.ok) {
         document.getElementById('stat-skus').querySelector('span').textContent = `${data.extracted} SKUs Extracted`;
@@ -702,18 +720,23 @@
         document.getElementById('stat-flags').classList.add('active');
         document.getElementById('stat-bid').querySelector('span').textContent = 'Bid Analysis: Initiated';
         document.getElementById('stat-bid').classList.add('active');
-
-        bodyEl.innerHTML = `
-          ${data.extracted} CLIN entries loaded &bull; ${data.skipped ?? 0} skipped<br>
-          File: <span style="color:var(--orange)">${file.name}</span>
-        `;
+        showUploadResult(true,
+          `${data.extracted} CLIN entries loaded &bull; ${data.skipped ?? 0} skipped<br>
+           File: <span style="color:var(--orange)">${file.name}</span>`
+        );
       } else {
-        resultEl.style.borderColor = 'rgba(255,60,60,0.4)';
-        resultEl.style.background  = 'rgba(255,60,60,0.06)';
-        bodyEl.innerHTML = `<span style="color:#ff4444">Error: ${data.error ?? 'Upload failed'}</span>`;
+        showUploadResult(false,
+          `<span style="color:#ff4444">${data.error ?? 'Upload failed'}</span><br>
+           <span style="font-size:0.72rem;color:var(--text-dim)">
+             Ensure your file has columns: <code>clin, sku, description, unit_price, uom</code>
+           </span>`
+        );
       }
     } catch(e) {
-      console.error(e);
+      showUploadResult(false,
+        `<span style="color:#ff4444">Connection error — could not reach the server.</span><br>
+         <span style="font-size:0.72rem;color:var(--text-dim)">${e.message ?? ''}</span>`
+      );
     } finally {
       btn.disabled = false;
       btn.classList.remove('loading');
