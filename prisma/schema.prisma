@@ -510,3 +510,35 @@ model BillingConfig {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ── Crypto / Bitcoin Engine ───────────────────────────────────────────────────
+
+model CryptoTreasury {
+  id            String   @id @default(cuid())
+  asset         String                         // BTC | ETH | USDC | SOL
+  action        String                         // DEPOSIT | WITHDRAW | FEE_COLLECT
+  amountCrypto  Float                          // units of the asset
+  priceUsdAt    Float                          // USD price per unit at time of action
+  valueUsd      Float                          // amountCrypto * priceUsdAt
+  notes         String?
+  txHash        String?
+  source        String?                        // INVOICE | FEE | MANUAL | COMMERCE
+  sourceRef     String?                        // invoice ID, order ID, etc.
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CryptoPayment {
+  id            String   @id @default(cuid())
+  invoiceId     String?
+  commerceRef   String?
+  asset         String                         // BTC | ETH | USDC
+  amountCrypto  Float
+  amountUsd     Float
+  priceUsdAt    Float
+  txHash        String?
+  status        String   @default("PENDING")  // PENDING | CONFIRMED | FAILED
+  paymentNote   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

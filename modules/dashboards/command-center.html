@@ -245,6 +245,96 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
   </div>
 
+  <!-- BITCOIN & CRYPTO PROFIT ENGINE -->
+  <div style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">₿ Bitcoin <span>Crypto Profit Engine</span></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge badge-orange" id="btc-price-badge">LOADING...</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadCrypto()">↺ REFRESH</button>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <!-- Live Prices Row -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;" id="crypto-price-row">
+          <div class="stat"><div class="stat-val" id="cp-btc" style="color:#f7931a;">—</div><div class="stat-lbl">BTC / USD</div></div>
+          <div class="stat"><div class="stat-val" id="cp-eth" style="color:#627eea;">—</div><div class="stat-lbl">ETH / USD</div></div>
+          <div class="stat"><div class="stat-val" id="cp-usdc" style="color:#2775ca;">—</div><div class="stat-lbl">USDC / USD</div></div>
+          <div class="stat"><div class="stat-val" id="cp-sol" style="color:#9945ff;">—</div><div class="stat-lbl">SOL / USD</div></div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:18px;">
+
+          <!-- Treasury Holdings -->
+          <div>
+            <div style="font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Treasury Holdings</div>
+            <div id="crypto-treasury-result"><div class="loading-row">▶ LOADING TREASURY...</div></div>
+          </div>
+
+          <!-- Profit Centers -->
+          <div>
+            <div style="font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Profit Centers</div>
+            <div id="crypto-profit-result"><div class="loading-row">▶ LOADING...</div></div>
+          </div>
+
+        </div>
+
+        <!-- Tabs: Treasury Ledger / Payments / Deposit BTC -->
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'crypto-tab-ledger')">Ledger</div>
+          <div class="tab" onclick="switchTab(this,'crypto-tab-payments')">Payments</div>
+          <div class="tab" onclick="switchTab(this,'crypto-tab-deposit')">+ Deposit BTC</div>
+          <div class="tab" onclick="switchTab(this,'crypto-tab-fee')">Collect Fee</div>
+        </div>
+
+        <div class="tab-content active" id="crypto-tab-ledger">
+          <div id="crypto-ledger-result"><div class="empty">No treasury transactions yet.</div></div>
+        </div>
+
+        <div class="tab-content" id="crypto-tab-payments">
+          <div id="crypto-payments-result"><div class="empty">No crypto payments recorded yet.</div></div>
+        </div>
+
+        <div class="tab-content" id="crypto-tab-deposit">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+            <select id="dep-asset" style="background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;">
+              <option value="BTC">BTC</option>
+              <option value="ETH">ETH</option>
+              <option value="USDC">USDC</option>
+              <option value="SOL">SOL</option>
+            </select>
+            <input type="number" id="dep-amount" placeholder="Amount (e.g. 0.05)" step="any"
+              style="background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            <input type="text" id="dep-txhash" placeholder="Tx hash (optional)"
+              style="background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+          </div>
+          <input type="text" id="dep-notes" placeholder="Notes (optional)" style="width:100%;background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;margin-bottom:8px;"/>
+          <button class="btn btn-orange btn-sm" onclick="depositBtc()">RECORD DEPOSIT</button>
+          <div id="dep-result" style="margin-top:8px;font-size:11px;"></div>
+        </div>
+
+        <div class="tab-content" id="crypto-tab-fee">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:10px;">Collect platform fee revenue as USDC into treasury.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+            <select id="fee-asset" style="background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;">
+              <option value="USDC">USDC</option>
+              <option value="BTC">BTC</option>
+            </select>
+            <input type="number" id="fee-amount-usd" placeholder="Fee USD amount" step="any"
+              style="background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+            <input type="text" id="fee-ref" placeholder="Source ref (optional)"
+              style="background:#080718;border:1px solid var(--border);color:var(--text);padding:7px;font-family:inherit;font-size:12px;border-radius:3px;outline:none;"/>
+          </div>
+          <button class="btn btn-orange btn-sm" onclick="collectFeeInCrypto()">COLLECT FEE</button>
+          <div id="fee-crypto-result" style="margin-top:8px;font-size:11px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- DIV10-BOT-001 STATUS PANEL -->
   <div style="margin-bottom:16px;">
     <div class="card">
@@ -348,6 +438,7 @@ function loadAll() {
   loadWatchlist();
   loadOrders();
   loadBilling();
+  loadCrypto();
   loadBot();
   loadDocuments();
 }
@@ -509,6 +600,146 @@ async function estimateFee() {
   if (fee !== undefined) {
     el.innerHTML = `Fee: <span style="color:var(--orange);font-weight:700;">$${Number(fee).toFixed(2)}</span> &nbsp;|&nbsp; Net: <span style="color:var(--green)">$${Number(net ?? amt-fee).toFixed(2)}</span> &nbsp;|&nbsp; <span style="color:var(--dim)">${d.feeRate||''}</span>`;
   } else { el.innerHTML = `<span style="color:var(--red)">${d.error||'Error'}</span>`; }
+}
+
+// ── BITCOIN & CRYPTO ENGINE ──────────────────────────────────
+function fmtCrypto(n, asset) {
+  if (n == null) return '—';
+  if (asset === 'BTC' || asset === 'ETH' || asset === 'SOL') return Number(n).toFixed(6);
+  return Number(n).toFixed(2);
+}
+function fmtUsd(n) { return n == null ? '—' : '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function pnlColor(n) { return n >= 0 ? 'var(--green)' : 'var(--red)'; }
+
+async function loadCrypto() {
+  try {
+    const d = await API('/api/crypto/summary');
+
+    // Live prices
+    const priceMap = {};
+    (d.prices||[]).forEach(p => { priceMap[p.asset] = p; });
+    const btc = priceMap.BTC;
+    if (btc && btc.priceUsd) {
+      document.getElementById('btc-price-badge').textContent = '$'+Number(btc.priceUsd).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+      document.getElementById('cp-btc').textContent = '$'+Number(btc.priceUsd).toLocaleString('en-US',{minimumFractionDigits:0});
+    }
+    const eth = priceMap.ETH;
+    if (eth && eth.priceUsd) document.getElementById('cp-eth').textContent = '$'+Number(eth.priceUsd).toLocaleString('en-US',{minimumFractionDigits:0});
+    const usdc = priceMap.USDC;
+    if (usdc && usdc.priceUsd) document.getElementById('cp-usdc').textContent = '$'+Number(usdc.priceUsd).toFixed(4);
+    const sol = priceMap.SOL;
+    if (sol && sol.priceUsd) document.getElementById('cp-sol').textContent = '$'+Number(sol.priceUsd).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+    // Treasury
+    const tr = d.treasury || {};
+    const positions = tr.positions || [];
+    if (positions.length === 0) {
+      document.getElementById('crypto-treasury-result').innerHTML = `<div class="empty">No holdings yet. Use "+ Deposit BTC" to add your first position.</div>`;
+    } else {
+      document.getElementById('crypto-treasury-result').innerHTML = `
+        <table>
+          <thead><tr><th>Asset</th><th>Holdings</th><th>Cost Basis</th><th>Current Value</th><th>P&L</th></tr></thead>
+          <tbody>
+            ${positions.map(p=>`<tr>
+              <td style="color:#f7931a;font-weight:700">${esc(p.asset)}</td>
+              <td>${fmtCrypto(p.totalCrypto, p.asset)}</td>
+              <td>${fmtUsd(p.costBasisUsd)}</td>
+              <td class="td-amount">${fmtUsd(p.currentValueUsd)}</td>
+              <td style="color:${pnlColor(p.unrealizedPnlUsd)}">${fmtUsd(p.unrealizedPnlUsd)} (${p.unrealizedPnlPct>=0?'+':''}${p.unrealizedPnlPct}%)</td>
+            </tr>`).join('')}
+            <tr style="border-top:1px solid var(--border)">
+              <td colspan="2" style="color:var(--dim);font-size:10px">TOTAL PORTFOLIO</td>
+              <td>${fmtUsd(tr.totalCostUsd)}</td>
+              <td class="td-amount">${fmtUsd(tr.totalValueUsd)}</td>
+              <td style="color:${pnlColor(tr.totalPnlUsd)};font-weight:700">${fmtUsd(tr.totalPnlUsd)} (${tr.totalPnlPct>=0?'+':''}${tr.totalPnlPct}%)</td>
+            </tr>
+          </tbody>
+        </table>`;
+    }
+
+    // Profit centers
+    const pc = d.profitCenters || [];
+    document.getElementById('crypto-profit-result').innerHTML = `
+      <table>
+        <thead><tr><th>Profit Center</th><th>Revenue (USD)</th></tr></thead>
+        <tbody>
+          ${pc.map(c=>`<tr><td>${esc(c.name)}</td><td style="color:${c.revenue>=0?'var(--green)':'var(--red)'};font-weight:700">${fmtUsd(c.revenue)}</td></tr>`).join('')}
+          <tr style="border-top:1px solid var(--border)">
+            <td style="color:var(--dim);font-size:10px">CRYPTO PAYMENTS</td>
+            <td style="color:var(--cyan)">${d.payments?.total||0} total / ${d.payments?.confirmed||0} confirmed</td>
+          </tr>
+        </tbody>
+      </table>`;
+
+    // Ledger
+    const ledger = (d.treasury?.positions?.length>0) ? await API('/api/crypto/treasury') : { ledger: [] };
+    const ledgerRows = (ledger.ledger||[]).slice(0,15);
+    document.getElementById('crypto-ledger-result').innerHTML = ledgerRows.length === 0
+      ? `<div class="empty">No treasury transactions yet.</div>`
+      : `<table>
+           <thead><tr><th>Date</th><th>Asset</th><th>Action</th><th>Amount</th><th>Price</th><th>USD Value</th><th>Source</th></tr></thead>
+           <tbody>
+             ${ledgerRows.map(r=>`<tr>
+               <td class="td-date">${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</td>
+               <td style="color:#f7931a">${esc(r.asset)}</td>
+               <td><span class="badge ${r.action==='DEPOSIT'||r.action==='FEE_COLLECT'?'badge-green':'badge-red'}">${esc(r.action)}</span></td>
+               <td>${fmtCrypto(Math.abs(r.amountCrypto), r.asset)}</td>
+               <td style="color:var(--dim)">${fmtUsd(r.priceUsdAt)}</td>
+               <td class="td-amount">${fmtUsd(Math.abs(r.valueUsd))}</td>
+               <td style="color:var(--dim);font-size:10px">${esc(r.source||'—')}</td>
+             </tr>`).join('')}
+           </tbody>
+         </table>`;
+
+    // Payments
+    const payments = d.recentPayments || [];
+    document.getElementById('crypto-payments-result').innerHTML = payments.length === 0
+      ? `<div class="empty">No crypto payments recorded yet. Pay an invoice in BTC to start.</div>`
+      : `<table>
+           <thead><tr><th>Date</th><th>Asset</th><th>Amount</th><th>USD Value</th><th>Status</th><th>Type</th></tr></thead>
+           <tbody>
+             ${payments.map(p=>`<tr>
+               <td class="td-date">${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—'}</td>
+               <td style="color:#f7931a">${esc(p.asset)}</td>
+               <td>${fmtCrypto(p.amountCrypto, p.asset)}</td>
+               <td class="td-amount">${fmtUsd(p.amountUsd)}</td>
+               <td><span class="badge ${p.status==='CONFIRMED'?'badge-green':p.status==='PENDING'?'badge-orange':'badge-red'}">${esc(p.status)}</span></td>
+               <td style="color:var(--dim);font-size:10px">${p.invoiceId?'INVOICE':p.commerceRef?'COMMERCE':'—'}</td>
+             </tr>`).join('')}
+           </tbody>
+         </table>`;
+
+  } catch(e) {
+    document.getElementById('cp-btc').textContent = 'ERR';
+    document.getElementById('crypto-treasury-result').innerHTML = `<div class="empty">${e.message}</div>`;
+  }
+}
+
+async function depositBtc() {
+  const asset  = document.getElementById('dep-asset').value;
+  const amount = parseFloat(document.getElementById('dep-amount').value);
+  const txHash = document.getElementById('dep-txhash').value.trim() || undefined;
+  const notes  = document.getElementById('dep-notes').value.trim()  || undefined;
+  const el     = document.getElementById('dep-result');
+  if (!amount || isNaN(amount)) { el.innerHTML = `<span style="color:var(--red)">Enter a valid amount.</span>`; return; }
+  try {
+    const d = await API('/api/crypto/treasury/deposit', { method:'POST', body: JSON.stringify({ asset, amountCrypto: amount, txHash, notes }) });
+    el.innerHTML = `<span style="color:var(--green)">✔ Deposited ${amount} ${asset} @ $${Number(d.priceUsdAt).toLocaleString()} = $${Number(d.valueUsd).toFixed(2)}</span>`;
+    loadCrypto();
+  } catch(e) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
+}
+
+async function collectFeeInCrypto() {
+  const asset       = document.getElementById('fee-asset').value;
+  const feeAmountUsd = parseFloat(document.getElementById('fee-amount-usd').value);
+  const sourceRef   = document.getElementById('fee-ref').value.trim() || undefined;
+  const el          = document.getElementById('fee-crypto-result');
+  if (!feeAmountUsd || isNaN(feeAmountUsd)) { el.innerHTML = `<span style="color:var(--red)">Enter a valid USD fee amount.</span>`; return; }
+  try {
+    const d = await API('/api/crypto/fee/collect', { method:'POST', body: JSON.stringify({ asset, feeAmountUsd, sourceRef }) });
+    el.innerHTML = `<span style="color:var(--green)">✔ Collected $${feeAmountUsd} as ${Number(d.amountCrypto).toFixed(6)} ${asset}</span>`;
+    loadCrypto();
+  } catch(e) { el.innerHTML = `<span style="color:var(--red)">${e.message}</span>`; }
 }
 
 // ── DIV10-BOT-001 ───────────────────────────────────────────
