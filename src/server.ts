@@ -87,6 +87,10 @@ app.use("/api", apiRouter);
 // Division 0 — admin only (X-Admin-Secret), no API key
 app.use("/division/0", div0Router);
 
+// PUBLIC homepage-facing routes — no API key required (these are the customer
+// upload + quote endpoints shown on the landing page)
+app.use("/division1", division1UploadRouter);
+
 // Legacy + engine /division/* routes — keep key gate for these old paths
 app.use([
   "/division/1", "/division/2", "/division/3", "/division/4", "/division/5",
