@@ -29,6 +29,7 @@ import { Router, Request, Response, json as expressJson } from "express";
 import { requireApiKey }  from "../middleware/apiKey";
 import { tierLimiter }    from "../middleware/rateLimiter";
 import pdfRouter          from "../../modules/pdf/pdf.routes";
+import contractUploadRouter from "./contracts/upload.routes";
 
 // ── Division Engine routers ───────────────────────────────────────────────────
 import div0Router  from "../../modules/division0/division0.routes";
@@ -126,6 +127,14 @@ apiRouter.get("/", (_req: Request, res: Response) => {
       invoice:     "GET /api/pdf/invoice/:invoiceId — download invoice PDF",
       po:          "GET /api/pdf/po/:poId           — download purchase order PDF",
       bid:         "GET /api/pdf/bid/:bidId         — download capability statement PDF",
+    },
+    contracts: {
+      upload:       "POST /api/contracts/upload — upload a contract file (CSV or plain text only)",
+      acceptedTypes: ["text/csv (.csv)", "text/plain (.txt)"],
+      rejectedTypes: ["application/pdf (.pdf)", "application/vnd.openxmlformats-officedocument.wordprocessingml.document (.docx)"],
+      field:        "multipart/form-data, file field name: \"contract\"",
+      maxSize:      "5 MB",
+      division:     "Division 2 — Compliance & Governance",
     },
     keyManagement: "POST /admin/keys — issue keys (requires X-Admin-Secret)",
   });
@@ -236,5 +245,9 @@ apiRouter.use("/field/rapid-response",        rrOperator);
 
 // ── 10. PDF Document Generation ───────────────────────────────────────────────
 apiRouter.use("/pdf", pdfRouter);
+
+// ── 11. Contract Upload (Division 2 — Compliance & Governance) ───────────────
+// Accepts CSV and plain text only. PDF and Word are explicitly rejected.
+apiRouter.use("/contracts", contractUploadRouter);
 
 export default apiRouter;
