@@ -55,6 +55,7 @@ import cryptoRouter         from "../../modules/crypto/crypto.routes";
 import resellerRouter       from "../../modules/reseller/reseller.routes";
 import stripeRouter         from "../stripe/routes";
 import { registerReseller } from "../../modules/reseller/reseller.service";
+import agentRouter          from "./agent/agent.routes";
 
 // ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -82,6 +83,7 @@ apiRouter.get("/", (_req: Request, res: Response) => {
     public: [
       "GET  /api              — this document",
       "GET  /api/health       — system health (all 11 divisions)",
+      "POST /api/agent/chat   — agent chat (body: { message } → { reply })",
     ],
     admin: [
       "GET  /api/admin/status     — all division counts + operational score",
@@ -180,6 +182,10 @@ apiRouter.post(
   expressJson({ verify: (req: any, _res, buf) => { req.rawBody = buf; } }),
   shopifyController.webhook,
 );
+
+// ── 2c. Agent Chat — public, no API key required ──────────────────────────────
+// POST /api/agent/chat  { message: string } → { reply: string }
+apiRouter.use("/agent", agentRouter);
 
 // ── 3. API key gate — applied once for everything below ───────────────────────
 apiRouter.use(requireApiKey);
