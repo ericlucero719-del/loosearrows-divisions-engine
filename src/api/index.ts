@@ -29,6 +29,8 @@ import { Router, Request, Response, json as expressJson } from "express";
 import { requireApiKey }  from "../middleware/apiKey";
 import { tierLimiter }    from "../middleware/rateLimiter";
 import pdfRouter          from "../../modules/pdf/pdf.routes";
+import contractsUploadRouter from "./contracts/upload.routes";
+
 
 // ── Division Engine routers ───────────────────────────────────────────────────
 import div0Router  from "../../modules/division0/division0.routes";
@@ -126,6 +128,9 @@ apiRouter.get("/", (_req: Request, res: Response) => {
       invoice:     "GET /api/pdf/invoice/:invoiceId — download invoice PDF",
       po:          "GET /api/pdf/po/:poId           — download purchase order PDF",
       bid:         "GET /api/pdf/bid/:bidId         — download capability statement PDF",
+    },
+    contracts: {
+      upload: "POST /api/contracts/upload — upload PDF or .docx contract; returns extracted text + file metadata (multipart/form-data, field: \"contract\", X-API-Key required)",
     },
     keyManagement: "POST /admin/keys — issue keys (requires X-Admin-Secret)",
   });
@@ -236,5 +241,9 @@ apiRouter.use("/field/rapid-response",        rrOperator);
 
 // ── 10. PDF Document Generation ───────────────────────────────────────────────
 apiRouter.use("/pdf", pdfRouter);
+
+// ── 11. Contract File Upload (Division 2 — Compliance & Governance) ───────────
+// POST /api/contracts/upload — accepts PDF or .docx, returns extracted text
+apiRouter.use("/contracts", contractsUploadRouter);
 
 export default apiRouter;
