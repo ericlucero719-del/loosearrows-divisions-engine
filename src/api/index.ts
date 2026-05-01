@@ -55,6 +55,7 @@ import cryptoRouter         from "../../modules/crypto/crypto.routes";
 import resellerRouter       from "../../modules/reseller/reseller.routes";
 import stripeRouter         from "../stripe/routes";
 import { registerReseller } from "../../modules/reseller/reseller.service";
+import contractsRouter from "./contracts/upload.routes";
 
 // ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -126,6 +127,17 @@ apiRouter.get("/", (_req: Request, res: Response) => {
       invoice:     "GET /api/pdf/invoice/:invoiceId — download invoice PDF",
       po:          "GET /api/pdf/po/:poId           — download purchase order PDF",
       bid:         "GET /api/pdf/bid/:bidId         — download capability statement PDF",
+    },
+    contracts: {
+      upload:  "POST /api/contracts/upload — upload a contract document for parsing",
+      formats: [
+        "CSV (.csv)          — tabular contract / CLIN data",
+        "Plain text (.txt)   — free-form contract text",
+        "PDF (.pdf)          — scanned or digital contract PDF",
+        "Word (.docx, .doc)  — Microsoft Word contract document",
+      ],
+      auth:    "X-API-Key required (OPERATOR or ARCHITECT tier)",
+      field:   "multipart/form-data, field name: \"contract\", max 10 MB",
     },
     keyManagement: "POST /admin/keys — issue keys (requires X-Admin-Secret)",
   });
@@ -236,5 +248,8 @@ apiRouter.use("/field/rapid-response",        rrOperator);
 
 // ── 10. PDF Document Generation ───────────────────────────────────────────────
 apiRouter.use("/pdf", pdfRouter);
+
+// ── 11. Contract Upload ────────────────────────────────────────────────────────
+apiRouter.use("/contracts", contractsRouter);
 
 export default apiRouter;
