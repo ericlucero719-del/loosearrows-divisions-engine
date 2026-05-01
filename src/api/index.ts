@@ -7,6 +7,7 @@
 // ── Public (no key required) ──────────────────────────────────────────────────
 // GET  /api                     → comprehensive API docs
 // GET  /api/health              → system health (alias for /division/10/system/health)
+// POST /api/agent/chat          → agent chat interface
 //
 // ── Admin (X-Admin-Secret, no API key) ───────────────────────────────────────
 // *    /api/admin/*             → Division 0 System Command Center
@@ -29,6 +30,7 @@ import { Router, Request, Response, json as expressJson } from "express";
 import { requireApiKey }  from "../middleware/apiKey";
 import { tierLimiter }    from "../middleware/rateLimiter";
 import pdfRouter          from "../../modules/pdf/pdf.routes";
+import agentRouter        from "./agent/agent.routes";
 
 // ── Division Engine routers ───────────────────────────────────────────────────
 import div0Router  from "../../modules/division0/division0.routes";
@@ -82,6 +84,7 @@ apiRouter.get("/", (_req: Request, res: Response) => {
     public: [
       "GET  /api              — this document",
       "GET  /api/health       — system health (all 11 divisions)",
+      "POST /api/agent/chat   — agent chat (no API key required)",
     ],
     admin: [
       "GET  /api/admin/status     — all division counts + operational score",
@@ -126,6 +129,9 @@ apiRouter.get("/", (_req: Request, res: Response) => {
       invoice:     "GET /api/pdf/invoice/:invoiceId — download invoice PDF",
       po:          "GET /api/pdf/po/:poId           — download purchase order PDF",
       bid:         "GET /api/pdf/bid/:bidId         — download capability statement PDF",
+    },
+    agent: {
+      chat: "POST /api/agent/chat — send { message } to the agent, receive { reply } (no API key required)",
     },
     keyManagement: "POST /admin/keys — issue keys (requires X-Admin-Secret)",
   });
@@ -180,6 +186,9 @@ apiRouter.post(
   expressJson({ verify: (req: any, _res, buf) => { req.rawBody = buf; } }),
   shopifyController.webhook,
 );
+
+// ── 2c. Agent Chat — public, no API key required ─────────────────────────────
+apiRouter.use("/agent", agentRouter);
 
 // ── 3. API key gate — applied once for everything below ───────────────────────
 apiRouter.use(requireApiKey);
