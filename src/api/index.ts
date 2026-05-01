@@ -55,8 +55,10 @@ import cryptoRouter         from "../../modules/crypto/crypto.routes";
 import resellerRouter       from "../../modules/reseller/reseller.routes";
 import stripeRouter         from "../stripe/routes";
 import { registerReseller } from "../../modules/reseller/reseller.service";
+import contractsRouter      from "./contracts/upload.routes";
 
 // ── Rapid Response (legacy CommonJS) ─────────────────────────────────────────
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const rrDispatch  = require("../routes/rapidResponseDispatchRoute");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -127,7 +129,13 @@ apiRouter.get("/", (_req: Request, res: Response) => {
       po:          "GET /api/pdf/po/:poId           — download purchase order PDF",
       bid:         "GET /api/pdf/bid/:bidId         — download capability statement PDF",
     },
+    contracts: {
+      upload: "POST /api/contracts/upload — upload contract file (CSV, TXT, PDF, DOCX) → extract text (Division 2 Compliance & Governance)",
+      accepted: ["text/csv", "text/plain", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      field:   "multipart/form-data field name: \"contract\"",
+    },
     keyManagement: "POST /admin/keys — issue keys (requires X-Admin-Secret)",
+
   });
 });
 
@@ -144,6 +152,7 @@ apiRouter.use("/admin", div0Router);
 // Key-gated Stripe endpoints (revenue, portal, etc.) require API key and handle
 // auth internally via requireApiKey applied per-route inside stripeRouter.
 apiRouter.use("/stripe", stripeRouter);
+
 
 // ── 2a-ii. Public Reseller Signup (no API key — called from /join page) ──────
 apiRouter.post("/resellers/signup", async (req: Request, res: Response) => {
@@ -236,5 +245,9 @@ apiRouter.use("/field/rapid-response",        rrOperator);
 
 // ── 10. PDF Document Generation ───────────────────────────────────────────────
 apiRouter.use("/pdf", pdfRouter);
+
+// ── 11. Contract Upload (Division 2 — Compliance & Governance) ───────────────
+// POST /api/contracts/upload — accepts CSV, TXT, PDF, DOCX; returns extracted text
+apiRouter.use("/contracts", contractsRouter);
 
 export default apiRouter;
