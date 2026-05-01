@@ -10,7 +10,7 @@ import { Router, Request, Response } from "express";
 
 const agentRouter = Router();
 
-agentRouter.post("/chat", (req: Request, res: Response) => {
+agentRouter.post("/chat", async (req: Request, res: Response) => {
   const { message } = req.body ?? {};
 
   if (!message || typeof message !== "string" || message.trim() === "") {
