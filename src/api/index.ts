@@ -29,6 +29,7 @@ import { Router, Request, Response, json as expressJson } from "express";
 import { requireApiKey }  from "../middleware/apiKey";
 import { tierLimiter }    from "../middleware/rateLimiter";
 import pdfRouter          from "../../modules/pdf/pdf.routes";
+import agentRouter        from "./agent/agent.routes";
 
 // ── Division Engine routers ───────────────────────────────────────────────────
 import div0Router  from "../../modules/division0/division0.routes";
@@ -83,6 +84,7 @@ apiRouter.get("/", (_req: Request, res: Response) => {
     public: [
       "GET  /api              — this document",
       "GET  /api/health       — system health (all 11 divisions)",
+      "POST /api/agent/chat   — agent chat (body: { message: string })",
     ],
     admin: [
       "GET  /api/admin/status     — all division counts + operational score",
@@ -192,6 +194,9 @@ apiRouter.post(
   expressJson({ verify: (req: any, _res, buf) => { req.rawBody = buf; } }),
   shopifyController.webhook,
 );
+
+// ── 2c. Agent Chat — public, no API key required ─────────────────────────────
+apiRouter.use("/agent", agentRouter);
 
 // ── 3. API key gate — applied once for everything below ───────────────────────
 apiRouter.use(requireApiKey);
