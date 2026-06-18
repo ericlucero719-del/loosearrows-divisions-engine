@@ -29,6 +29,8 @@ import { Router, Request, Response, json as expressJson } from "express";
 import { requireApiKey }  from "../middleware/apiKey";
 import { tierLimiter }    from "../middleware/rateLimiter";
 import pdfRouter          from "../../modules/pdf/pdf.routes";
+import agentRouter        from "./agent/agent.routes";
+
 
 // ── Division Engine routers ───────────────────────────────────────────────────
 import div0Router  from "../../modules/division0/division0.routes";
@@ -83,7 +85,9 @@ apiRouter.get("/", (_req: Request, res: Response) => {
     public: [
       "GET  /api              — this document",
       "GET  /api/health       — system health (all 11 divisions)",
+      "POST /api/agent/chat   — agent chat (no API key required)",
     ],
+
     admin: [
       "GET  /api/admin/status     — all division counts + operational score",
       "GET  /api/admin/pipeline   — contract → bid → PO → shipment → invoice",
@@ -157,7 +161,11 @@ apiRouter.use("/admin", div0Router);
 // auth internally via requireApiKey applied per-route inside stripeRouter.
 apiRouter.use("/stripe", stripeRouter);
 
+// ── 2a-iii. Agent Chat — public, no API key required ─────────────────────────
+apiRouter.use("/agent", agentRouter);
+
 // ── 2a-ii. Public Reseller Signup (no API key — called from /join page) ──────
+
 apiRouter.post("/resellers/signup", async (req: Request, res: Response) => {
   try {
     const { name, email, platform, referralCode, businessName } = req.body;
