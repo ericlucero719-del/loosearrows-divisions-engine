@@ -3,22 +3,94 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-13 10:00:01 UTC",
+        "last_updated": "2026-11-13 10:53:29 UTC",
         "status": "active"
     },
     "active_contracts": [
         {
             "agency": "Bureau of Land Management",
             "instrument_id": "140L1726P0032",
-            "description": "Invasive species control resource management (Meeker/Red Wash)",
-            "state": "Executing"
+            "description": "Invasive species control resource management (Meeker/Red Wash) - GFM Herbicide",
+            "state": "Executing",
+            "division": "LOGISTICS"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W912WJ27QA004",
+            "description": "[NAICS 561730] Snow Removal and Sanding Services, Franklin Falls Dam, Franklin, NH",
+            "state": "Due: 2026-11-20",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
+            "instrument_id": "36C78627Q0021_1",
+            "description": "[NAICS 561730] Amendment 0001 - Turf  Application Services at Salisbury National Cemetery",
+            "state": "Due: 2026-11-18",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W9123727QA002",
+            "description": "[NAICS 561730] W9123727QA002 Summersville Mowing and Maintenance IDIQ 2027-2031",
+            "state": "Due: 2026-12-04",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
+            "instrument_id": "36C24626Q1078",
+            "description": "[NAICS 561730] S218--Snow and Ice Service Removal Agreement",
+            "state": "Due: 2026-11-13",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W912WJ27QA005",
+            "description": "[NAICS 561730] Snow Removal Services, Blackwater Dam, Webster, NH",
+            "state": "Due: 2026-11-23",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "INTERIOR, DEPARTMENT OF THE",
+            "instrument_id": "140A2327Q0318",
+            "description": "[NAICS 238990] TO'HAALI' SCHOOL REPLACE FRONT ENTRANCE SIDEWALK",
+            "state": "Due: 2026-12-14",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "ENERGY, DEPARTMENT OF",
+            "instrument_id": "89503511102026",
+            "description": "[NAICS 238990] SEPA PARKING LOT REPAVING AND REPAIRS",
+            "state": "Due: 2026-12-15",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "INTERIOR, DEPARTMENT OF THE",
+            "instrument_id": "140RR027R0010",
+            "description": "[NAICS 238990] 56--PGMB Security Gate",
+            "state": "Due: 2026-11-23",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W912GB27RA009",
+            "description": "[NAICS 238990] FY27 Playgrounds Single Award Task Order Contract (SATOC)/ IMCOM-Europe Housing Areas",
+            "state": "Active Solicitation",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "HOMELAND SECURITY, DEPARTMENT OF",
+            "instrument_id": "192127FHOFPS0001",
+            "description": "[NAICS 238990] Houston Privacy Screens",
+            "state": "Due: 2026-11-17",
+            "division": "PROCUREMENT"
         }
     ],
     "pipeline_metrics": {
         "feeds_monitored": [
-            "SAM.gov",
-            "DLA DIBBS"
+            "SAM.gov (live_synced)",
+            "DLA DIBBS (Ready)"
         ],
+        "live_leads_count": 10,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
