@@ -6,13 +6,13 @@
 <title>LOOSEARROWS | OSIRIS-APEX Command Cockpit</title>
 <style>
   :root {
-    --bg-obsidian: #06090e;
-    --bg-panel: rgba(13, 19, 28, 0.92);
+    --bg-obsidian: #040609;
+    --bg-panel: rgba(10, 15, 22, 0.94);
     --amber-core: #ff7b00;
     --amber-glow: #ffaa33;
     --text-main: #e6edf3;
     --text-muted: #8b949e;
-    --border-amber: rgba(255, 123, 0, 0.4);
+    --border-amber: rgba(255, 123, 0, 0.45);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,21 +23,20 @@
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     min-height: 100vh;
     background-image: 
-      radial-gradient(circle at 85% 15%, rgba(255, 110, 0, 0.16) 0%, transparent 40%),
-      radial-gradient(circle at 15% 60%, rgba(20, 65, 95, 0.25) 0%, transparent 50%),
-      linear-gradient(rgba(18, 36, 54, 0.2) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(18, 36, 54, 0.2) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 35px 35px, 35px 35px;
-    padding-bottom: 40px;
+      radial-gradient(circle at 85% 10%, rgba(255, 110, 0, 0.18) 0%, transparent 45%),
+      radial-gradient(circle at 10% 70%, rgba(20, 65, 95, 0.28) 0%, transparent 55%),
+      linear-gradient(rgba(18, 36, 54, 0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(18, 36, 54, 0.18) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+    padding-bottom: 50px;
   }
 
-  /* Top Navigation */
   nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 24px;
-    background: rgba(6, 9, 14, 0.95);
+    background: rgba(4, 7, 12, 0.98);
     border-bottom: 1px solid var(--border-amber);
     flex-wrap: wrap;
     gap: 10px;
@@ -45,13 +44,13 @@
 
   .nav-links {
     display: flex;
-    gap: 20px;
+    gap: 18px;
     list-style: none;
     flex-wrap: wrap;
   }
 
   .nav-links li {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 1.5px;
     color: var(--text-muted);
@@ -63,16 +62,16 @@
   .nav-links li:hover, .nav-links li.active {
     color: #fff;
     border-bottom: 2px solid var(--amber-core);
-    text-shadow: 0 0 8px rgba(255, 123, 0, 0.6);
+    text-shadow: 0 0 8px rgba(255, 123, 0, 0.7);
   }
 
   .telemetry-pill {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     letter-spacing: 1px;
-    background: rgba(255, 123, 0, 0.1);
+    background: rgba(255, 123, 0, 0.12);
     border: 1px solid var(--border-amber);
     padding: 5px 12px;
     border-radius: 4px;
@@ -93,15 +92,14 @@
     50% { opacity: 0.35; }
   }
 
-  /* Hero Command Header */
   .hero {
     max-width: 1280px;
     margin: 20px auto;
-    padding: 28px 24px;
-    background: linear-gradient(135deg, rgba(12, 18, 28, 0.95), rgba(24, 14, 8, 0.9));
+    padding: 26px 24px;
+    background: linear-gradient(135deg, rgba(10, 15, 24, 0.96), rgba(22, 12, 6, 0.92));
     border: 1px solid var(--border-amber);
     border-radius: 8px;
-    box-shadow: 0 0 30px rgba(255, 110, 0, 0.12);
+    box-shadow: 0 0 35px rgba(255, 110, 0, 0.15);
   }
 
   .brand-row {
@@ -119,43 +117,42 @@
   }
 
   .brand-title h1 {
-    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-size: clamp(1.5rem, 3.2vw, 2.4rem);
     letter-spacing: 3.5px;
     font-weight: 800;
     color: #fff;
-    text-shadow: 0 0 15px rgba(255, 123, 0, 0.4);
+    text-shadow: 0 0 15px rgba(255, 123, 0, 0.45);
   }
 
   .brand-title p {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     letter-spacing: 4px;
     color: var(--text-muted);
     margin-top: 3px;
   }
 
   .motto {
-    margin-top: 18px;
-    font-size: clamp(0.95rem, 2vw, 1.25rem);
+    margin-top: 16px;
+    font-size: clamp(0.9rem, 1.8vw, 1.2rem);
     font-weight: 700;
-    letter-spacing: 2.2px;
+    letter-spacing: 2px;
     color: var(--amber-glow);
-    text-shadow: 0 0 10px rgba(255, 123, 0, 0.6);
+    text-shadow: 0 0 12px rgba(255, 123, 0, 0.65);
   }
 
-  /* Division Nodes Bar */
   .nodes-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 22px;
+    margin-top: 20px;
   }
 
   .node-btn {
-    background: rgba(10, 15, 22, 0.9);
-    border: 1px solid rgba(255, 123, 0, 0.4);
+    background: rgba(8, 12, 18, 0.95);
+    border: 1px solid rgba(255, 123, 0, 0.45);
     color: #fff;
-    padding: 9px 16px;
-    font-size: 0.78rem;
+    padding: 8px 14px;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 1.5px;
     border-radius: 4px;
@@ -176,12 +173,11 @@
   }
 
   .node-btn:hover, .node-btn.active {
-    background: rgba(255, 123, 0, 0.2);
+    background: rgba(255, 123, 0, 0.25);
     border-color: var(--amber-glow);
-    box-shadow: 0 0 12px rgba(255, 123, 0, 0.3);
+    box-shadow: 0 0 14px rgba(255, 123, 0, 0.4);
   }
 
-  /* Cockpit Grid Layout matching visual cards */
   .cockpit-grid {
     max-width: 1280px;
     margin: 0 auto;
@@ -193,14 +189,14 @@
 
   .panel {
     background: var(--bg-panel);
-    border: 1px solid rgba(56, 139, 253, 0.2);
+    border: 1px solid rgba(56, 139, 253, 0.25);
     border-top: 2px solid var(--amber-core);
     border-radius: 6px;
     padding: 18px;
   }
 
   .panel h2 {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     letter-spacing: 1.8px;
     color: var(--amber-glow);
     margin-bottom: 14px;
@@ -213,16 +209,16 @@
   .stat-row {
     display: flex;
     justify-content: space-between;
-    padding: 9px 0;
+    padding: 8px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 0.85rem;
+    font-size: 0.82rem;
   }
 
   .stat-label { color: var(--text-muted); }
   .stat-val { font-weight: 600; color: #fff; font-family: monospace; }
 
   .contract-card {
-    background: rgba(255, 123, 0, 0.05);
+    background: rgba(255, 123, 0, 0.06);
     border-left: 3px solid var(--amber-core);
     padding: 12px;
     border-radius: 4px;
@@ -233,17 +229,17 @@
     font-family: monospace;
     color: var(--amber-glow);
     font-weight: 700;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
   }
 
   .contract-card .agency {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #fff;
     margin: 3px 0;
   }
 
   .contract-card .desc {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
   }
 
@@ -251,25 +247,44 @@
     display: inline-block;
     margin-top: 6px;
     padding: 2px 7px;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 1px;
-    background: rgba(0, 255, 136, 0.12);
+    background: rgba(0, 255, 136, 0.14);
     color: #00ff88;
-    border: 1px solid rgba(0, 255, 136, 0.3);
+    border: 1px solid rgba(0, 255, 136, 0.35);
     border-radius: 3px;
   }
 
   .feed-tag {
     display: inline-block;
-    padding: 5px 10px;
+    padding: 4px 8px;
     margin: 3px 4px 3px 0;
-    background: rgba(30, 66, 94, 0.4);
-    border: 1px solid rgba(88, 166, 255, 0.3);
+    background: rgba(30, 66, 94, 0.45);
+    border: 1px solid rgba(88, 166, 255, 0.35);
     border-radius: 4px;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-family: monospace;
     color: #79c0ff;
+  }
+
+  .action-btn {
+    background: rgba(255, 123, 0, 0.15);
+    border: 1px solid var(--amber-core);
+    color: var(--amber-glow);
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-top: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .action-btn:hover {
+    background: var(--amber-core);
+    color: #000;
   }
 
   .refresh-btn {
@@ -288,6 +303,20 @@
     color: #000;
     font-weight: 700;
   }
+
+  /* Interactive Terminal Drawer */
+  .terminal-panel {
+    background: #020407;
+    border: 1px solid var(--border-amber);
+    border-radius: 6px;
+    padding: 14px;
+    font-family: monospace;
+    font-size: 0.78rem;
+    color: #00ff88;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-top: 12px;
+  }
 </style>
 </head>
 <body>
@@ -302,14 +331,13 @@
     </ul>
     <div class="telemetry-pill">
       <span class="pulse-dot"></span>
-      <span>CAGE: <strong id="cage-code">8LLN1</strong> | OSIRIS ONLINE</span>
+      <span>CAGE: <strong id="cage-code">8LLN1</strong> | OSIRIS ACTIVE</span>
     </div>
   </nav>
 
   <section class="hero">
     <div class="brand-row">
       <div class="arrow-emblem">
-        <!-- Molten Feathered Arrow Emblem -->
         <svg width="80" height="60" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g stroke="#ff8800" stroke-width="3">
             <polygon points="10,45 95,45 75,25 88,25 112,45 88,65 75,65 95,45" fill="rgba(255,123,0,0.25)"/>
@@ -324,7 +352,7 @@
           <p>SUPPLY &amp; LOGISTICS</p>
         </div>
       </div>
-      <button class="refresh-btn" onclick="loadTelemetry()">SYNC TELEMETRY</button>
+      <button class="refresh-btn" onclick="loadTelemetry()">FORCE SYNC</button>
     </div>
 
     <div class="motto">WE DON’T MISS, WE MULTIPLY.</div>
@@ -340,7 +368,7 @@
   </section>
 
   <main class="cockpit-grid">
-    <!-- Panel 1: RFQ & Compliance Engine -->
+    <!-- Panel 1: RFQ Engine & Compliance -->
     <div class="panel">
       <h2><span>RFQ &amp; Compliance Engine</span><span>LOW RISK</span></h2>
       <div class="stat-row">
@@ -352,35 +380,32 @@
         <span class="stat-val">8LLN1 / CPJLKJEU8PT1</span>
       </div>
       <div class="stat-row">
-        <span class="stat-label">Compliance Checks</span>
-        <span class="stat-val" style="color: #00ff88;">7 PASS | 0 FLAGGED</span>
+        <span class="stat-label">Compliance Status</span>
+        <span class="stat-val" style="color: #00ff88;">CERTIFIED READY</span>
       </div>
       <div class="stat-row">
         <span class="stat-label">Target Margin</span>
-        <span class="stat-val">22% Optimized</span>
+        <span class="stat-val">22% Automated Floor</span>
       </div>
     </div>
 
-    <!-- Panel 2: Active Contracts & Solicitations -->
+    <!-- Panel 2: Active Telemetry Feed -->
     <div class="panel">
-      <h2><span>Active Telemetry Feed</span><span id="filter-badge">ALL</span></h2>
+      <h2><span>Active Solicitation Feed</span><span id="filter-badge">ALL</span></h2>
       <div id="contracts-container">
-        <p style="color: var(--text-muted); font-size: 0.85rem;">Loading contract streams...</p>
+        <p style="color: var(--text-muted); font-size: 0.82rem;">Synchronizing pipeline...</p>
       </div>
     </div>
 
-    <!-- Panel 3: Ingestion Sensors & Comms -->
+    <!-- Panel 3: Ingestion Sensors & Interactive Terminal -->
     <div class="panel">
-      <h2><span>Ingestion Sensors</span><span>SYNCED</span></h2>
-      <div id="feeds-container" style="margin-bottom: 14px;"></div>
-      <h2><span>Command Dispatch</span></h2>
-      <div class="stat-row">
-        <span class="stat-label">Direct Line</span>
-        <span class="stat-val">719-424-6270</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Secure Mail</span>
-        <span class="stat-val" style="font-size: 0.74rem;">ericlucero@loosearrowssupplylogistics.com</span>
+      <h2><span>Ingestion Sensors</span><span>ONLINE</span></h2>
+      <div id="feeds-container" style="margin-bottom: 12px;"></div>
+      <h2><span>Terminal Log Stream</span></h2>
+      <div class="terminal-panel" id="terminal-log">
+        [SYSTEM] OSIRIS-APEX v2.4 initialized.<br>
+        [CRON] Hourly background loop active.<br>
+        [READY] Awaiting operator command trigger...
       </div>
     </div>
   </main>
@@ -394,8 +419,9 @@
       const response = await fetch('./active_pipeline.json?t=' + new Date().getTime());
       pipelineData = await response.json();
       renderCockpit(pipelineData);
+      logTerminal("Telemetry synchronized successfully.");
     } catch (err) {
-      console.error(err);
+      logTerminal("ERROR: Failed to fetch active_pipeline.json");
     }
   }
 
@@ -419,17 +445,32 @@
     }
 
     if (contracts.length === 0) {
-      contractsEl.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No active items in this division.</p>';
+      contractsEl.innerHTML = '<p style="color:var(--text-muted); font-size:0.82rem;">No active items in this division.</p>';
     } else {
       contractsEl.innerHTML = contracts.map(c => `
         <div class="contract-card">
           <div class="id">${c.instrument_id}</div>
           <div class="agency">${c.agency}</div>
           <div class="desc">${c.description}</div>
-          <span class="badge">${(c.state || 'ACTIVE').toUpperCase()}</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+            <span class="badge">${(c.state || 'ACTIVE').toUpperCase()}</span>
+            <button class="action-btn" onclick="triggerQuote('${c.instrument_id}')">AUTO-QUOTE</button>
+          </div>
         </div>
       `).join('');
     }
+  }
+
+  function triggerQuote(solId) {
+    logTerminal(`[DISPATCH] Generating 22% margin quote sheet for Solicitation: ${solId}...`);
+    alert(`OSIRIS APEX: Quote generation sequence initiated for ${solId} with 22% target margin.`);
+  }
+
+  function logTerminal(msg) {
+    const term = document.getElementById('terminal-log');
+    const time = new Date().toLocaleTimeString();
+    term.innerHTML += `<br>[${time}] ${msg}`;
+    term.scrollTop = term.scrollHeight;
   }
 
   function filterDivision(btn, division) {
@@ -438,15 +479,17 @@
     currentFilter = division;
     document.getElementById('filter-badge').textContent = division;
     if (pipelineData) renderCockpit(pipelineData);
+    logTerminal(`Filter adjusted to division: ${division}`);
   }
 
   function selectTab(tab, name) {
     document.querySelectorAll('#nav-tabs li').forEach(li => li.classList.remove('active'));
     tab.classList.add('active');
+    logTerminal(`Navigation switched to tab: ${name}`);
   }
 
   loadTelemetry();
-  setInterval(loadTelemetry, 60000);
+  setInterval(loadTelemetry, 45000);
 </script>
 </body>
 </html>
