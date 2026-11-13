@@ -1,1 +1,25 @@
-{ "status": "initializing", "timestamp": "2026-11-13 09:43:50 UTC" }
+{
+    "engine_metadata": {
+        "entity": "LooseArrows Supply & Logistics",
+        "cage_code": "8LLN1",
+        "system": "OSIRIS-APEX Pipeline",
+        "last_updated": "2026-11-13 09:56:28 UTC",
+        "status": "active"
+    },
+    "active_contracts": [
+        {
+            "agency": "Bureau of Land Management",
+            "instrument_id": "140L1726P0032",
+            "description": "Invasive species control resource management (Meeker/Red Wash)",
+            "state": "Executing"
+        }
+    ],
+    "pipeline_metrics": {
+        "feeds_monitored": [
+            "SAM.gov",
+            "DLA DIBBS"
+        ],
+        "queue_status": "synced",
+        "execution_mode": "autonomous_termux_cron"
+    }
+}
