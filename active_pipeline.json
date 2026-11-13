@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-13 10:53:29 UTC",
+        "last_updated": "2026-11-13 10:59:39 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -13,6 +13,13 @@
             "description": "Invasive species control resource management (Meeker/Red Wash) - GFM Herbicide",
             "state": "Executing",
             "division": "LOGISTICS"
+        },
+        {
+            "agency": "STATE, DEPARTMENT OF",
+            "instrument_id": "19SZ3527R0001",
+            "description": "[NAICS 561730] MSGR gardening services",
+            "state": "Due: 2026-12-11",
+            "division": "PROCUREMENT"
         },
         {
             "agency": "DEPT OF DEFENSE",
@@ -26,27 +33,6 @@
             "instrument_id": "36C78627Q0021_1",
             "description": "[NAICS 561730] Amendment 0001 - Turf  Application Services at Salisbury National Cemetery",
             "state": "Due: 2026-11-18",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W9123727QA002",
-            "description": "[NAICS 561730] W9123727QA002 Summersville Mowing and Maintenance IDIQ 2027-2031",
-            "state": "Due: 2026-12-04",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
-            "instrument_id": "36C24626Q1078",
-            "description": "[NAICS 561730] S218--Snow and Ice Service Removal Agreement",
-            "state": "Due: 2026-11-13",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W912WJ27QA005",
-            "description": "[NAICS 561730] Snow Removal Services, Blackwater Dam, Webster, NH",
-            "state": "Due: 2026-11-23",
             "division": "PROCUREMENT"
         },
         {
@@ -71,26 +57,33 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W912GB27RA009",
-            "description": "[NAICS 238990] FY27 Playgrounds Single Award Task Order Contract (SATOC)/ IMCOM-Europe Housing Areas",
-            "state": "Active Solicitation",
-            "division": "PROCUREMENT"
+            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.ACC-OO.411TH CSB.0411 AQ HQ     CONTRACT AUG",
+            "instrument_id": "W91QVN27QA003",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Procurement of Pick-Up Trucks, Bucket Trucks, and Forklifts",
+            "state": "Due: 2026-11-18",
+            "division": "LOGISTICS"
         },
         {
-            "agency": "HOMELAND SECURITY, DEPARTMENT OF",
-            "instrument_id": "192127FHOFPS0001",
-            "description": "[NAICS 238990] Houston Privacy Screens",
-            "state": "Due: 2026-11-17",
-            "division": "PROCUREMENT"
+            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.US EMBASSY BANGKOK",
+            "instrument_id": "19TH2027Q0010",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Patient Monitoring Equipment",
+            "state": "Due: 2026-11-13",
+            "division": "LOGISTICS"
+        },
+        {
+            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.US EMBASSY MADRID",
+            "instrument_id": "19SP5027Q0003",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Cleaning of MSGR guard and Embassy support staff assigned areas",
+            "state": "Due: 2026-12-14",
+            "division": "LOGISTICS"
         }
     ],
     "pipeline_metrics": {
         "feeds_monitored": [
-            "SAM.gov (live_synced)",
-            "DLA DIBBS (Ready)"
+            "SAM.gov NAICS (live_synced)",
+            "DLA DIBBS FSC 5305/5310 (live_synced)"
         ],
-        "live_leads_count": 10,
+        "live_leads_count": 9,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
