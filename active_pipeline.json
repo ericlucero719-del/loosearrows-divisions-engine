@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-14 02:00:00 UTC",
+        "last_updated": "2026-11-14 03:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -13,6 +13,27 @@
             "description": "Invasive species control resource management (Meeker/Red Wash) - GFM Herbicide",
             "state": "Executing",
             "division": "LOGISTICS"
+        },
+        {
+            "agency": "COMMERCE, DEPARTMENT OF",
+            "instrument_id": "1305M327Q0042",
+            "description": "[NAICS 561730] Snow Removal Services WFO Johnston",
+            "state": "Due: 2026-11-24",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W9123727QA005",
+            "description": "[NAICS 561730] W9123727QA005 Walhonding Mowing and Maintenance IDIQ 2027-2031",
+            "state": "Due: 2026-12-07",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W9123727QA001",
+            "description": "[NAICS 561730] Burnsville Lake Mowing and Maintenance Services 2027-2031",
+            "state": "Due: 2026-12-02",
+            "division": "PROCUREMENT"
         },
         {
             "agency": "AGRICULTURE, DEPARTMENT OF",
@@ -62,7 +83,7 @@
             "SAM.gov NAICS (live_synced)",
             "DLA DIBBS FSC 5305/5310 (live_synced)"
         ],
-        "live_leads_count": 6,
+        "live_leads_count": 9,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
