@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-13 11:37:44 UTC",
+        "last_updated": "2026-11-14 01:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -15,24 +15,31 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "STATE, DEPARTMENT OF",
-            "instrument_id": "19SZ3527R0001",
-            "description": "[NAICS 561730] MSGR gardening services",
-            "state": "Due: 2026-12-11",
+            "agency": "COMMERCE, DEPARTMENT OF",
+            "instrument_id": "1305M327Q0042",
+            "description": "[NAICS 561730] Snow Removal Services WFO Johnston",
+            "state": "Due: 2026-11-24",
             "division": "PROCUREMENT"
         },
         {
             "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W912WJ27QA004",
-            "description": "[NAICS 561730] Snow Removal and Sanding Services, Franklin Falls Dam, Franklin, NH",
-            "state": "Due: 2026-11-20",
+            "instrument_id": "W9123727QA005",
+            "description": "[NAICS 561730] W9123727QA005 Walhonding Mowing and Maintenance IDIQ 2027-2031",
+            "state": "Due: 2026-12-07",
             "division": "PROCUREMENT"
         },
         {
-            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
-            "instrument_id": "36C78627Q0021_1",
-            "description": "[NAICS 561730] Amendment 0001 - Turf  Application Services at Salisbury National Cemetery",
-            "state": "Due: 2026-11-18",
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W9123727QA001",
+            "description": "[NAICS 561730] Burnsville Lake Mowing and Maintenance Services 2027-2031",
+            "state": "Due: 2026-12-02",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "AGRICULTURE, DEPARTMENT OF",
+            "instrument_id": "124PSA27Q0027",
+            "description": "[NAICS 238990] Replacement of Cattle Shades",
+            "state": "Due: 2026-11-24",
             "division": "PROCUREMENT"
         },
         {
@@ -50,31 +57,24 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140RR027R0010",
-            "description": "[NAICS 238990] 56--PGMB Security Gate",
-            "state": "Due: 2026-11-23",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.ACC-OO.411TH CSB.0411 AQ HQ     CONTRACT AUG",
-            "instrument_id": "W91QVN27QA003",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] Procurement of Pick-Up Trucks, Bucket Trucks, and Forklifts",
-            "state": "Due: 2026-11-18",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
+            "instrument_id": "N0010427QUA09",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] PUMP UNIT,ROTARY",
+            "state": "Due: 2026-11-27",
             "division": "LOGISTICS"
         },
         {
-            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.US EMBASSY BANGKOK",
-            "instrument_id": "19TH2027Q0010",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] Patient Monitoring Equipment",
-            "state": "Due: 2026-11-13",
+            "agency": "JUSTICE, DEPARTMENT OF.FEDERAL PRISON SYSTEM / BUREAU OF PRISONS.FAO",
+            "instrument_id": "15BGCS27Q20300001",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] FCI Danbury - Vocational Educational Programming - Electrical",
+            "state": "Due: 2026-12-09",
             "division": "LOGISTICS"
         },
         {
-            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.US EMBASSY MADRID",
-            "instrument_id": "19SP5027Q0003",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] Cleaning of MSGR guard and Embassy support staff assigned areas",
-            "state": "Due: 2026-12-14",
+            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AV RICHMOND.DLA AVIATION",
+            "instrument_id": "SPE4A727R0086",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] PARTS KIT,FASTENE / NSN 1560-016993344, 05F Aircraft Stratolifter C/CK",
+            "state": "Due: 2026-12-28",
             "division": "LOGISTICS"
         }
     ],
