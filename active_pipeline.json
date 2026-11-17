@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-17 18:00:00 UTC",
+        "last_updated": "2026-11-17 19:00:03 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -13,6 +13,13 @@
             "description": "Invasive species control resource management (Meeker/Red Wash) - GFM Herbicide",
             "state": "Executing",
             "division": "LOGISTICS"
+        },
+        {
+            "agency": "COMMERCE, DEPARTMENT OF",
+            "instrument_id": "1305M327Q0042",
+            "description": "[NAICS 561730] S--Snow Removal Services WFO Johnston",
+            "state": "Due: 2026-11-24",
+            "division": "PROCUREMENT"
         },
         {
             "agency": "DEPT OF DEFENSE",
@@ -26,13 +33,6 @@
             "instrument_id": "36C24127Q0064",
             "description": "[NAICS 561730] Snow Removal and Salting Annual Maintenance with 4 (1-year) Option periods at the Crescent House",
             "state": "Due: 2026-12-03",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W9123727QA006",
-            "description": "[NAICS 561730] W9123727QA006 Bluestone Mowing and Maintenance IDIQ 2027-2031",
-            "state": "Due: 2026-12-09",
             "division": "PROCUREMENT"
         },
         {
