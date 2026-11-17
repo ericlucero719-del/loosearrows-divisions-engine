@@ -1,202 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LOOSEARROWS | OSIRIS-APEX Command Cockpit</title>
-<style>
-  :root {
-    --bg-obsidian: #06090e;
-    --bg-panel: rgba(13, 19, 28, 0.92);
-    --amber-core: #ff7b00;
-    --amber-glow: #ffaa33;
-    --text-main: #e6edf3;
-    --text-muted: #8b949e;
-    --border-amber: rgba(255, 123, 0, 0.4);
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSIRIS-APEX | LooseArrows Cockpit</title>
+    <style>
+        :root {
+            --bg: #080b10;
+            --card: rgba(16, 22, 34, 0.85);
+            --border: #1e293b;
+            --accent: #f59e0b;
+            --green: #10b981;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', monospace; }
+        body {
+            background-color: var(--bg);
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: var(--text);
+            padding: 16px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .brand h1 { font-size: 1.1rem; color: var(--accent); letter-spacing: 1px; }
+        .brand p { font-size: 0.75rem; color: var(--muted); }
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 8px 14px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .btn:disabled { opacity: 0.5; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+        }
+        .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+        .stat-val { font-size: 1.1rem; font-weight: bold; margin-top: 4px; color: var(--green); }
+        .stat-val.warn { color: var(--accent); }
+        .section-title { font-size: 0.85rem; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+        .lead-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .lead-top { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 4px; }
+        .margin-badge { background: rgba(16, 185, 129, 0.15); color: var(--green); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+        .lead-meta { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+        #status-bar { font-size: 0.75rem; color: var(--accent); margin-bottom: 12px; min-height: 16px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <h1>OSIRIS-APEX COCKPIT</h1>
+            <p>LooseArrows Supply & Logistics | CAGE: 8LLN1</p>
+        </div>
+        <button class="btn" id="sweep-btn" onclick="triggerSweep()">⚡ RUN SWEEP</button>
+    </header>
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    <div id="status-bar">System Online. Telemetry synced.</div>
 
-  body {
-    background-color: var(--bg-obsidian);
-    color: var(--text-main);
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    min-height: 100vh;
-    background-image: 
-      radial-gradient(circle at 85% 15%, rgba(255, 110, 0, 0.16) 0%, transparent 40%),
-      radial-gradient(circle at 15% 60%, rgba(20, 65, 95, 0.25) 0%, transparent 50%),
-      linear-gradient(rgba(18, 36, 54, 0.2) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(18, 36, 54, 0.2) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 35px 35px, 35px 35px;
-    padding-bottom: 40px;
-  }
+    <div class="grid">
+        <div class="stat-card">
+            <div class="stat-label">Qualified Leads</div>
+            <div class="stat-val" id="lead-count">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Margin Floor</div>
+            <div class="stat-val">22.0%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">BLM PO 140L1726P0032</div>
+            <div class="stat-val warn">PENDING IPP</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Target FSCs</div>
+            <div class="stat-val" style="font-size:0.85rem; color:var(--text);">5305, 5306, 5310</div>
+        </div>
+    </div>
 
-  /* Top Navigation */
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 24px;
-    background: rgba(6, 9, 14, 0.95);
-    border-bottom: 1px solid var(--border-amber);
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+    <div class="section-title">Active DIBBS Micro-Purchase Queue</div>
+    <div id="leads-container">Loading telemetry...</div>
 
-  .nav-links {
-    display: flex;
-    gap: 20px;
-    list-style: none;
-    flex-wrap: wrap;
-  }
+    <script>
+        async function loadLeads() {
+            try {
+                const res = await fetch('/dibbs_scraped_leads.json?t=' + Date.now());
+                const leads = await res.json();
+                document.getElementById('lead-count').innerText = leads.length;
+                const container = document.getElementById('leads-container');
+                if (!leads.length) {
+                    container.innerHTML = '<div class="lead-meta">No qualified leads above 22% margin floor.</div>';
+                    return;
+                }
+                container.innerHTML = leads.map(l => `
+                    <div class="lead-card">
+                        <div class="lead-top">
+                            <span>${l.solicitation_id}</span>
+                            <span class="margin-badge">+${(l.calculated_margin * 100).toFixed(1)}% MARGIN</span>
+                        </div>
+                        <div class="lead-meta">
+                            <strong>NSN:</strong> ${l.nsn} (${l.nsn_desc})<br>
+                            <strong>QTY:</strong> ${l.qty} | <strong>Target Gov:</strong> $${l.target_gov_price.toFixed(2)} | <strong>Est. Cost:</strong> $${(l.estimated_unit_cost * l.qty).toFixed(2)}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('leads-container').innerHTML = '<div class="lead-meta">Error reading dibbs_scraped_leads.json</div>';
+            }
+        }
 
-  .nav-links li {
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding-bottom: 3px;
-    transition: all 0.2s ease;
-  }
+        async function triggerSweep() {
+            const btn = document.getElementById('sweep-btn');
+            const status = document.getElementById('status-bar');
+            btn.disabled = true;
+            status.innerText = '[*] Executing osiris_dibbs_bot.py sweep...';
+            try {
+                const res = await fetch('/run-sweep');
+                const data = await res.json();
+                status.innerText = '[+] ' + data.message;
+                await loadLeads();
+            } catch (e) {
+                status.innerText = '[-] Sweep execution error.';
+            }
+            btn.disabled = false;
+        }
 
-  .nav-links li:hover, .nav-links li.active {
-    color: #fff;
-    border-bottom: 2px solid var(--amber-core);
-    text-shadow: 0 0 8px rgba(255, 123, 0, 0.6);
-  }
-
-  .telemetry-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-    background: rgba(255, 123, 0, 0.1);
-    border: 1px solid var(--border-amber);
-    padding: 5px 12px;
-    border-radius: 4px;
-    color: var(--amber-glow);
-  }
-
-  .pulse-dot {
-    width: 7px;
-    height: 7px;
-    background: #00ff88;
-    border-radius: 50%;
-    box-shadow: 0 0 8px #00ff88;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.35; }
-  }
-
-  /* Hero Command Header */
-  .hero {
-    max-width: 1280px;
-    margin: 20px auto;
-    padding: 28px 24px;
-    background: linear-gradient(135deg, rgba(12, 18, 28, 0.95), rgba(24, 14, 8, 0.9));
-    border: 1px solid var(--border-amber);
-    border-radius: 8px;
-    box-shadow: 0 0 30px rgba(255, 110, 0, 0.12);
-  }
-
-  .brand-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-
-  .arrow-emblem {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .brand-title h1 {
-    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
-    letter-spacing: 3.5px;
-    font-weight: 800;
-    color: #fff;
-    text-shadow: 0 0 15px rgba(255, 123, 0, 0.4);
-  }
-
-  .brand-title p {
-    font-size: 0.85rem;
-    letter-spacing: 4px;
-    color: var(--text-muted);
-    margin-top: 3px;
-  }
-
-  .motto {
-    margin-top: 18px;
-    font-size: clamp(0.95rem, 2vw, 1.25rem);
-    font-weight: 700;
-    letter-spacing: 2.2px;
-    color: var(--amber-glow);
-    text-shadow: 0 0 10px rgba(255, 123, 0, 0.6);
-  }
-
-  /* Division Nodes Bar */
-  .nodes-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 22px;
-  }
-
-  .node-btn {
-    background: rgba(10, 15, 22, 0.9);
-    border: 1px solid rgba(255, 123, 0, 0.4);
-    color: #fff;
-    padding: 9px 16px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-  }
-
-  .node-btn::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    background: var(--amber-core);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--amber-core);
-  }
-
-  .node-btn:hover, .node-btn.active {
-    background: rgba(255, 123, 0, 0.2);
-    border-color: var(--amber-glow);
-    box-shadow: 0 0 12px rgba(255, 123, 0, 0.3);
-  }
-
-  /* Cockpit Grid Layout matching visual cards */
-  .cockpit-grid {
-    
-
-
-
-cat > ~/restart-web.sh << 'EOF'
-#!/bin/bash
-# Kill everything on port 8080 and start the LooseArrows server fresh
-cd ~/loosearrows_web || exit 1
-
-command -v fuser >/dev/null 2>&1 || pkg install -y psmisc
-
-fuser -k 8080/tcp 2>/dev/null
-pkill -f "http.server 8080" 2>/dev/null
-sleep 1
-
-nohup python3 -m http.server 8080 >/dev/null 2>&1 &
-echo "Fresh server on http://localhost:8080 (PID $!)"
+        loadLeads();
+    </script>
+</body>
+</html>

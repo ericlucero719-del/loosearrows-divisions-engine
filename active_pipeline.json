@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-14 03:00:01 UTC",
+        "last_updated": "2026-11-17 07:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -15,38 +15,38 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "COMMERCE, DEPARTMENT OF",
-            "instrument_id": "1305M327Q0042",
-            "description": "[NAICS 561730] Snow Removal Services WFO Johnston",
-            "state": "Due: 2026-11-24",
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W9123727QA006",
+            "description": "[NAICS 561730] W9123727QA006 Bluestone Mowing and Maintenance IDIQ 2027-2031",
+            "state": "Due: 2026-12-09",
             "division": "PROCUREMENT"
         },
         {
             "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W9123727QA005",
-            "description": "[NAICS 561730] W9123727QA005 Walhonding Mowing and Maintenance IDIQ 2027-2031",
+            "instrument_id": "W9123727QA008",
+            "description": "[NAICS 561730] JWF/NFP Maintenance Service 2027 - 2031",
+            "state": "Due: 2026-12-04",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "FA469027Q0004",
+            "description": "[NAICS 561730] Combined Synopsis/ Solicitation for Ellsworth AFB Grounds Maintenance -FA469027Q0004",
+            "state": "Due: 2026-11-30",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
+            "instrument_id": "36C26227Q0113",
+            "description": "[NAICS 238990] Water Treatment Services",
+            "state": "Due: 2026-11-20",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "ENERGY, DEPARTMENT OF",
+            "instrument_id": "7-B187-P-00016-00",
+            "description": "[NAICS 238990] On-Site Industrial Services",
             "state": "Due: 2026-12-07",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W9123727QA001",
-            "description": "[NAICS 561730] Burnsville Lake Mowing and Maintenance Services 2027-2031",
-            "state": "Due: 2026-12-02",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "AGRICULTURE, DEPARTMENT OF",
-            "instrument_id": "124PSA27Q0027",
-            "description": "[NAICS 238990] Replacement of Cattle Shades",
-            "state": "Due: 2026-11-24",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140A2327Q0318",
-            "description": "[NAICS 238990] TO'HAALI' SCHOOL REPLACE FRONT ENTRANCE SIDEWALK",
-            "state": "Due: 2026-12-14",
             "division": "PROCUREMENT"
         },
         {
@@ -57,24 +57,24 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
-            "instrument_id": "N0010427QUA09",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] PUMP UNIT,ROTARY",
-            "state": "Due: 2026-11-27",
+            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA MARITIME.DLA MARITIME COLUMBUS.DLA WEAPONS SUPPORT",
+            "instrument_id": "SPE7M127U1352",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 59--SHIELDING GASKET,ELECT",
+            "state": "Due: 2026-12-01",
             "division": "LOGISTICS"
         },
         {
-            "agency": "JUSTICE, DEPARTMENT OF.FEDERAL PRISON SYSTEM / BUREAU OF PRISONS.FAO",
-            "instrument_id": "15BGCS27Q20300001",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] FCI Danbury - Vocational Educational Programming - Electrical",
-            "state": "Due: 2026-12-09",
+            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA MARITIME.DLA MARITIME COLUMBUS.DLA WEAPONS SUPPORT",
+            "instrument_id": "SPE7M127U1486",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 59--RELAY,ELECTROMAGNETIC",
+            "state": "Due: 2026-12-01",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AV RICHMOND.DLA AVIATION",
-            "instrument_id": "SPE4A727R0086",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] PARTS KIT,FASTENE / NSN 1560-016993344, 05F Aircraft Stratolifter C/CK",
-            "state": "Due: 2026-12-28",
+            "agency": "HEALTH AND HUMAN SERVICES, DEPARTMENT OF.NATIONAL INSTITUTES OF HEALTH.NATIONAL INSTITUTES OF HEALTH OLAO",
+            "instrument_id": "75N98027Q00089",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 65--COMBINED SYNOPSIS/SOLICITATION/ (Brand Name or Equ",
+            "state": "Due: 2026-12-01",
             "division": "LOGISTICS"
         }
     ],
