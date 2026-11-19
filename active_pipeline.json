@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-19 14:00:00 UTC",
+        "last_updated": "2026-11-19 15:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -50,17 +50,17 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "AGRICULTURE, DEPARTMENT OF",
+            "instrument_id": "1172835 ",
+            "description": "[NAICS 238990] Local fencing contractors, Goose BAR - Cow Creek- Farm Flat Fence",
+            "state": "Due: 2026-11-19",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "COMMERCE, DEPARTMENT OF",
             "instrument_id": "1305M327Q0004",
             "description": "[NAICS 238990] Z--Security Fence and Gate Replacement",
             "state": "Due: 2026-11-23",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
-            "instrument_id": "36C26227Q0089",
-            "description": "[NAICS 238990] Replace Condensate Pressure Pump",
-            "state": "Due: 2026-11-25",
             "division": "PROCUREMENT"
         },
         {
@@ -71,16 +71,16 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA MARITIME.DLA MARITIME COLUMBUS.DLA WEAPONS SUPPORT",
-            "instrument_id": "SPE7M127T2927",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 66--DETECTOR HEAD",
-            "state": "Due: 2026-11-30",
+            "agency": "VETERANS AFFAIRS, DEPARTMENT OF.VETERANS AFFAIRS, DEPARTMENT OF.255-NETWORK CONTRACT OFFICE 15 (36C255)",
+            "instrument_id": "36C25527R0012",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 657-26-102JC FCA Replace Various Roofs on BLDG 1, JC  FY27 NRM VISN BASE - CON",
+            "state": "Due: 2026-12-29",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AVIATION PHILADELPHIA.DLA AVIATION AT PHILADELPHIA, PA",
-            "instrument_id": "SPRPA127QUA13",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] ACTUATOR ASSEMBLY",
+            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA MARITIME.DLA MARITIME COLUMBUS.DLA WEAPONS SUPPORT",
+            "instrument_id": "SPE7M127T2927",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 66--DETECTOR HEAD",
             "state": "Due: 2026-11-30",
             "division": "LOGISTICS"
         }
