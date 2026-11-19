@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-19 13:00:01 UTC",
+        "last_updated": "2026-11-19 14:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -22,6 +22,13 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
+            "instrument_id": "36C24127Q0064",
+            "description": "[NAICS 561730] Snow Removal and Salting Annual Maintenance with 4 (1-year) Option periods at the Crescent House",
+            "state": "Due: 2026-12-07",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "DEPT OF DEFENSE",
             "instrument_id": "W912DQ27QA023",
             "description": "[NAICS 561730] Herbicide Application across Rathbun Lake Project, W912DQ27QA023",
@@ -36,10 +43,10 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "COMMERCE, DEPARTMENT OF",
-            "instrument_id": "1305M327Q0048",
-            "description": "[NAICS 561730] Snow Removal Services WFO Topeka",
-            "state": "Due: 2026-12-01",
+            "agency": "INTERIOR, DEPARTMENT OF THE",
+            "instrument_id": "140A2327Q0318",
+            "description": "[NAICS 238990] Z--TO'HAALI' SCHOOL REPLACE FRONT ENTRANCE SIDEWALK",
+            "state": "Due: 2026-12-14",
             "division": "PROCUREMENT"
         },
         {
@@ -57,13 +64,6 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "ENERGY, DEPARTMENT OF",
-            "instrument_id": "89503511102026",
-            "description": "[NAICS 238990] SEPA PARKING LOT REPAVING AND REPAIRS",
-            "state": "Due: 2026-12-15",
-            "division": "PROCUREMENT"
-        },
-        {
             "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA LAND.DLA LAND COLUMBUS.DLA WEAPONS SUPPORT",
             "instrument_id": "SPE7L327T2842",
             "description": "[FSC 5305 Hardware - 22% Margin Target] 25--ROTOR,DISC BRAKE",
@@ -78,9 +78,9 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA MARITIME.DLA MARITIME COLUMBUS.DLA WEAPONS SUPPORT",
-            "instrument_id": "SPE7MC27T2238",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 48--VALVE,REGULATING,FLUID",
+            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AVIATION PHILADELPHIA.DLA AVIATION AT PHILADELPHIA, PA",
+            "instrument_id": "SPRPA127QUA13",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] ACTUATOR ASSEMBLY",
             "state": "Due: 2026-11-30",
             "division": "LOGISTICS"
         }
