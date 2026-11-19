@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-19 15:00:01 UTC",
+        "last_updated": "2026-11-19 16:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -22,6 +22,13 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "PANNWD27P0000034644",
+            "description": "[NAICS 561730] Land Management Master Blanket Purchase Agreements (BPA) for the Rathbun and Long Branch Lake Projects, Kansas City District (NWK) US Army Corps of Engineers (USACE)",
+            "state": "Due: 2026-12-20",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
             "instrument_id": "36C24127Q0064",
             "description": "[NAICS 561730] Snow Removal and Salting Annual Maintenance with 4 (1-year) Option periods at the Crescent House",
@@ -33,13 +40,6 @@
             "instrument_id": "W912DQ27QA023",
             "description": "[NAICS 561730] Herbicide Application across Rathbun Lake Project, W912DQ27QA023",
             "state": "Due: 2026-12-03",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140FF027Q0085",
-            "description": "[NAICS 561730] OR-KLAMATH FALLS FWO-GROUND MAINTENANCE",
-            "state": "Due: 2026-11-30",
             "division": "PROCUREMENT"
         },
         {
@@ -57,10 +57,10 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "COMMERCE, DEPARTMENT OF",
-            "instrument_id": "1305M327Q0004",
-            "description": "[NAICS 238990] Z--Security Fence and Gate Replacement",
-            "state": "Due: 2026-11-23",
+            "agency": "INTERIOR, DEPARTMENT OF THE",
+            "instrument_id": "140LL027Q0034",
+            "description": "[NAICS 238990] 7 LAKES FENCE REPAIR",
+            "state": "Due: 2026-12-10",
             "division": "PROCUREMENT"
         },
         {
