@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 15:00:00 UTC",
+        "last_updated": "2026-11-20 16:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -29,17 +29,17 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W9123727QA008",
+            "description": "[NAICS 561730] JWF/NFP Maintenance Service 2027 - 2031",
+            "state": "Due: 2026-12-04",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "COMMERCE, DEPARTMENT OF",
             "instrument_id": "1305M327Q0042",
             "description": "[NAICS 561730] S--Snow Removal Services WFO Johnston",
             "state": "Due: 2026-11-24",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W9123827QA003",
-            "description": "[NAICS 561730] New Hogan Weed Control",
-            "state": "Due: 2026-12-22",
             "division": "PROCUREMENT"
         },
         {
