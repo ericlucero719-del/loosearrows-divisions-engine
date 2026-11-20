@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 11:00:00 UTC",
+        "last_updated": "2026-11-20 12:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -78,10 +78,10 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
-            "instrument_id": "N00104-26-Q-FD67",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 1HM 4820 LLH889803 D0, DISK VALVE",
-            "state": "Due: 2027-01-05",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSEA.NAVSEA WARFARE CENTER.NSWC CARDEROCK",
+            "instrument_id": "N0016727R0001",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] V47 Waterfront Boat Repair Support",
+            "state": "Due: 2026-12-23",
             "division": "LOGISTICS"
         }
     ],
