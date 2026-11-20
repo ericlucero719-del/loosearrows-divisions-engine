@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 13:00:01 UTC",
+        "last_updated": "2026-11-20 14:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -22,6 +22,13 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W912WJ27QA005",
+            "description": "[NAICS 561730] Snow Removal Services, Blackwater Dam, Webster, NH",
+            "state": "Due: 2026-11-24",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "COMMERCE, DEPARTMENT OF",
             "instrument_id": "1305M327Q0042",
             "description": "[NAICS 561730] S--Snow Removal Services WFO Johnston",
@@ -33,13 +40,6 @@
             "instrument_id": "W9123827QA003",
             "description": "[NAICS 561730] New Hogan Weed Control",
             "state": "Due: 2026-12-22",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
-            "instrument_id": "36C25227Q0054",
-            "description": "[NAICS 561730] S208--TREE CARE MANAGEMENT SERVICE",
-            "state": "Due: 2026-12-10",
             "division": "PROCUREMENT"
         },
         {
@@ -78,10 +78,10 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AV RICHMOND.DLA AVIATION",
-            "instrument_id": "SPE4A727T4684",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 16--SEGMENTS,LOCK,MAIN",
-            "state": "Due: 2026-11-27",
+            "agency": "TRANSPORTATION, DEPARTMENT OF.FEDERAL AVIATION ADMINISTRATION.6973GH FRANCHISE ACQUISITION SVCS",
+            "instrument_id": "6973GH-27-R-00042",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Morales, TX (QNA) ARSR - Repair/Replace Building and Exterior Items to Correct Water Damage, Prevent Water Intrusion",
+            "state": "Due: 2026-12-23",
             "division": "LOGISTICS"
         }
     ],
