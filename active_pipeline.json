@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 21:00:01 UTC",
+        "last_updated": "2026-11-20 22:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -43,27 +43,6 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140EE127Q0003",
-            "description": "[NAICS 238990] OHMSETT FUNCTIONAL CLASSROOM UPGRADE",
-            "state": "Due: 2026-12-07",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "FA301027Q0002",
-            "description": "[NAICS 238990] Child Development Center Playgrounds",
-            "state": "Due: 2027-01-05",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "AGRICULTURE, DEPARTMENT OF",
-            "instrument_id": "124PSA27Q0027",
-            "description": "[NAICS 238990] Replacement of Cattle Shades",
-            "state": "Due: 2026-11-24",
-            "division": "PROCUREMENT"
-        },
-        {
             "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.MISSION INSTALLATION CONTRACTING COMMAND.419TH CSB.W6QM MICC-FT DRUM",
             "instrument_id": "W911S227U0207",
             "description": "[FSC 5305 Hardware - 22% Margin Target] Medical Maintenance Workbench",
@@ -90,7 +69,7 @@
             "SAM.gov NAICS (live_synced)",
             "DLA DIBBS FSC 5305/5310 (live_synced)"
         ],
-        "live_leads_count": 10,
+        "live_leads_count": 7,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
