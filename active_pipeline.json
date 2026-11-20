@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 20:00:01 UTC",
+        "last_updated": "2026-11-20 21:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -22,6 +22,13 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "COMMERCE, DEPARTMENT OF",
+            "instrument_id": "1305M327Q0026 ",
+            "description": "[NAICS 561730] 1305M327Q0026 - SNOW REMOVAL, NEGAUNEE, MI",
+            "state": "Due: 2026-11-24",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "DEPT OF DEFENSE",
             "instrument_id": "W912WJ27QA005",
             "description": "[NAICS 561730] Snow Removal Services, Blackwater Dam, Webster, NH",
@@ -36,13 +43,6 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W912BV27QA016",
-            "description": "[NAICS 561730] CNG Afton and Bluff Landing PUA Tree Removal",
-            "state": "Due: 2026-12-16",
-            "division": "PROCUREMENT"
-        },
-        {
             "agency": "INTERIOR, DEPARTMENT OF THE",
             "instrument_id": "140EE127Q0003",
             "description": "[NAICS 238990] OHMSETT FUNCTIONAL CLASSROOM UPGRADE",
@@ -50,17 +50,17 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "FA301027Q0002",
+            "description": "[NAICS 238990] Child Development Center Playgrounds",
+            "state": "Due: 2027-01-05",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "AGRICULTURE, DEPARTMENT OF",
             "instrument_id": "124PSA27Q0027",
             "description": "[NAICS 238990] Replacement of Cattle Shades",
             "state": "Due: 2026-11-24",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140A2327Q0318",
-            "description": "[NAICS 238990] Z--TO'HAALI' SCHOOL REPLACE FRONT ENTRANCE SIDEWALK",
-            "state": "Due: 2026-12-14",
             "division": "PROCUREMENT"
         },
         {
