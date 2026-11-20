@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 12:00:00 UTC",
+        "last_updated": "2026-11-20 13:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -78,10 +78,10 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSEA.NAVSEA WARFARE CENTER.NSWC CARDEROCK",
-            "instrument_id": "N0016727R0001",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] V47 Waterfront Boat Repair Support",
-            "state": "Due: 2026-12-23",
+            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AV RICHMOND.DLA AVIATION",
+            "instrument_id": "SPE4A727T4684",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 16--SEGMENTS,LOCK,MAIN",
+            "state": "Due: 2026-11-27",
             "division": "LOGISTICS"
         }
     ],
