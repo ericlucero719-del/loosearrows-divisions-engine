@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 10:00:01 UTC",
+        "last_updated": "2026-11-20 11:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -64,24 +64,24 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.AMERICAN EMBASSY ATHENS",
-            "instrument_id": "19GR1027Q0002",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] EUR/ATHENS - Janitorial Services for ARTRANS",
-            "state": "Due: 2026-12-07",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
+            "instrument_id": "N0010427QBD00",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] LI CBL AY FAN RB1B2",
+            "state": "Due: 2026-12-21",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.US ARMY CORPS OF ENGINEERS.ENGINEER DIVISION PACIFIC OCEAN.ENDIST JAPAN.W2SN ENDIST JAPAN",
-            "instrument_id": "W912HV26BA009",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] RENOVATE MILITARY FAMILY HOUSING TOWER 4511, CAMP COURTNEY",
-            "state": "Due: 2026-12-10",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
+            "instrument_id": "N0010426RQB87",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 59--ANTENNA ASSEMBLY, IN REPAIR/MODIFICATION OF",
+            "state": "Due: 2027-01-07",
             "division": "LOGISTICS"
         },
         {
-            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.ACQUISITIONS - RPSO FRANKFURT",
-            "instrument_id": "19GE5027Q0010",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] MOVING SERVICES, FRANKFURT",
-            "state": "Due: 2027-01-10",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
+            "instrument_id": "N00104-26-Q-FD67",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 1HM 4820 LLH889803 D0, DISK VALVE",
+            "state": "Due: 2027-01-05",
             "division": "LOGISTICS"
         }
     ],
