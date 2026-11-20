@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-19 17:00:00 UTC",
+        "last_updated": "2026-11-20 10:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -22,24 +22,31 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "COMMERCE, DEPARTMENT OF",
+            "instrument_id": "1305M327Q0042",
+            "description": "[NAICS 561730] S--Snow Removal Services WFO Johnston",
+            "state": "Due: 2026-11-24",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "DEPT OF DEFENSE",
-            "instrument_id": "PANNWD27P0000034644",
-            "description": "[NAICS 561730] Land Management Master Blanket Purchase Agreements (BPA) for the Rathbun and Long Branch Lake Projects, Kansas City District (NWK) US Army Corps of Engineers (USACE)",
-            "state": "Due: 2026-12-20",
+            "instrument_id": "W9123827QA003",
+            "description": "[NAICS 561730] New Hogan Weed Control",
+            "state": "Due: 2026-12-22",
             "division": "PROCUREMENT"
         },
         {
             "agency": "VETERANS AFFAIRS, DEPARTMENT OF",
-            "instrument_id": "36C24127Q0064",
-            "description": "[NAICS 561730] Snow Removal and Salting Annual Maintenance with 4 (1-year) Option periods at the Crescent House",
-            "state": "Due: 2026-12-07",
+            "instrument_id": "36C25227Q0054",
+            "description": "[NAICS 561730] S208--TREE CARE MANAGEMENT SERVICE",
+            "state": "Due: 2026-12-10",
             "division": "PROCUREMENT"
         },
         {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W912DQ27QA023",
-            "description": "[NAICS 561730] Herbicide Application across Rathbun Lake Project, W912DQ27QA023",
-            "state": "Due: 2026-12-03",
+            "agency": "AGRICULTURE, DEPARTMENT OF",
+            "instrument_id": "124PSA27Q0027",
+            "description": "[NAICS 238990] Replacement of Cattle Shades",
+            "state": "Due: 2026-11-24",
             "division": "PROCUREMENT"
         },
         {
@@ -57,31 +64,24 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140LL027Q0034",
-            "description": "[NAICS 238990] 7 LAKES FENCE REPAIR",
+            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.AMERICAN EMBASSY ATHENS",
+            "instrument_id": "19GR1027Q0002",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] EUR/ATHENS - Janitorial Services for ARTRANS",
+            "state": "Due: 2026-12-07",
+            "division": "LOGISTICS"
+        },
+        {
+            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.US ARMY CORPS OF ENGINEERS.ENGINEER DIVISION PACIFIC OCEAN.ENDIST JAPAN.W2SN ENDIST JAPAN",
+            "instrument_id": "W912HV26BA009",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] RENOVATE MILITARY FAMILY HOUSING TOWER 4511, CAMP COURTNEY",
             "state": "Due: 2026-12-10",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA LAND.DLA LAND COLUMBUS.DLA WEAPONS SUPPORT",
-            "instrument_id": "SPE7L327T2842",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 25--ROTOR,DISC BRAKE",
-            "state": "Due: 2026-11-30",
             "division": "LOGISTICS"
         },
         {
-            "agency": "VETERANS AFFAIRS, DEPARTMENT OF.VETERANS AFFAIRS, DEPARTMENT OF.255-NETWORK CONTRACT OFFICE 15 (36C255)",
-            "instrument_id": "36C25527R0012",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 657-26-102JC FCA Replace Various Roofs on BLDG 1, JC  FY27 NRM VISN BASE - CON",
-            "state": "Due: 2026-12-29",
-            "division": "LOGISTICS"
-        },
-        {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA MARITIME.DLA MARITIME COLUMBUS.DLA WEAPONS SUPPORT",
-            "instrument_id": "SPE7M127T2927",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 66--DETECTOR HEAD",
-            "state": "Due: 2026-11-30",
+            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.ACQUISITIONS - RPSO FRANKFURT",
+            "instrument_id": "19GE5027Q0010",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] MOVING SERVICES, FRANKFURT",
+            "state": "Due: 2027-01-10",
             "division": "LOGISTICS"
         }
     ],
