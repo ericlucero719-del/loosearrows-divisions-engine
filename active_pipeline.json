@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 17:00:00 UTC",
+        "last_updated": "2026-11-20 18:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -36,10 +36,17 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "COMMERCE, DEPARTMENT OF",
-            "instrument_id": "1305M327Q0042",
-            "description": "[NAICS 561730] S--Snow Removal Services WFO Johnston",
-            "state": "Due: 2026-11-24",
+            "agency": "INTERIOR, DEPARTMENT OF THE",
+            "instrument_id": "140PP027Q0036",
+            "description": "[NAICS 561730] F--19636 COLO INVASIVES TREATMENT",
+            "state": "Due: 2026-12-04",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "INTERIOR, DEPARTMENT OF THE",
+            "instrument_id": "140EE127Q0003",
+            "description": "[NAICS 238990] OHMSETT FUNCTIONAL CLASSROOM UPGRADE",
+            "state": "Due: 2026-12-07",
             "division": "PROCUREMENT"
         },
         {
@@ -54,13 +61,6 @@
             "instrument_id": "140A2327Q0318",
             "description": "[NAICS 238990] Z--TO'HAALI' SCHOOL REPLACE FRONT ENTRANCE SIDEWALK",
             "state": "Due: 2026-12-14",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "AGRICULTURE, DEPARTMENT OF",
-            "instrument_id": "1172835 ",
-            "description": "[NAICS 238990] Local fencing contractors, Goose BAR - Cow Creek- Farm Flat Fence",
-            "state": "Due: 2026-11-19",
             "division": "PROCUREMENT"
         },
         {
