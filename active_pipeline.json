@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-20 19:00:01 UTC",
+        "last_updated": "2026-11-20 20:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -36,10 +36,10 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140PP027Q0036",
-            "description": "[NAICS 561730] F--19636 COLO INVASIVES TREATMENT",
-            "state": "Due: 2026-12-04",
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "W912BV27QA016",
+            "description": "[NAICS 561730] CNG Afton and Bluff Landing PUA Tree Removal",
+            "state": "Due: 2026-12-16",
             "division": "PROCUREMENT"
         },
         {
@@ -64,6 +64,13 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.MISSION INSTALLATION CONTRACTING COMMAND.419TH CSB.W6QM MICC-FT DRUM",
+            "instrument_id": "W911S227U0207",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Medical Maintenance Workbench",
+            "state": "Due: 2026-11-27",
+            "division": "LOGISTICS"
+        },
+        {
             "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
             "instrument_id": "N0010427QBD00",
             "description": "[FSC 5305 Hardware - 22% Margin Target] LI CBL AY FAN RB1B2",
@@ -75,13 +82,6 @@
             "instrument_id": "N0017827Q6620",
             "description": "[FSC 5305 Hardware - 22% Margin Target] Air-cooled chiller system",
             "state": "Due: 2026-11-30",
-            "division": "LOGISTICS"
-        },
-        {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
-            "instrument_id": "N0010426RQB87",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 59--ANTENNA ASSEMBLY, IN REPAIR/MODIFICATION OF",
-            "state": "Due: 2027-01-07",
             "division": "LOGISTICS"
         }
     ],
