@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-22 12:00:00 UTC",
+        "last_updated": "2026-11-22 13:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -71,17 +71,17 @@
             "division": "LOGISTICS"
         },
         {
-            "agency": "INTERIOR, DEPARTMENT OF THE.DEPARTMENTAL OFFICES.NATIONAL PARK SERVICE CONTRACTING ACTIVITY",
-            "instrument_id": "140PP027Q0018",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] Z--Rehab Kiosk Restrooms, NPS-ORCA",
-            "state": "Due: 2026-12-03",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS PHILADELPHIA.NAVSUP WEAPON SYSTEMS SUPPORT",
+            "instrument_id": "N0038327RPA60",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 29--ARMATURE ASSEMBLY, IN REPAIR/MODIFICATION OF",
+            "state": "Due: 2027-01-06",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS PHILADELPHIA.NAVSUP WEAPON SYSTEMS SUPPORT",
-            "instrument_id": "N0038327RNA31",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 66--COMPUTER,FLIGHT CON, IN REPAIR/MODIFICATION OF",
-            "state": "Due: 2027-01-04",
+            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AVIATION PHILADELPHIA.DLA AVIATION AT PHILADELPHIA, PA",
+            "instrument_id": "SPRPA127QRA42",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 66--SERVOCYLINDER ASSEM",
+            "state": "Due: 2027-01-06",
             "division": "LOGISTICS"
         }
     ],
