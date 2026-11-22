@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-22 10:00:00 UTC",
+        "last_updated": "2026-11-22 11:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -64,6 +64,13 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.US EMBASSY KUWAIT",
+            "instrument_id": "19KU2027Q0002",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Amendment 002 - Enclosure A Questions and Answers:  RFQ Number: 19KU2027Q0002- Providing Cooking Services at the Marine Security Guard Residence (MSGR)",
+            "state": "Due: 2026-11-25",
+            "division": "LOGISTICS"
+        },
+        {
             "agency": "INTERIOR, DEPARTMENT OF THE.DEPARTMENTAL OFFICES.NATIONAL PARK SERVICE CONTRACTING ACTIVITY",
             "instrument_id": "140PP027Q0018",
             "description": "[FSC 5305 Hardware - 22% Margin Target] Z--Rehab Kiosk Restrooms, NPS-ORCA",
@@ -75,13 +82,6 @@
             "instrument_id": "N0038327RNA31",
             "description": "[FSC 5305 Hardware - 22% Margin Target] 66--COMPUTER,FLIGHT CON, IN REPAIR/MODIFICATION OF",
             "state": "Due: 2027-01-04",
-            "division": "LOGISTICS"
-        },
-        {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
-            "instrument_id": "N0010427QDA27",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 59--CIRCUIT CARD ASSEMB, IN REPAIR/MODIFICATION OF",
-            "state": "Due: 2026-12-22",
             "division": "LOGISTICS"
         }
     ],
