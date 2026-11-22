@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-22 04:00:00 UTC",
+        "last_updated": "2026-11-22 05:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -64,6 +64,13 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "INTERIOR, DEPARTMENT OF THE.DEPARTMENTAL OFFICES.NATIONAL PARK SERVICE CONTRACTING ACTIVITY",
+            "instrument_id": "140PP027Q0018",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Z--Rehab Kiosk Restrooms, NPS-ORCA",
+            "state": "Due: 2026-12-03",
+            "division": "LOGISTICS"
+        },
+        {
             "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS PHILADELPHIA.NAVSUP WEAPON SYSTEMS SUPPORT",
             "instrument_id": "N0038327RNA31",
             "description": "[FSC 5305 Hardware - 22% Margin Target] 66--COMPUTER,FLIGHT CON, IN REPAIR/MODIFICATION OF",
@@ -83,7 +90,7 @@
             "SAM.gov NAICS (live_synced)",
             "DLA DIBBS FSC 5305/5310 (live_synced)"
         ],
-        "live_leads_count": 9,
+        "live_leads_count": 10,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
