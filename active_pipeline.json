@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-21 07:00:01 UTC",
+        "last_updated": "2026-11-22 01:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -64,24 +64,17 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.MISSION INSTALLATION CONTRACTING COMMAND.419TH CSB.W6QM MICC-FT DRUM",
-            "instrument_id": "W911S227U0207",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] Medical Maintenance Workbench",
-            "state": "Due: 2026-11-27",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS PHILADELPHIA.NAVSUP WEAPON SYSTEMS SUPPORT",
+            "instrument_id": "N0038327RNA31",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 66--COMPUTER,FLIGHT CON, IN REPAIR/MODIFICATION OF",
+            "state": "Due: 2027-01-04",
             "division": "LOGISTICS"
         },
         {
             "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
-            "instrument_id": "N0010427QBD00",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] LI CBL AY FAN RB1B2",
-            "state": "Due: 2026-12-21",
-            "division": "LOGISTICS"
-        },
-        {
-            "agency": "LIBRARY OF CONGRESS.LIBRARY OF CONGRESS.CONTRACTS SERVICES",
-            "instrument_id": "030ADV27R0013",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] Window Treatment Products and Related Services",
-            "state": "Due: 2026-12-08",
+            "instrument_id": "N0010427QDA27",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] 59--CIRCUIT CARD ASSEMB, IN REPAIR/MODIFICATION OF",
+            "state": "Due: 2026-12-22",
             "division": "LOGISTICS"
         }
     ],
@@ -90,7 +83,7 @@
             "SAM.gov NAICS (live_synced)",
             "DLA DIBBS FSC 5305/5310 (live_synced)"
         ],
-        "live_leads_count": 10,
+        "live_leads_count": 9,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
