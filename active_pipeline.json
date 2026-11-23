@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-22 21:00:01 UTC",
+        "last_updated": "2026-11-23 20:00:01 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -23,65 +23,44 @@
         },
         {
             "agency": "AGRICULTURE, DEPARTMENT OF",
-            "instrument_id": "1240BE27Q0022",
-            "description": "[NAICS 561730] Northern Research Station Irvine Lab Snow Plowing and Ice Removal",
-            "state": "Due: 2026-12-10",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "COMMERCE, DEPARTMENT OF",
-            "instrument_id": "1305M327Q0026 ",
-            "description": "[NAICS 561730] 1305M327Q0026 - SNOW REMOVAL, NEGAUNEE, MI",
-            "state": "Due: 2026-11-24",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "W912WJ27QA005",
-            "description": "[NAICS 561730] Snow Removal Services, Blackwater Dam, Webster, NH",
-            "state": "Due: 2026-11-24",
+            "instrument_id": "1240LT27Q0029",
+            "description": "[NAICS 238990] Lowline Area Burned Fence Construction Project",
+            "state": "Due: 2026-12-08",
             "division": "PROCUREMENT"
         },
         {
             "agency": "INTERIOR, DEPARTMENT OF THE",
-            "instrument_id": "140EE127Q0003",
-            "description": "[NAICS 238990] OHMSETT FUNCTIONAL CLASSROOM UPGRADE",
-            "state": "Due: 2026-12-07",
+            "instrument_id": "140LL027Q0034",
+            "description": "[NAICS 238990] Y--7 LAKES FENCE REPAIR",
+            "state": "Due: 2026-12-10",
             "division": "PROCUREMENT"
         },
         {
-            "agency": "DEPT OF DEFENSE",
-            "instrument_id": "FA301027Q0002",
-            "description": "[NAICS 238990] Child Development Center Playgrounds",
-            "state": "Due: 2027-01-05",
+            "agency": "ENERGY, DEPARTMENT OF",
+            "instrument_id": "89503511102026",
+            "description": "[NAICS 238990] SEPA PARKING LOT REPAVING AND REPAIRS",
+            "state": "Due: 2026-12-15",
             "division": "PROCUREMENT"
         },
         {
-            "agency": "AGRICULTURE, DEPARTMENT OF",
-            "instrument_id": "124PSA27Q0027",
-            "description": "[NAICS 238990] Replacement of Cattle Shades",
-            "state": "Due: 2026-11-24",
-            "division": "PROCUREMENT"
-        },
-        {
-            "agency": "STATE, DEPARTMENT OF.STATE, DEPARTMENT OF.US EMBASSY KUWAIT",
-            "instrument_id": "19KU2027Q0002",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] Amendment 002 - Enclosure A Questions and Answers:  RFQ Number: 19KU2027Q0002- Providing Cooking Services at the Marine Security Guard Residence (MSGR)",
-            "state": "Due: 2026-11-25",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.MISSION INSTALLATION CONTRACTING COMMAND.419TH CSB.W6QM MICC-FT DRUM",
+            "instrument_id": "W911S227U0165",
+            "description": "[FSC 5310 Hardware - 22% Margin Target] Shredders",
+            "state": "Due: 2026-11-30",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS PHILADELPHIA.NAVSUP WEAPON SYSTEMS SUPPORT",
-            "instrument_id": "N0038327RPA60",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 29--ARMATURE ASSEMBLY, IN REPAIR/MODIFICATION OF",
-            "state": "Due: 2027-01-06",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
+            "instrument_id": "N0010426QYABV",
+            "description": "[FSC 5310 Hardware - 22% Margin Target] 58--COMMUN BAR BASE, IN REPAIR/MODIFICATION OF",
+            "state": "Due: 2026-12-21",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA AVIATION.DLA AVIATION PHILADELPHIA.DLA AVIATION AT PHILADELPHIA, PA",
-            "instrument_id": "SPRPA127QRA42",
-            "description": "[FSC 5305 Hardware - 22% Margin Target] 66--SERVOCYLINDER ASSEM",
-            "state": "Due: 2027-01-06",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
+            "instrument_id": "N0010426QNF00",
+            "description": "[FSC 5310 Hardware - 22% Margin Target] PARTS KIT BALL VALV",
+            "state": "Due: 2026-12-04",
             "division": "LOGISTICS"
         }
     ],
@@ -90,7 +69,7 @@
             "SAM.gov NAICS (live_synced)",
             "DLA DIBBS FSC 5305/5310 (live_synced)"
         ],
-        "live_leads_count": 10,
+        "live_leads_count": 7,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
