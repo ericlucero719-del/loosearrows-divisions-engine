@@ -3,7 +3,7 @@
         "entity": "LooseArrows Supply & Logistics",
         "cage_code": "8LLN1",
         "system": "OSIRIS-APEX Pipeline",
-        "last_updated": "2026-11-23 20:00:01 UTC",
+        "last_updated": "2026-11-23 21:00:00 UTC",
         "status": "active"
     },
     "active_contracts": [
@@ -22,6 +22,27 @@
             "division": "PROCUREMENT"
         },
         {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "FA469027Q0004",
+            "description": "[NAICS 561730] Combined Synopsis/ Solicitation for Ellsworth AFB Grounds Maintenance -FA469027Q0004",
+            "state": "Due: 2026-12-04",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "STATE, DEPARTMENT OF",
+            "instrument_id": "19BF5027R0003",
+            "description": "[NAICS 561730] Annual Gardening and Grounds Maintenance Services",
+            "state": "Due: 2027-01-06",
+            "division": "PROCUREMENT"
+        },
+        {
+            "agency": "DEPT OF DEFENSE",
+            "instrument_id": "FA813727R0005",
+            "description": "[NAICS 238990] WWYK190217 Repair Perimeter Fence, SW Corner Base Housing",
+            "state": "Due: 2027-01-15",
+            "division": "PROCUREMENT"
+        },
+        {
             "agency": "AGRICULTURE, DEPARTMENT OF",
             "instrument_id": "1240LT27Q0029",
             "description": "[NAICS 238990] Lowline Area Burned Fence Construction Project",
@@ -36,31 +57,24 @@
             "division": "PROCUREMENT"
         },
         {
-            "agency": "ENERGY, DEPARTMENT OF",
-            "instrument_id": "89503511102026",
-            "description": "[NAICS 238990] SEPA PARKING LOT REPAVING AND REPAIRS",
-            "state": "Due: 2026-12-15",
-            "division": "PROCUREMENT"
-        },
-        {
             "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.MISSION INSTALLATION CONTRACTING COMMAND.419TH CSB.W6QM MICC-FT DRUM",
             "instrument_id": "W911S227U0165",
-            "description": "[FSC 5310 Hardware - 22% Margin Target] Shredders",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Shredders",
             "state": "Due: 2026-11-30",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
-            "instrument_id": "N0010426QYABV",
-            "description": "[FSC 5310 Hardware - 22% Margin Target] 58--COMMUN BAR BASE, IN REPAIR/MODIFICATION OF",
-            "state": "Due: 2026-12-21",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.US ARMY CORPS OF ENGINEERS.ENGINEER DIVISION SOUTH ATLANTIC.ENDIST SAVANNAH.W074 ENDIST SAVANNAH",
+            "instrument_id": "W912HN27BA001",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Tybee Island Shoreline Protection Project",
+            "state": "Due: 2026-12-10",
             "division": "LOGISTICS"
         },
         {
-            "agency": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVSUP.NAVSUP WEAPON SYSTEMS SUPPORT.NAVSUP WSS MECHANICSBURG.NAVSUP WEAPON SYSTEMS SUPPORT MECH",
-            "instrument_id": "N0010426QNF00",
-            "description": "[FSC 5310 Hardware - 22% Margin Target] PARTS KIT BALL VALV",
-            "state": "Due: 2026-12-04",
+            "agency": "DEPT OF DEFENSE.DEPT OF THE ARMY.US ARMY CORPS OF ENGINEERS.ENGINEER DIVISION MISSISSIPPI VALLEY.ENDIST ST LOUIS.W07V ENDIST ST LOUIS",
+            "instrument_id": "W912P927QA002",
+            "description": "[FSC 5305 Hardware - 22% Margin Target] Rivers Project Prairie Seed Multiple Blanket Purchase Agreement (BPA)",
+            "state": "Due: 2026-12-23",
             "division": "LOGISTICS"
         }
     ],
@@ -69,7 +83,7 @@
             "SAM.gov NAICS (live_synced)",
             "DLA DIBBS FSC 5305/5310 (live_synced)"
         ],
-        "live_leads_count": 7,
+        "live_leads_count": 9,
         "queue_status": "synced",
         "execution_mode": "autonomous_termux_cron"
     }
